@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from vgl_lib.vglClUtil import vglClEqual
-from vgl_lib import vglClImage
+
 from vgl_lib.vglImage import VglImage
 import pyopencl as cl       # OPENCL LIBRARY
 import vgl_lib as vl        # VGL LIBRARYS
@@ -11,8 +11,9 @@ import os
 import sys                  # IMPORTING METHODS FROM VGLGui
 from readWorkflow import *
 import time as t
-import gc
 from datetime import datetime
+from PIL import Image
+import matplotlib.pyplot as mp
 
 os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
@@ -36,7 +37,6 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
 # Rule7: Glyphs have READY (ready to run) and DONE (executed) status, both status start being FALSE
 fileRead(lstGlyph, lstConnection)
 
-import matplotlib.pyplot as mp
 
 def imshow(im):
     plot = mp.imshow(im, cmap=mp.gray(), origin="upper", vmin=0, vmax=255)
@@ -50,6 +50,16 @@ def tratnum (num):
         listnumpy = np.array(listnum, np.float32)
     return listnumpy
 
+
+def is_3d_image(image_path):
+    try:
+        with Image.open(image_path) as img:
+            if hasattr(img, 'n_frames') and img.n_frames > 1:
+                return True  
+            return False  
+    except IOError:
+        print("Error opening image")
+        return False  
 
 nSteps = int(sys.argv[2])
 msg = ""
@@ -70,13 +80,17 @@ for vGlyph in lstGlyph:
 
     if vGlyph.func == 'vglLoadImage':
 
-        # Read "-filename" entry from glyph vglLoadImage
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
 
-        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
-        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE()) 
+        # Check if the image is 2D or 3D
+        if is_3d_image(vglLoadImage_img_in_path):
+            ndim = vl.VGL_IMAGE_3D_IMAGE()
+        else:
+            ndim = vl.VGL_IMAGE_2D_IMAGE()
         
-        #print(vglLoadImage_img_input.ndim)
+        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, ndim) 
+        
         vl.vglLoadImage(vglLoadImage_img_input)
         if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
             vl.rgb_to_rgba(vglLoadImage_img_input)
@@ -211,7 +225,7 @@ for vGlyph in lstGlyph:
 
 
 
-    elif vGlyph.func == 'vglClNErode': #Function Convolution
+    elif vGlyph.func == 'vglClNErode': #Function Erode
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
         print("-------------------------------------------------")
@@ -222,13 +236,12 @@ for vGlyph in lstGlyph:
         # Search the output image by connecting to the source glyph
         vglClNErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
 
-        # Apply Convolution function
-        #vl.vglCheckContext(vglClConvolution_img_output,vl.VGL_CL_CONTEXT())
+        # Apply Erode function
+        #vl.vglCheckContext(vglClErode_img_output,vl.VGL_CL_CONTEXT())
         
         Erode_buffer = vl.create_blank_image_as(vglClNErode_img_input)
         
         
-        #print(tratnum(np.array(vGlyph.lst_par[0].getValue()))
         if ((int(vGlyph.lst_par[3].getValue()) % 2)== 0):
             for i in range (int(vGlyph.lst_par[3].getValue())):
                 vglClErode(vglClNErode_img_input,  Erode_buffer,tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
@@ -437,7 +450,7 @@ for vGlyph in lstGlyph:
 
 
 
-    elif vGlyph.func == 'vglClNDilate': #Function Convolution
+    elif vGlyph.func == 'vglClNDilate': #Function Dilate
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
         print("-------------------------------------------------")
@@ -448,7 +461,7 @@ for vGlyph in lstGlyph:
         # Search the output image by connecting to the source glyph
         vglClNDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
 
-        # Apply Convolution function
+        # Apply Dilate function
         #vl.vglCheckContext(vglClConvolution_img_output,vl.VGL_CL_CONTEXT())
         
         Dilate_buffer = vl.create_blank_image_as(vglClNDilate_img_input)

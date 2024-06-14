@@ -1,4 +1,12 @@
-Tempo médio de 1 execuções do método vglClDilate: 12.767000000000001 ms
-Tempo médio de 1 execuções do método vglClErode: 11.338000000000001 ms
+Tempo médio de 1 execuções do método vglClRgb2Gray: 2.609 ms
+Tempo médio de 1 execuções do método vglClConvolution: 8.834 ms
+Tempo médio de 1 execuções do método vglClConvolution: 14.21 ms
+Tempo médio de 1 execuções do método vglClDilate: 11.555 ms
+Tempo médio de 1 execuções do método vglClDilate: 16.448999999999998 ms
+Tempo médio de 1 execuções do método vglClErode: 16.735 ms
+Tempo médio de 1 execuções do método vglClErode: 11.743 ms
+Tempo médio de 1 execuções do método vglClSub: 2.497 ms
+Tempo médio de 1 execuções do método vglClThreshold: 2.497 ms
+Tempo médio de 1 execuções do método Reconstruct: 849.476 ms
 
-Valor total do tempo médio: 24.105000000000004
+Valor total do tempo médio: 936.605

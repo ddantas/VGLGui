@@ -47,23 +47,8 @@ def tratnum (num):
     listnum = []
     for line in num:
         listnum.append(float(line))
-        listnumpy = np.array(listnum,np.float32)
+        listnumpy = np.array(listnum, np.float32)
     return listnumpy
-
-def tratnum1 (num):
-    listnum = []
-    for line in num:
-        listnum.append(float(line.replace(',', '.')))
-        listnumpy = np.array(listnum,np.float32)
-    return listnumpy
-
-def trat (num):
-    listnum = []
-    for line in num:
-        listnum.append(float(line))
-    return listnum
-
-convolution_window_3d_5x5x5 = np.ones((5,5,5), np.float32) * (1/125)
 
 
 nSteps = int(sys.argv[2])
@@ -153,36 +138,18 @@ for vGlyph in lstGlyph:
         # Apply BlurSq3 function
         vglCl3dBlurSq3(vglCl3dBlurSq3_img_input, vglCl3dBlurSq3_img_output)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dBlurSq3_img_output)
-        
-
-
-    elif vGlyph.func == 'vglCl3dDilate': #Function blur
-        print("-------------------------------------------------")
-        print("A função " + vGlyph.func +" está sendo executada")
-        print("-------------------------------------------------")
-
-        # Search the input image by connecting to the source glyph
-        vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
-            
-        # Search the output image by connecting to the source glyph
-        vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-
-        # Apply BlurSq3 function
-        vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
-
         #Runtime
         t0 = datetime.now()
         for i in range( nSteps ):
-            vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+          vglCl3dBlurSq3(vglCl3dBlurSq3_img_input, vglCl3dBlurSq3_img_output)
         t1 = datetime.now()
         t = t1 - t0
         media = (t.total_seconds() * 1000) / nSteps
-        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglCl3dDilate: " + str(media) + " ms\n"
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglCl3dBlurSq3: " + str(media) + " ms\n"
         total = total + media
-        #Actions after glyph execution
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output)
-
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dBlurSq3_img_output)
+        
 
     elif vGlyph.func == 'vglClErode': #Function Erode
         print("-------------------------------------------------")
@@ -226,13 +193,13 @@ for vGlyph in lstGlyph:
        
         # Apply Erode function
         vl.vglCheckContext(vglCl3dErode_img_output,vl.VGL_CL_CONTEXT())
-        vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+        vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), tratnum(vGlyph.lst_par[1].getValue()), tratnum(vGlyph.lst_par[2].getValue()),tratnum(vGlyph.lst_par[3].getValue()))
         
         #Runtime
         vl.get_ocl().commandQueue.flush()
         t0 = datetime.now()
         for i in range( nSteps ):
-          vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+          vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), tratnum(vGlyph.lst_par[1].getValue()), tratnum(vGlyph.lst_par[2].getValue()),tratnum(vGlyph.lst_par[3].getValue()))
         vl.get_ocl().commandQueue.finish()
         t1 = datetime.now()
         t = t1 - t0
@@ -339,13 +306,13 @@ for vGlyph in lstGlyph:
 
         # Apply Convolution function
         #vl.vglCheckContext(vvglCl3dConvolution_img_output,vl.VGL_CL_CONTEXT())
-        vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+        vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), tratnum(vGlyph.lst_par[1].getValue()), tratnum(vGlyph.lst_par[2].getValue()),tratnum(vGlyph.lst_par[3].getValue()))
 
         #Runtime
         vl.get_ocl().commandQueue.flush()
         t0 = datetime.now()
         for i in range( nSteps ):
-          vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+          vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,tratnum(vGlyph.lst_par[0].getValue()), tratnum(vGlyph.lst_par[1].getValue()), tratnum(vGlyph.lst_par[2].getValue()),tratnum(vGlyph.lst_par[3].getValue()))
         vl.get_ocl().commandQueue.finish()
         t1 = datetime.now()
         diff = t1 - t0
@@ -450,23 +417,22 @@ for vGlyph in lstGlyph:
         # Search the output image by connecting to the source glyph
         vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
 
-        # Apply Convolution function
-        #vl.vglCheckContext(vvglCl3dConvolution_img_output,vl.VGL_CL_CONTEXT())
-        vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+        # Apply Dilate function
+        vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), tratnum(vGlyph.lst_par[1].getValue()), tratnum(vGlyph.lst_par[2].getValue()),tratnum(vGlyph.lst_par[3].getValue()))
 
         #Runtime
         vl.get_ocl().commandQueue.flush()
         t0 = datetime.now()
         for i in range( nSteps ):
-          vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+          vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output,tratnum(vGlyph.lst_par[0].getValue()), tratnum(vGlyph.lst_par[1].getValue()), tratnum(vGlyph.lst_par[2].getValue()),tratnum(vGlyph.lst_par[3].getValue()))
         vl.get_ocl().commandQueue.finish()
         t1 = datetime.now()
         diff = t1 - t0
         media = (diff.total_seconds() * 1000) / nSteps
-        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglCl3dConvolution: " + str(media) + " ms\n"
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglCl3dDilate: " + str(media) + " ms\n"
         total = total + media
         # Actions after glyph execution
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dConvolution_img_output)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output)
 
 
 
@@ -564,7 +530,7 @@ for vGlyph in lstGlyph:
         vglCl3dThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'dst')
 
         # Apply Threshold function
-        vglCl3dThreshold(vglCl3dThreshold_img_input, vglCl3dThreshold_img_output, np.float32(0.4), np.float32(.8))
+        vglCl3dThreshold(vglCl3dThreshold_img_input, vglCl3dThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()), np.float32(vGlyph.lst_par[1].getValue()))
 
         #Runtime
         vl.get_ocl().commandQueue.flush()
@@ -576,7 +542,7 @@ for vGlyph in lstGlyph:
         t1 = datetime.now()
         diff = t1 - t0
         media = (diff.total_seconds() * 1000) / nSteps
-        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClDilate: " + str(media) + " ms\n"
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vgl3dThreshold: " + str(media) + " ms\n"
         total = total + media
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dThreshold_img_output)
@@ -926,27 +892,6 @@ for vGlyph in lstGlyph:
 
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output)
-
-    elif vGlyph.func == 'AreaOpen': 
-        print("-------------------------------------------------")
-        print("A função " + vGlyph.func +" está sendo executada")
-        print("-------------------------------------------------")
-    
-        # Search the input image by connecting to the source glyph
-        Rec_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
-
-        # Search the output image by connecting to the source glyph
-        Rec_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        elemento = tratnum(vGlyph.lst_par[0].getValue())
-        x = np.uint32(vGlyph.lst_par[1].getValue())
-        y = np.uint32(vGlyph.lst_par[2].getValue())
-        imshow(VglImage.get_ipl(Rec_img_input))
-        
-        Rec_img_output = iaareaopen(Rec_img_input,1000,ia.iasebox())
-
-
-        GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output)
-
 
 
 ##CONTROL

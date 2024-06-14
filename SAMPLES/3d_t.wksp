@@ -19,7 +19,7 @@ Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/E1154S7I
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
 
 #  Glyph 'vglCl3dDilate'
-Glyph:VGL_CL:vglCl3dDilate::localhost:3:382:182:: -convolution_window ['0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.05595932', '0.09226132', '0.05595932', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628'] -windows 3 -windows 3 -windows 3
+Glyph:VGL_CL:vglCl3dThreshold::localhost:3:382:182:: -thresh 0.5 -top 0.3
 
 
 
@@ -28,13 +28,13 @@ Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'teste.tiff'
 
 #  Connections 'Applying vglCl3dDilate’
 NodeConnection:data:1:RETVAL:2:img
-NodeConnection:data:1:RETVAL:3:img_input
-NodeConnection:data:2:RETVAL:3:img_output
+NodeConnection:data:1:RETVAL:3:src
+NodeConnection:data:2:RETVAL:3:dst
 
 
 
 #Connections 'Save vglCl3dDilate'
-NodeConnection:data:3:img_output:16:image
+NodeConnection:data:3:dst:16:image
 
 
 AnnotationsBegin

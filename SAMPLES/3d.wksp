@@ -13,27 +13,27 @@ height_size = 1144
 VariablesEnd:
 
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/I_000003.dcm.2.PGM -iscolor 1 -has_mipmap
+Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/E1154S7I_3d.tif -iscolor 1 -has_mipmap
 
 #  Glyph 'Create Image vglCl3dDilate'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
 
 #  Glyph 'vglCl3dDilate'
-Glyph:VGL_CL:vglCl3dThreshold::localhost:3:382:182::
+Glyph:VGL_CL:vglCl3dDilate::localhost:3:382:182::
 
 
-Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'teste.PGM'
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'teste.tiff'
 
 
 #  Connections 'Applying vglCl3dDilate’
 NodeConnection:data:1:RETVAL:2:img
-NodeConnection:data:1:RETVAL:3:src
-NodeConnection:data:2:RETVAL:3:dst
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
 
 
 
 #Connections 'Save vglCl3dDilate'
-NodeConnection:data:3:dst:16:image
+NodeConnection:data:3:img_output:16:image
 
 
 AnnotationsBegin

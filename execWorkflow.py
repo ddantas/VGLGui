@@ -88,8 +88,8 @@ for vGlyph in lstGlyph:
         # Read "-filename" entry from glyph vglLoadImage
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
 
-        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
-        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE()) 
+        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE()) 
         
         #print(vglLoadImage_img_input.ndim)
         vl.vglLoadImage(vglLoadImage_img_input)
@@ -437,6 +437,39 @@ for vGlyph in lstGlyph:
         total = total + media
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dDilate': #Function Dilate
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+
+        # Apply Convolution function
+        #vl.vglCheckContext(vvglCl3dConvolution_img_output,vl.VGL_CL_CONTEXT())
+        vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output,convolution_window_3d_5x5x5, np.uint32(5), np.uint32(5), np.uint32(5))
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        diff = t1 - t0
+        media = (diff.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglCl3dConvolution: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dConvolution_img_output)
+
+
+
 
     elif vGlyph.func == 'vglClNDilate': #Function Convolution
         print("-------------------------------------------------")

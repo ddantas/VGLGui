@@ -20,4 +20,4 @@ runcontrol:
 	cd ~/Documents/repo/VGLGui; ./execWorkflow.py trigger.wk 1
 
 run3d:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/3d.wksp 1
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/functions3d.wksp 1

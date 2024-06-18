@@ -41,7 +41,6 @@ Glyph:VGL_CL:vglCl3dDilate::localhost:7:382:182:: -convolution_window ['0.020586
 
 Glyph:VGL_CL:vglSaveImage::localhost:18:882:482:: -filename 'out/3d/3d_dilate.tiff'
 
-
 #  Glyph 'Create Image vglCl3dErode'
 Glyph:VGL_CL:vglCreateImage::localhost:8:562:122:: 
 

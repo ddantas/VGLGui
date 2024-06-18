@@ -7,13 +7,20 @@ import pyopencl as cl       # OPENCL LIBRARY
 import vgl_lib as vl        # VGL LIBRARYS
 import numpy as np          # TO WORK WITH MAIN
 from cl2py_shaders import * # IMPORTING METHODS
+from cl2py_ND import *
 import os
 import sys                  # IMPORTING METHODS FROM VGLGui
 from readWorkflow import *
 import time as t
 from datetime import datetime
-from PIL import Image
+
 import matplotlib.pyplot as mp
+
+#STRUCT ELEMENT
+
+window = vl.VglStrEl()
+window.constructorFromTypeNdim(vl.VGL_STREL_CROSS(), 2)
+
 
 os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
@@ -54,7 +61,7 @@ msg = ""
 CPU = cl.device_type.CPU #2
 GPU = cl.device_type.GPU #4
 total = 0.0
-vl.vglClInit(GPU) 
+vl.vglClInit(CPU) 
 
 # Update the status of glyph entries
 for vGlyph in lstGlyph:
@@ -70,11 +77,12 @@ for vGlyph in lstGlyph:
 
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
         
-        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE())
-        
+        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(),vl.IMAGE_ND_ARRAY())
+        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
         vl.vglLoadImage(vglLoadImage_img_input)
-        if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
-            vl.rgb_to_rgba(vglLoadImage_img_input)
+        # if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
+        #     vl.rgb_to_rgba(vglLoadImage_img_input)
 
         vl.vglClUpload(vglLoadImage_img_input)
 
@@ -258,6 +266,54 @@ for vGlyph in lstGlyph:
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id,vglClNErode_img_output)
 
+    elif vGlyph.func == 'vglClNdErode': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+       
+        # Apply Erode function
+        vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
+        vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
+        
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output,window)
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        t = t1 - t0
+        media = (t.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdErode: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
+
+
+    elif vGlyph.func == 'vglClNdNot': #Function Erode
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+
+            # Search the input image by connecting to the source glyph
+            vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+            
+            # Search the output image by connecting to the source glyph
+            vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+            # Apply Erode function
+            vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
+            vglClNdNot(vglClNdErode_img_input, vglClNdErode_img_output)
+            
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
+
+
     elif vGlyph.func == 'vglClConvolution': #Function Convolution
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
@@ -368,6 +424,44 @@ for vGlyph in lstGlyph:
         
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id,vglClNConvolution_img_output)
+
+
+
+
+    elif vGlyph.func == 'vglClNdConvolution': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClNdConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+       
+        # Apply Erode function
+        vl.vglCheckContext(vglClNdConvolution_img_output,vl.VGL_RAM_CONTEXT())
+        vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
+        
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output,window)
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        t = t1 - t0
+        media = (t.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdConvolution: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdConvolution_img_output)
+
+
+
+
+
+
 
     elif vGlyph.func == 'vglClDilate': #Function Dilate
         print("-------------------------------------------------")
@@ -540,6 +634,35 @@ for vGlyph in lstGlyph:
         total = total + media
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dThreshold_img_output)
+
+    elif vGlyph.func == 'vglClNdThreshold': #Function Threshold
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+    
+        # Search the input image by connecting to the source glyph
+        vglClNdThreshold_img_input = getImageInputByIdName(vGlyph.glyph_id, 'src')
+
+        # Search the output image by connecting to the source glyph
+        vglClNdThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+
+        # Apply Threshold function
+        vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.uint8(120), np.uint8(190))
+
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+
+        for i in range( nSteps ):
+          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.uint8(120), np.uint8(190))
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        diff = t1 - t0
+        media = (diff.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vgl3dThreshold: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdThreshold_img_output)
 
     
     elif vGlyph.func == 'vglClSwapRgb': #Function SwapRGB

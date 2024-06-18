@@ -37,7 +37,6 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
 # Rule7: Glyphs have READY (ready to run) and DONE (executed) status, both status start being FALSE
 fileRead(lstGlyph, lstConnection)
 
-
 def imshow(im):
     plot = mp.imshow(im, cmap=mp.gray(), origin="upper", vmin=0, vmax=255)
     plot.set_interpolation('nearest')
@@ -49,17 +48,6 @@ def tratnum (num):
         listnum.append(float(line))
         listnumpy = np.array(listnum, np.float32)
     return listnumpy
-
-
-def is_3d_image(image_path):
-    try:
-        with Image.open(image_path) as img:
-            if hasattr(img, 'n_frames') and img.n_frames > 1:
-                return True  
-            return False  
-    except IOError:
-        print("Error opening image")
-        return False  
 
 nSteps = int(sys.argv[2])
 msg = ""
@@ -81,15 +69,8 @@ for vGlyph in lstGlyph:
     if vGlyph.func == 'vglLoadImage':
 
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
-
-        # Check if the image is 2D or 3D
-        if is_3d_image(vglLoadImage_img_in_path):
-            ndim = vl.VGL_IMAGE_3D_IMAGE()
-        else:
-            ndim = vl.VGL_IMAGE_2D_IMAGE()
         
-        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
-        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, ndim) 
+        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE())
         
         vl.vglLoadImage(vglLoadImage_img_input)
         if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):

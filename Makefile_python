@@ -22,5 +22,14 @@ runcontrol:
 run3d:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/functions3d.wksp 1
 
-runnd:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd.wksp 1
+runnd_shape:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Shape.wksp 1
+
+runnd_type:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Type.wksp 1
+
+runnd_strel_type:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Strel_type.wksp 1
+
+runnd_strel_window:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Strel_window.wksp 1

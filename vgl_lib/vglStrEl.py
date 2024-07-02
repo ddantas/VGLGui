@@ -123,7 +123,8 @@ class VglStrEl(object):
 			for i in range(0, size):
 				data[i] = 1.0
 			
-
+		#print(data)
+		#print(size)
 		self.constructorFromDataVglShape(data, vglShape)
 
 	"""

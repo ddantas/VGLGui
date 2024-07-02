@@ -1,3 +1,3 @@
-Tempo médio de 1 execuções do método vgl3dThreshold: 0.616 ms
+Tempo médio de 1 execuções do método vglClNdErode: 6.872999999999999 ms
 
-Valor total do tempo médio: 0.616
+Valor total do tempo médio: 6.872999999999999

@@ -18,9 +18,9 @@ import matplotlib.pyplot as mp
 
 #STRUCT ELEMENT
 
-window = vl.VglStrEl()
-window.constructorFromTypeNdim(vl.VGL_STREL_CROSS(), 2)
-
+#window = vl.VglStrEl()
+#window.constructorFromTypeNdim(vl.VGL_STREL_CUBE(), 2)
+#print(window.data)
 
 os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
@@ -56,7 +56,8 @@ def tratnum (num):
         listnumpy = np.array(listnum, np.float32)
     return listnumpy
 
-nSteps = int(sys.argv[2])
+#nSteps = int(sys.argv[2])
+nSteps = 1
 msg = ""
 CPU = cl.device_type.CPU #2
 GPU = cl.device_type.GPU #4
@@ -266,7 +267,7 @@ for vGlyph in lstGlyph:
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id,vglClNErode_img_output)
 
-    elif vGlyph.func == 'vglClNdErode': #Function Erode
+    elif vGlyph.func == 'vglClNdErodeType': #Function Erode
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
         print("-------------------------------------------------")
@@ -279,6 +280,9 @@ for vGlyph in lstGlyph:
        
         # Apply Erode function
         vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
+         
+        window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), 2)
+
         vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
         
         #Runtime
@@ -295,6 +299,140 @@ for vGlyph in lstGlyph:
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
 
+    # elif vGlyph.func == 'vglClNdErode1': #Function Erode
+    #     print("-------------------------------------------------")
+    #     print("A função " + vGlyph.func +" está sendo executada")
+    #     print("-------------------------------------------------")
+
+    #     # Search the input image by connecting to the source glyph
+    #     vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+    #     # Search the output image by connecting to the source glyph
+    #     vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+      
+    #     # Apply Erode function
+    #     vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
+
+
+    #     str_list = vGlyph.lst_par[0].getValue()
+    #     data = np.array(str_list, dtype=np.float32)     
+
+    #     window = vl.VglStrEl()
+    #     vglShape = vl.VglShape()
+    #     if(len(vGlyph.lst_par) > 3):
+    #       vglShape.constructor3DShape(vglClNdErode_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
+    #     else:
+    #       vglShape.constructor2DShape(vglClNdErode_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+    #       print(vglClNdErode_img_input.nChannels)
+    #     window.constructorFromDataVglShape(data,vglShape)
+
+    #     vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
+        
+    #     #Runtime
+    #     vl.get_ocl().commandQueue.flush()
+    #     t0 = datetime.now()
+    #     for i in range( nSteps ):
+    #       vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output,window)
+    #     vl.get_ocl().commandQueue.finish()
+    #     t1 = datetime.now()
+    #     t = t1 - t0
+    #     media = (t.total_seconds() * 1000) / nSteps
+    #     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdErode: " + str(media) + " ms\n"
+    #     total = total + media
+    #     # Actions after glyph execution
+    #     GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
+
+
+    elif vGlyph.func == 'vglClStrel': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClStrel_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClStrel_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+
+        print(vGlyph.lst_par[0].getValue())
+
+        ##CASO DO TYPE
+        if (len(vGlyph.lst_par) == 1):
+          window = vl.VglStrEl()
+          window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), 2)
+        
+        if(len(vGlyph.lst_par) > 1):
+          str_list = vGlyph.lst_par[0].getValue()
+          data = np.array(str_list, dtype=np.float32) 
+          window = vl.VglStrEl()
+          vglShape = vl.VglShape() 
+
+          vglShape.constructor2DShape(1,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+
+          window.constructorFromDataVglShape(data,vglShape)
+       
+
+        # #Runtime
+        # vl.get_ocl().commandQueue.flush()
+        # t0 = datetime.now()
+        # for i in range( nSteps ):
+        #   vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output,window)
+        # vl.get_ocl().commandQueue.finish()
+        # t1 = datetime.now()
+        # t = t1 - t0
+        # media = (t.total_seconds() * 1000) / nSteps
+        # msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdErode: " + str(media) + " ms\n"
+        # total = total + media
+        # # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, window)
+
+
+    elif vGlyph.func == 'vglClNdErode': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+        # Apply Erode function
+        vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
+
+
+        if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
+          str_list = vGlyph.lst_par[0].getValue()
+          data = np.array(str_list, dtype=np.float32)     
+
+          window = vl.VglStrEl()
+          vglShape = vl.VglShape()
+          if(len(vGlyph.lst_par) > 3):
+            vglShape.constructor3DShape(vglClNdErode_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
+          else:
+            vglShape.constructor2DShape(vglClNdErode_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+            print(vglClNdErode_img_input.nChannels)
+          window.constructorFromDataVglShape(data,vglShape)
+        else:
+         window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+
+
+        vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
+        
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        t = t1 - t0
+        media = (t.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdErode: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
 
     elif vGlyph.func == 'vglClNdNot': #Function Erode
             print("-------------------------------------------------")
@@ -440,7 +578,7 @@ for vGlyph in lstGlyph:
         vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
        
         # Apply Erode function
-        vl.vglCheckContext(vglClNdConvolution_img_output,vl.VGL_RAM_CONTEXT())
+        vl.vglCheckContext(vglClNdConvolution_img_output,vl.VGL_CL_CONTEXT())
         vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
         
         #Runtime
@@ -575,6 +713,43 @@ for vGlyph in lstGlyph:
         
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClNDilate_img_output )
+
+
+
+    elif vGlyph.func == 'vglClNdDilate': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClNdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClNdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+       
+        # Apply Erode function
+        vl.vglCheckContext(vglClNdDilate_img_output,vl.VGL_CL_CONTEXT())
+        vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
+        
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output,window)
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        t = t1 - t0
+        media = (t.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdDilate: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdDilate_img_output)
+
+
+
+
+
+
 
     elif vGlyph.func == 'vglClThreshold': #Function Threshold
         print("-------------------------------------------------")

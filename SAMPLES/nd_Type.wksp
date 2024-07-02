@@ -13,24 +13,24 @@ height_size = 1144
 VariablesEnd:
 
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'retina.tif' -iscolor 1 -has_mipmap
+Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'lena_gray.tif' -iscolor 1 -has_mipmap
 
 #  Glyph 'Create Image vglClNdErode'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
 
 #  Glyph 'vglClNdErode'
-Glyph:VGL_CL:vglClNdConvolution::localhost:3:382:182:: 
+Glyph:VGL_CL:vglClNdErode::localhost:3:382:182:: -type 'Cube
 
-Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_conv.tiff'
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erode_type.tiff'
 
 
 #  Connections 'Applying vglClNdErode’
 NodeConnection:data:1:RETVAL:2:img
-NodeConnection:data:1:RETVAL:3:src
-NodeConnection:data:2:RETVAL:3:dst
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
 
 #Connections 'Save vglCl3dBlurSq3'
-NodeConnection:data:3:dst:16:image
+NodeConnection:data:3:img_output:16:image
 
 
 

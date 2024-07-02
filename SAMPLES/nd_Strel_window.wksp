@@ -22,9 +22,9 @@ Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
 Glyph:VGL_CL:vglClStrel::localhost:3:382:182:: -window [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] -x 3 -y 3
 
 #  Glyph 'vglClNdErode'
-Glyph:VGL_CL:vglClNdErode::localhost:4:382:182::
+Glyph:VGL_CL:vglClNdConvolution::localhost:4:382:182::
 
-Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erode_strel_window.tiff'
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_conv_strel_window.tiff'
 
 
 #  Connections 'Applying vglClNdErode’

@@ -372,18 +372,6 @@ for vGlyph in lstGlyph:
           window.constructorFromDataVglShape(data,vglShape)
        
 
-        # #Runtime
-        # vl.get_ocl().commandQueue.flush()
-        # t0 = datetime.now()
-        # for i in range( nSteps ):
-        #   vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output,window)
-        # vl.get_ocl().commandQueue.finish()
-        # t1 = datetime.now()
-        # t = t1 - t0
-        # media = (t.total_seconds() * 1000) / nSteps
-        # msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdErode: " + str(media) + " ms\n"
-        # total = total + media
-        # # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, window)
 
 
@@ -434,7 +422,105 @@ for vGlyph in lstGlyph:
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
 
-    elif vGlyph.func == 'vglClNdNot': #Function Erode
+
+    elif vGlyph.func == 'vglClNdDilate': #Function Dilate
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClNdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClNdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+        # Apply Dilate function
+        vl.vglCheckContext(vglClNdDilate_img_output,vl.VGL_RAM_CONTEXT())
+
+
+        if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
+          str_list = vGlyph.lst_par[0].getValue()
+          data = np.array(str_list, dtype=np.float32)     
+
+          window = vl.VglStrEl()
+          vglShape = vl.VglShape()
+          if(len(vGlyph.lst_par) > 3):
+            vglShape.constructor3DShape(vglClNdDilate_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
+          else:
+            vglShape.constructor2DShape(vglClNdDilate_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+            print(vglClNdDilate_img_input.nChannels)
+          window.constructorFromDataVglShape(data,vglShape)
+        else:
+         window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+
+
+        vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
+        
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        t = t1 - t0
+        media = (t.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdDilate: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdDilate_img_output)
+
+    elif vGlyph.func == 'vglClNdConvolution': #Function Convolution
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+
+        # Search the input image by connecting to the source glyph
+        vglClNdConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        
+        # Search the output image by connecting to the source glyph
+        vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+        # Apply Convolution function
+        vl.vglCheckContext(vglClNdConvolution_img_output,vl.VGL_RAM_CONTEXT())
+
+
+        if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
+          str_list = vGlyph.lst_par[0].getValue()
+          data = np.array(str_list, dtype=np.float32)     
+
+          window = vl.VglStrEl()
+          vglShape = vl.VglShape()
+          if(len(vGlyph.lst_par) > 3):
+            vglShape.constructor3DShape(vglClNdConvolution_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
+          else:
+            vglShape.constructor2DShape(vglClNdConvolution_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+            print(vglClNdConvolution_img_input.nChannels)
+          window.constructorFromDataVglShape(data,vglShape)
+        else:
+         window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+
+
+        vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
+        
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        for i in range( nSteps ):
+          vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        t = t1 - t0
+        media = (t.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdConvolution: " + str(media) + " ms\n"
+        total = total + media
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdConvolution_img_output)
+
+
+
+
+    elif vGlyph.func == 'vglClNdNot': #Function Not
             print("-------------------------------------------------")
             print("A função " + vGlyph.func +" está sendo executada")
             print("-------------------------------------------------")

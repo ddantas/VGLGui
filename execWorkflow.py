@@ -79,11 +79,10 @@ for vGlyph in lstGlyph:
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
         
         #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
-        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(),vl.IMAGE_ND_ARRAY())
         vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
         vl.vglLoadImage(vglLoadImage_img_input)
-        # if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
-        #     vl.rgb_to_rgba(vglLoadImage_img_input)
+        if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
+          vl.rgb_to_rgba(vglLoadImage_img_input)
 
         vl.vglClUpload(vglLoadImage_img_input)
 
@@ -342,35 +341,95 @@ for vGlyph in lstGlyph:
     #     # Actions after glyph execution
     #     GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
 
-
-    elif vGlyph.func == 'vglClStrel': #Function Erode
+    elif vGlyph.func == 'vglShape': #Function Shape
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
         print("-------------------------------------------------")
-
-        # Search the input image by connecting to the source glyph
-        vglClStrel_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
         
-        # Search the output image by connecting to the source glyph
-        vglClStrel_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vglShape_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+        #print(vglShape_img_input.prinfInfo())       
+        vglShape = vl.VglShape()
+        
 
-        print(vGlyph.lst_par[0].getValue())
+              
+        vglShape.constructorFromShapeNdimBps(vglShape.shape,int(vglShape_img_input.ndim))
+        
+        vglShape.shape[vl.VGL_SHAPE_NCHANNELS()] = 1
+        vglShape.shape[vl.VGL_SHAPE_WIDTH()] = int(vGlyph.lst_par[0].getValue())
+        vglShape.shape[vl.VGL_SHAPE_HEIGTH()] = int(vGlyph.lst_par[1].getValue())
+        #vglShape.shape[vl.VGL_SHAPE_LENGTH()] = int(vGlyph.lst_par[3].getValue())
+        vglShape.size = int(vGlyph.lst_par[0].getValue()) * int(vGlyph.lst_par[1].getValue())
+        print(vglShape.printInfo())
+        #print(vglShape.printInfo())
+      
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglShape)
+
+
+
+    elif vGlyph.func == 'vglStrel': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+        
+        vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape')
 
         ##CASO DO TYPE
-        if (len(vGlyph.lst_par) == 1):
+        if (len(vGlyph.lst_par) == 2): 
           window = vl.VglStrEl()
-          window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), 2)
-        
-        if(len(vGlyph.lst_par) > 1):
+          kernel_type_map = {
+              'gaussian': 3,
+              'cross': 2,
+              'mean': 4,
+              'cube': 1
+          }
+          input = vGlyph.lst_par[0].getValue().strip().lower()
+          type = None
+          for key in kernel_type_map.keys():
+              if input.startswith(key):
+                  type = kernel_type_map[key]
+                  break          
+          print(type)
+          window.constructorFromTypeNdim(type, int(vGlyph.lst_par[1].getValue()))
+          #print(window.getData())
+          
+        if(len(vGlyph.lst_par) == 1):
           str_list = vGlyph.lst_par[0].getValue()
           data = np.array(str_list, dtype=np.float32) 
           window = vl.VglStrEl()
-          vglShape = vl.VglShape() 
+          window.constructorFromDataVglShape(data,vglShape)
+          #print(window.data)
+          
+
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, window)
+
+
+
+    elif vGlyph.func == 'vglStrelfuncionando': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+        
+        vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape')
+
+        ##CASO DO TYPE
+        if (len(vGlyph.lst_par[0].getName() or vGlyph.lst_par[1].getName()) == "Type"): 
+          window = vl.VglStrEl()
+          window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), int(vGlyph.lst_par[1].getValue()))
+        
+        if(len(vGlyph.lst_par) > 2):
+          str_list = vGlyph.lst_par[0].getValue()
+          data = np.array(str_list, dtype=np.float32) 
+          window = vl.VglStrEl()
+          
 
           vglShape.constructor2DShape(1,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
-
+          ##print(vglShape.getShape())
+          print(vglShape.printInfo())
           window.constructorFromDataVglShape(data,vglShape)
-       
+          print(window.data)
+
 
         GlyphExecutedUpdate(vGlyph.glyph_id, window)
 
@@ -389,22 +448,7 @@ for vGlyph in lstGlyph:
         # Apply Erode function
         vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
 
-
-        if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
-          str_list = vGlyph.lst_par[0].getValue()
-          data = np.array(str_list, dtype=np.float32)     
-
-          window = vl.VglStrEl()
-          vglShape = vl.VglShape()
-          if(len(vGlyph.lst_par) > 3):
-            vglShape.constructor3DShape(vglClNdErode_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
-          else:
-            vglShape.constructor2DShape(vglClNdErode_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
-            print(vglClNdErode_img_input.nChannels)
-          window.constructorFromDataVglShape(data,vglShape)
-        else:
-         window = getImageInputByIdName(vGlyph.glyph_id, 'window')
-
+        window = getImageInputByIdName(vGlyph.glyph_id, 'window')
 
         vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
         
@@ -438,20 +482,20 @@ for vGlyph in lstGlyph:
         vl.vglCheckContext(vglClNdDilate_img_output,vl.VGL_RAM_CONTEXT())
 
 
-        if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
-          str_list = vGlyph.lst_par[0].getValue()
-          data = np.array(str_list, dtype=np.float32)     
+        # if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
+        #   str_list = vGlyph.lst_par[0].getValue()
+        #   data = np.array(str_list, dtype=np.float32)     
 
-          window = vl.VglStrEl()
-          vglShape = vl.VglShape()
-          if(len(vGlyph.lst_par) > 3):
-            vglShape.constructor3DShape(vglClNdDilate_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
-          else:
-            vglShape.constructor2DShape(vglClNdDilate_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
-            print(vglClNdDilate_img_input.nChannels)
-          window.constructorFromDataVglShape(data,vglShape)
-        else:
-         window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+        #   window = vl.VglStrEl()
+        #   vglShape = vl.VglShape()
+        #   if(len(vGlyph.lst_par) > 3):
+        #     vglShape.constructor3DShape(vglClNdDilate_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
+        #   else:
+        #     vglShape.constructor2DShape(vglClNdDilate_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+        #     print(vglClNdDilate_img_input.nChannels)
+        #   window.constructorFromDataVglShape(data,vglShape)
+        # else:
+        window = getImageInputByIdName(vGlyph.glyph_id, 'window')
 
 
         vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
@@ -485,20 +529,20 @@ for vGlyph in lstGlyph:
         vl.vglCheckContext(vglClNdConvolution_img_output,vl.VGL_RAM_CONTEXT())
 
 
-        if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
-          str_list = vGlyph.lst_par[0].getValue()
-          data = np.array(str_list, dtype=np.float32)     
+        # if( getImageInputByIdName(vGlyph.glyph_id, 'window') == None):
+        #   str_list = vGlyph.lst_par[0].getValue()
+        #   data = np.array(str_list, dtype=np.float32)     
 
-          window = vl.VglStrEl()
-          vglShape = vl.VglShape()
-          if(len(vGlyph.lst_par) > 3):
-            vglShape.constructor3DShape(vglClNdConvolution_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
-          else:
-            vglShape.constructor2DShape(vglClNdConvolution_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
-            print(vglClNdConvolution_img_input.nChannels)
-          window.constructorFromDataVglShape(data,vglShape)
-        else:
-         window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+        #   window = vl.VglStrEl()
+        #   vglShape = vl.VglShape()
+        #   if(len(vGlyph.lst_par) > 3):
+        #     vglShape.constructor3DShape(vglClNdConvolution_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue(),vGlyph.lst_par[3].getValue())
+        #   else:
+        #     vglShape.constructor2DShape(vglClNdConvolution_img_input.nChannels,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+        #     print(vglClNdConvolution_img_input.nChannels)
+        #   window.constructorFromDataVglShape(data,vglShape)
+        # else:
+        window = getImageInputByIdName(vGlyph.glyph_id, 'window')
 
 
         vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
@@ -652,7 +696,7 @@ for vGlyph in lstGlyph:
 
 
 
-    elif vGlyph.func == 'vglClNdConvolution': #Function Erode
+    elif vGlyph.func == 'vglClNdConvolution': #Function Convolution
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
         print("-------------------------------------------------")
@@ -663,7 +707,7 @@ for vGlyph in lstGlyph:
         # Search the output image by connecting to the source glyph
         vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
        
-        # Apply Erode function
+        # Apply Convolution function
         vl.vglCheckContext(vglClNdConvolution_img_output,vl.VGL_CL_CONTEXT())
         vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
         
@@ -802,7 +846,7 @@ for vGlyph in lstGlyph:
 
 
 
-    elif vGlyph.func == 'vglClNdDilate': #Function Erode
+    elif vGlyph.func == 'vglClNdDilate': #Function Dilate
         print("-------------------------------------------------")
         print("A função " + vGlyph.func +" está sendo executada")
         print("-------------------------------------------------")
@@ -813,7 +857,7 @@ for vGlyph in lstGlyph:
         # Search the output image by connecting to the source glyph
         vglClNdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
        
-        # Apply Erode function
+        # Apply Dilate function
         vl.vglCheckContext(vglClNdDilate_img_output,vl.VGL_CL_CONTEXT())
         vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
         
@@ -828,14 +872,9 @@ for vGlyph in lstGlyph:
         media = (t.total_seconds() * 1000) / nSteps
         msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdDilate: " + str(media) + " ms\n"
         total = total + media
+        
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdDilate_img_output)
-
-
-
-
-
-
 
     elif vGlyph.func == 'vglClThreshold': #Function Threshold
         print("-------------------------------------------------")

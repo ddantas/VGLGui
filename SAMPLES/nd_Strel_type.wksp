@@ -13,13 +13,13 @@ height_size = 1144
 VariablesEnd:
 
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/lena_gray.tif' -iscolor 1 -has_mipmap
+Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap
 
 #  Glyph 'Create Image vglClNdErode'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
 
 #  Glyph 'vglClStrel'
-Glyph:VGL_CL:vglClStrel::localhost:3:382:182:: -type 'Cube'
+Glyph:VGL_CL:vglStrel::localhost:3:382:182:: -type 'cross' -ndim 2
 
 #  Glyph 'vglClNdErode'
 Glyph:VGL_CL:vglClNdErode::localhost:4:382:182::

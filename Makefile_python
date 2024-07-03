@@ -25,9 +25,6 @@ run3d:
 runnd_shape:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Shape.wksp 1
 
-runnd_type:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Type.wksp 1
-
 runnd_strel_type:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Strel_type.wksp 1
 

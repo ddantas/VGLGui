@@ -1,3 +1,2 @@
-Tempo médio de 1 execuções do método vglClNdErode: 636.413 ms
 
-Valor total do tempo médio: 636.413
+Valor total do tempo médio: 0.0

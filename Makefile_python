@@ -30,3 +30,5 @@ runnd_strel_type:
 
 runnd_strel_window:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Strel_window.wksp 1
+runexec:
+	cd ~/Documents/TCC_1/VGLGui; ./execwork.py ./SAMPLES/demo.wksp 1

@@ -1068,6 +1068,9 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
       } elsif ($type[$i] eq "int") {
           push @params, "np.uint32(vGlyph.lst_par[" . ($i - 2) . "].getValue())";  # Para o int
       }
+      elsif ($type[$i] eq "float" && $variable[$i] eq "top") {
+        push @params, "np.float32(vGlyph.lst_par[0].getValue())";
+      }
   }
   
   # Gerar a chamada da função com os parâmetros corretos

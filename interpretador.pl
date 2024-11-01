@@ -1063,10 +1063,8 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
   my @params;
   my $output_var;
   for (my $i = 0; $i <= $#type; $i++) {
-      if ($i == 0) {
+      if ($i == 0 || $i == 1 || $i == 2 && $semantics[$i] eq "__write_only") {
           push @params, "${basename}_$variable[$i]";  
-      } elsif ($i == 1) {
-          push @params, "${basename}_$variable[$i]";
       } elsif ($type[$i] eq "float*") {
           push @params, "tratnum(vGlyph.lst_par[" . ($i - 2) . "].getValue())";  # Para o float*
       } if ($semantics[$i] eq "__write_only") {
@@ -1340,6 +1338,76 @@ for vGlyph in lstGlyph:
 
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL)
+
+    elif vGlyph.func == 'Reconstruct': #Function Reconstruct
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+    
+        # Search the input image by connecting to the source glyph
+        Rec_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+
+        
+
+        # Search the output image by connecting to the source glyph
+        Rec_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+
+        n_pixel = np.uint32(vGlyph.lst_par[0].getValue())
+        elemento = tratnum(vGlyph.lst_par[0].getValue())
+        x = np.uint32(vGlyph.lst_par[1].getValue())
+        y = np.uint32(vGlyph.lst_par[2].getValue())
+
+
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        Rec_imt1 = vl.create_blank_image_as(Rec_img_input)
+        Rec_buffer = vl.create_blank_image_as(Rec_img_input)
+        for i in range( nSteps ):
+          
+          vglClErode(Rec_img_input, Rec_img_output, elemento, x, y)
+
+          result = 0
+          count = 0
+          while (not result ):
+            if ((count % 2) == 0):
+              vglClDilate( Rec_img_output , Rec_buffer ,elemento, x, y)
+              vglClMin(Rec_buffer , Rec_img_input, Rec_imt1)
+            else:
+              vglClDilate( Rec_imt1 , Rec_buffer , elemento, x, y)
+              vglClMin(Rec_buffer, Rec_img_input, Rec_img_output)
+            result = vglClEqual(Rec_imt1, Rec_img_output)
+            count = count + 1
+          
+          #print("contador reconstrcut",count)  
+
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        diff = t1 - t0
+        media = (diff.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Reconstruct: " + str(media) + " ms\n"
+        total = total + media
+
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output)
+
+    elif vGlyph.func == 'vglSaveImage':
+
+        # Returns edge image based on glyph id
+        vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image')
+
+        if vglSaveImage_img_input is not None:
+
+            # SAVING IMAGE img
+            vpath = vGlyph.lst_par[0].getValue()
+
+            # Rule3: In a sink glyph, images (one or more) can only be input parameters
+            vl.vglCheckContext(vglSaveImage_img_input,vl.VGL_RAM_CONTEXT())             
+            vl.vglSaveImage(vpath, vglSaveImage_img_input)
+            
+
+            # Actions after glyph execution
+            GlyphExecutedUpdate(vGlyph.glyph_id, None)
 END_TEMPLATE
 
 # Escrevendo o código padrão no arquivo de saída

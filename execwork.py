@@ -117,6 +117,76 @@ for vGlyph in lstGlyph:
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL)
 
+    elif vGlyph.func == 'Reconstruct': #Function Reconstruct
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+    
+        # Search the input image by connecting to the source glyph
+        Rec_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+
+        
+
+        # Search the output image by connecting to the source glyph
+        Rec_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+
+        n_pixel = np.uint32(vGlyph.lst_par[0].getValue())
+        elemento = tratnum(vGlyph.lst_par[0].getValue())
+        x = np.uint32(vGlyph.lst_par[1].getValue())
+        y = np.uint32(vGlyph.lst_par[2].getValue())
+
+
+        #Runtime
+        vl.get_ocl().commandQueue.flush()
+        t0 = datetime.now()
+        Rec_imt1 = vl.create_blank_image_as(Rec_img_input)
+        Rec_buffer = vl.create_blank_image_as(Rec_img_input)
+        for i in range( nSteps ):
+          
+          vglClErode(Rec_img_input, Rec_img_output, elemento, x, y)
+
+          result = 0
+          count = 0
+          while (not result ):
+            if ((count % 2) == 0):
+              vglClDilate( Rec_img_output , Rec_buffer ,elemento, x, y)
+              vglClMin(Rec_buffer , Rec_img_input, Rec_imt1)
+            else:
+              vglClDilate( Rec_imt1 , Rec_buffer , elemento, x, y)
+              vglClMin(Rec_buffer, Rec_img_input, Rec_img_output)
+            result = vglClEqual(Rec_imt1, Rec_img_output)
+            count = count + 1
+          
+          #print("contador reconstrcut",count)  
+
+        vl.get_ocl().commandQueue.finish()
+        t1 = datetime.now()
+        diff = t1 - t0
+        media = (diff.total_seconds() * 1000) / nSteps
+        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Reconstruct: " + str(media) + " ms\n"
+        total = total + media
+
+        # Actions after glyph execution
+        GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output)
+
+    elif vGlyph.func == 'vglSaveImage':
+
+        # Returns edge image based on glyph id
+        vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image')
+
+        if vglSaveImage_img_input is not None:
+
+            # SAVING IMAGE img
+            vpath = vGlyph.lst_par[0].getValue()
+
+            # Rule3: In a sink glyph, images (one or more) can only be input parameters
+            vl.vglCheckContext(vglSaveImage_img_input,vl.VGL_RAM_CONTEXT())             
+            vl.vglSaveImage(vpath, vglSaveImage_img_input)
+            
+
+            # Actions after glyph execution
+            GlyphExecutedUpdate(vGlyph.glyph_id, None)
+
     elif vGlyph.func == 'vglCl3dBlurSq3':
 
         vglCl3dBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
@@ -167,7 +237,7 @@ for vGlyph in lstGlyph:
         vglCl3dMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglCl3dMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2)
+        vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2, vglCl3dMax_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_output)
 
@@ -177,7 +247,7 @@ for vGlyph in lstGlyph:
         vglCl3dMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglCl3dMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2)
+        vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2, vglCl3dMin_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_output)
 
@@ -196,7 +266,7 @@ for vGlyph in lstGlyph:
         vglCl3dSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglCl3dSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2)
+        vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2, vglCl3dSub_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_output)
 
@@ -206,7 +276,7 @@ for vGlyph in lstGlyph:
         vglCl3dSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglCl3dSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2)
+        vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2, vglCl3dSum_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_output)
 
@@ -279,7 +349,7 @@ for vGlyph in lstGlyph:
         vglClMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglClMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglClMax(vglClMax_img_input1, vglClMax_img_input2)
+        vglClMax(vglClMax_img_input1, vglClMax_img_input2, vglClMax_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_output)
 
@@ -289,7 +359,7 @@ for vGlyph in lstGlyph:
         vglClMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglClMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglClMin(vglClMin_img_input1, vglClMin_img_input2)
+        vglClMin(vglClMin_img_input1, vglClMin_img_input2, vglClMin_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_output)
 
@@ -308,7 +378,7 @@ for vGlyph in lstGlyph:
         vglClSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglClSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglClSub(vglClSub_img_input1, vglClSub_img_input2)
+        vglClSub(vglClSub_img_input1, vglClSub_img_input2, vglClSub_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_output)
 
@@ -318,7 +388,7 @@ for vGlyph in lstGlyph:
         vglClSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
         vglClSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-        vglClSum(vglClSum_img_input1, vglClSum_img_input2)
+        vglClSum(vglClSum_img_input1, vglClSum_img_input2, vglClSum_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_output)
 

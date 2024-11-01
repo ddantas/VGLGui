@@ -190,7 +190,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dBlurSq3':
 
         vglCl3dBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dBlurSq3_img_input, vl.VGL_CL_CONTEXT());
         vglCl3dBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dBlurSq3_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dBlurSq3(vglCl3dBlurSq3_img_input, vglCl3dBlurSq3_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dBlurSq3_img_output)
@@ -199,7 +201,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dConvolution':
 
         vglCl3dConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dConvolution_img_input, vl.VGL_CL_CONTEXT());
         vglCl3dConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dConvolution_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dConvolution_img_output)
@@ -208,7 +212,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dCopy':
 
         vglCl3dCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dCopy_img_input, vl.VGL_CL_CONTEXT());
         vglCl3dCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dCopy_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dCopy(vglCl3dCopy_img_input, vglCl3dCopy_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dCopy_img_output)
@@ -217,7 +223,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dDilate':
 
         vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dDilate_img_input, vl.VGL_CL_CONTEXT());
         vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dDilate_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output)
@@ -226,7 +234,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dErode':
 
         vglCl3dErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dErode_img_input, vl.VGL_CL_CONTEXT());
         vglCl3dErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dErode_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dErode_img_output)
@@ -235,8 +245,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dMax':
 
         vglCl3dMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dMax_img_input1, vl.VGL_CL_CONTEXT());
         vglCl3dMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dMax_img_input2, vl.VGL_CL_CONTEXT());
         vglCl3dMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dMax_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2, vglCl3dMax_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_output)
@@ -245,8 +258,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dMin':
 
         vglCl3dMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dMin_img_input1, vl.VGL_CL_CONTEXT());
         vglCl3dMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dMin_img_input2, vl.VGL_CL_CONTEXT());
         vglCl3dMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dMin_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2, vglCl3dMin_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_output)
@@ -255,7 +271,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dNot':
 
         vglCl3dNot_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dNot_img_input, vl.VGL_CL_CONTEXT());
         vglCl3dNot_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dNot_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dNot(vglCl3dNot_img_input, vglCl3dNot_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dNot_img_output)
@@ -264,8 +282,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dSub':
 
         vglCl3dSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dSub_img_input1, vl.VGL_CL_CONTEXT());
         vglCl3dSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dSub_img_input2, vl.VGL_CL_CONTEXT());
         vglCl3dSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dSub_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2, vglCl3dSub_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_output)
@@ -274,8 +295,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dSum':
 
         vglCl3dSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dSum_img_input1, vl.VGL_CL_CONTEXT());
         vglCl3dSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dSum_img_input2, vl.VGL_CL_CONTEXT());
         vglCl3dSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dSum_img_output, vl.VGL_CL_CONTEXT());
         vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2, vglCl3dSum_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_output)
@@ -284,7 +308,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglCl3dThreshold':
 
         vglCl3dThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+        vl.vglCheckContext(vglCl3dThreshold_src, vl.VGL_CL_CONTEXT());
         vglCl3dThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+        vl.vglCheckContext(vglCl3dThreshold_dst, vl.VGL_CL_CONTEXT());
         vglCl3dThreshold(vglCl3dThreshold_src, vglCl3dThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dThreshold_dst)
@@ -293,7 +319,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClBlurSq3':
 
         vglClBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClBlurSq3_img_input, vl.VGL_CL_CONTEXT());
         vglClBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClBlurSq3_img_output, vl.VGL_CL_CONTEXT());
         vglClBlurSq3(vglClBlurSq3_img_input, vglClBlurSq3_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClBlurSq3_img_output)
@@ -302,7 +330,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClConvolution':
 
         vglClConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClConvolution_img_input, vl.VGL_CL_CONTEXT());
         vglClConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClConvolution_img_output, vl.VGL_CL_CONTEXT());
         vglClConvolution(vglClConvolution_img_input, vglClConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClConvolution_img_output)
@@ -311,7 +341,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClCopy':
 
         vglClCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClCopy_img_input, vl.VGL_CL_CONTEXT());
         vglClCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClCopy_img_output, vl.VGL_CL_CONTEXT());
         vglClCopy(vglClCopy_img_input, vglClCopy_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClCopy_img_output)
@@ -320,7 +352,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClDilate':
 
         vglClDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClDilate_img_input, vl.VGL_CL_CONTEXT());
         vglClDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClDilate_img_output, vl.VGL_CL_CONTEXT());
         vglClDilate(vglClDilate_img_input, vglClDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClDilate_img_output)
@@ -329,7 +363,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClErode':
 
         vglClErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClErode_img_input, vl.VGL_CL_CONTEXT());
         vglClErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClErode_img_output, vl.VGL_CL_CONTEXT());
         vglClErode(vglClErode_img_input, vglClErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClErode_img_output)
@@ -338,7 +374,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClInvert':
 
         vglClInvert_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClInvert_img_input, vl.VGL_CL_CONTEXT());
         vglClInvert_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClInvert_img_output, vl.VGL_CL_CONTEXT());
         vglClInvert(vglClInvert_img_input, vglClInvert_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClInvert_img_output)
@@ -347,8 +385,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClMax':
 
         vglClMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClMax_img_input1, vl.VGL_CL_CONTEXT());
         vglClMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClMax_img_input2, vl.VGL_CL_CONTEXT());
         vglClMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClMax_img_output, vl.VGL_CL_CONTEXT());
         vglClMax(vglClMax_img_input1, vglClMax_img_input2, vglClMax_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_output)
@@ -357,8 +398,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClMin':
 
         vglClMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClMin_img_input1, vl.VGL_CL_CONTEXT());
         vglClMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClMin_img_input2, vl.VGL_CL_CONTEXT());
         vglClMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClMin_img_output, vl.VGL_CL_CONTEXT());
         vglClMin(vglClMin_img_input1, vglClMin_img_input2, vglClMin_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_output)
@@ -367,7 +411,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClRgb2Gray':
 
         vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClRgb2Gray_img_input, vl.VGL_CL_CONTEXT());
         vglClRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClRgb2Gray_img_output, vl.VGL_CL_CONTEXT());
         vglClRgb2Gray(vglClRgb2Gray_img_input, vglClRgb2Gray_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output)
@@ -376,8 +422,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClSub':
 
         vglClSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClSub_img_input1, vl.VGL_CL_CONTEXT());
         vglClSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClSub_img_input2, vl.VGL_CL_CONTEXT());
         vglClSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClSub_img_output, vl.VGL_CL_CONTEXT());
         vglClSub(vglClSub_img_input1, vglClSub_img_input2, vglClSub_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_output)
@@ -386,8 +435,11 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClSum':
 
         vglClSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClSum_img_input1, vl.VGL_CL_CONTEXT());
         vglClSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClSum_img_input2, vl.VGL_CL_CONTEXT());
         vglClSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClSum_img_output, vl.VGL_CL_CONTEXT());
         vglClSum(vglClSum_img_input1, vglClSum_img_input2, vglClSum_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_output)
@@ -396,7 +448,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClSwapRgb':
 
         vglClSwapRgb_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+        vl.vglCheckContext(vglClSwapRgb_src, vl.VGL_CL_CONTEXT());
         vglClSwapRgb_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+        vl.vglCheckContext(vglClSwapRgb_dst, vl.VGL_CL_CONTEXT());
         vglClSwapRgb(vglClSwapRgb_src, vglClSwapRgb_dst)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClSwapRgb_dst)
@@ -405,7 +459,9 @@ for vGlyph in lstGlyph:
     elif vGlyph.func == 'vglClThreshold':
 
         vglClThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+        vl.vglCheckContext(vglClThreshold_src, vl.VGL_CL_CONTEXT());
         vglClThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+        vl.vglCheckContext(vglClThreshold_dst, vl.VGL_CL_CONTEXT());
         vglClThreshold(vglClThreshold_src, vglClThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClThreshold_dst)

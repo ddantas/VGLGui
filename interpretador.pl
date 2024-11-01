@@ -1041,12 +1041,18 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
   print PYTHON "\n";                                 # ESCOPO DA FUNCAO TERMINA AQUI
 
   for (my $i = 0; $i <= $#variable; $i++) {
-     if ($semantics[$i] eq "__read_only" or $semantics[$i] eq "__write_only" or $semantics[$i] eq "__read_write" or $semantics[$i] eq "__global"){
-      my $line = "        ${basename}_$variable[$i] = getImageInputByIdName(vGlyph.glyph_id, '$variable[$i]')\n";
-      print PYTHON "$line";
-     }
-
+      if ($semantics[$i] eq "__read_only" or 
+          $semantics[$i] eq "__write_only" or 
+          $semantics[$i] eq "__read_write" or 
+          $semantics[$i] eq "__global") {
+          
+          my $line = "        ${basename}_$variable[$i] = getImageInputByIdName(vGlyph.glyph_id, '$variable[$i]')\n" .
+                      "        vl.vglCheckContext(${basename}_$variable[$i], vl.VGL_CL_CONTEXT());\n";
+          
+          print PYTHON "$line";
+      }
   }
+
 
   # for ($i = 0; $i <2; $i++){
   #   if ($semantics[$i] eq "__read_only" or $semantics[$i] eq "__write_only" or $semantics[$i] eq "__read_write" or $semantics[$i] eq "__global"){
@@ -1077,7 +1083,7 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
       }
   }
   
-  # Gerar a chamada da função com os parâmetros corretos
+
   my $function_call = "        $basename(" . join(", ", @params) . ")";
   print PYTHON "$function_call\n\n";
   

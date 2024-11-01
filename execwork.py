@@ -166,18 +166,20 @@ for vGlyph in lstGlyph:
 
         vglCl3dMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglCl3dMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_output)
 
 
     elif vGlyph.func == 'vglCl3dMin':
 
         vglCl3dMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglCl3dMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_output)
 
 
     elif vGlyph.func == 'vglCl3dNot':
@@ -193,18 +195,20 @@ for vGlyph in lstGlyph:
 
         vglCl3dSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglCl3dSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_output)
 
 
     elif vGlyph.func == 'vglCl3dSum':
 
         vglCl3dSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglCl3dSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglCl3dSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_output)
 
 
     elif vGlyph.func == 'vglCl3dThreshold':
@@ -274,18 +278,20 @@ for vGlyph in lstGlyph:
 
         vglClMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglClMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglClMax(vglClMax_img_input1, vglClMax_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_output)
 
 
     elif vGlyph.func == 'vglClMin':
 
         vglClMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglClMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglClMin(vglClMin_img_input1, vglClMin_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_output)
 
 
     elif vGlyph.func == 'vglClRgb2Gray':
@@ -301,18 +307,20 @@ for vGlyph in lstGlyph:
 
         vglClSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglClSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglClSub(vglClSub_img_input1, vglClSub_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_output)
 
 
     elif vGlyph.func == 'vglClSum':
 
         vglClSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
         vglClSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vglClSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
         vglClSum(vglClSum_img_input1, vglClSum_img_input2)
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_input2)
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_output)
 
 
     elif vGlyph.func == 'vglClSwapRgb':

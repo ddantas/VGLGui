@@ -1040,9 +1040,12 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
 
   print PYTHON "\n";                                 # ESCOPO DA FUNCAO TERMINA AQUI
 
-  for (my $i = 0; $i <= 1; $i++) {
+  for (my $i = 0; $i <= $#variable; $i++) {
+     if ($semantics[$i] eq "__read_only" or $semantics[$i] eq "__write_only" or $semantics[$i] eq "__read_write" or $semantics[$i] eq "__global"){
       my $line = "        ${basename}_$variable[$i] = getImageInputByIdName(vGlyph.glyph_id, '$variable[$i]')\n";
       print PYTHON "$line";
+     }
+
   }
 
   # for ($i = 0; $i <2; $i++){
@@ -1058,13 +1061,16 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
   # print "#########\n";
   
   my @params;
-  for (my $i = 0; $i <= $#variable; $i++) {
+  my $output_var;
+  for (my $i = 0; $i <= $#type; $i++) {
       if ($i == 0) {
           push @params, "${basename}_$variable[$i]";  
       } elsif ($i == 1) {
           push @params, "${basename}_$variable[$i]";
       } elsif ($type[$i] eq "float*") {
           push @params, "tratnum(vGlyph.lst_par[" . ($i - 2) . "].getValue())";  # Para o float*
+      } if ($semantics[$i] eq "__write_only") {
+          $output_var = "${basename}_$variable[$i]";
       } elsif ($type[$i] eq "int") {
           push @params, "np.uint32(vGlyph.lst_par[" . ($i - 2) . "].getValue())";  # Para o int
       }
@@ -1077,10 +1083,8 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
   my $function_call = "        $basename(" . join(", ", @params) . ")";
   print PYTHON "$function_call\n\n";
   
-  my $out = $variable[1];
 
-
-  print PYTHON "        GlyphExecutedUpdate(vGlyph.glyph_id, ${basename}_$out)\n";
+  print PYTHON "        GlyphExecutedUpdate(vGlyph.glyph_id, $output_var)\n";
 
   print PYTHON "\n";
 

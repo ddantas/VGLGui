@@ -266,38 +266,7 @@ for vGlyph in lstGlyph:
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id,vglClNErode_img_output)
 
-    elif vGlyph.func == 'vglClNdErodeType': #Function Erode
-        print("-------------------------------------------------")
-        print("A função " + vGlyph.func +" está sendo executada")
-        print("-------------------------------------------------")
-
-        # Search the input image by connecting to the source glyph
-        vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
-        
-        # Search the output image by connecting to the source glyph
-        vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-       
-        # Apply Erode function
-        vl.vglCheckContext(vglClNdErode_img_output,vl.VGL_RAM_CONTEXT())
-         
-        window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), 2)
-
-        vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
-        
-        #Runtime
-        vl.get_ocl().commandQueue.flush()
-        t0 = datetime.now()
-        for i in range( nSteps ):
-          vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output,window)
-        vl.get_ocl().commandQueue.finish()
-        t1 = datetime.now()
-        t = t1 - t0
-        media = (t.total_seconds() * 1000) / nSteps
-        msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método vglClNdErode: " + str(media) + " ms\n"
-        total = total + media
-        # Actions after glyph execution
-        GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
-
+  
     # elif vGlyph.func == 'vglClNdErode1': #Function Erode
     #     print("-------------------------------------------------")
     #     print("A função " + vGlyph.func +" está sendo executada")
@@ -406,32 +375,32 @@ for vGlyph in lstGlyph:
 
 
 
-    elif vGlyph.func == 'vglStrelfuncionando': #Function Erode
-        print("-------------------------------------------------")
-        print("A função " + vGlyph.func +" está sendo executada")
-        print("-------------------------------------------------")
+    # elif vGlyph.func == 'vglStrelfuncionando': #Function Erode
+    #     print("-------------------------------------------------")
+    #     print("A função " + vGlyph.func +" está sendo executada")
+    #     print("-------------------------------------------------")
         
-        vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape')
+    #     vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape')
 
-        ##CASO DO TYPE
-        if (len(vGlyph.lst_par[0].getName() or vGlyph.lst_par[1].getName()) == "Type"): 
-          window = vl.VglStrEl()
-          window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), int(vGlyph.lst_par[1].getValue()))
+    #     ##CASO DO TYPE
+    #     if (len(vGlyph.lst_par[0].getName() or vGlyph.lst_par[1].getName()) == "Type"): 
+    #       window = vl.VglStrEl()
+    #       window.constructorFromTypeNdim(vGlyph.lst_par[0].getValue(), int(vGlyph.lst_par[1].getValue()))
         
-        if(len(vGlyph.lst_par) > 2):
-          str_list = vGlyph.lst_par[0].getValue()
-          data = np.array(str_list, dtype=np.float32) 
-          window = vl.VglStrEl()
+    #     if(len(vGlyph.lst_par) > 2):
+    #       str_list = vGlyph.lst_par[0].getValue()
+    #       data = np.array(str_list, dtype=np.float32) 
+    #       window = vl.VglStrEl()
           
 
-          vglShape.constructor2DShape(1,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
-          ##print(vglShape.getShape())
-          print(vglShape.printInfo())
-          window.constructorFromDataVglShape(data,vglShape)
-          print(window.data)
+    #       vglShape.constructor2DShape(1,vGlyph.lst_par[1].getValue(),vGlyph.lst_par[2].getValue())
+    #       ##print(vglShape.getShape())
+    #       print(vglShape.printInfo())
+    #       window.constructorFromDataVglShape(data,vglShape)
+    #       print(window.data)
 
 
-        GlyphExecutedUpdate(vGlyph.glyph_id, window)
+    #     GlyphExecutedUpdate(vGlyph.glyph_id, window)
 
 
     elif vGlyph.func == 'vglClNdErode': #Function Erode

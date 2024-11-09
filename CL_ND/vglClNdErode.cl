@@ -1,11 +1,3 @@
-/** N-dimensional erosion
-
-    SHAPE directive passes a structure with size of each dimension, offsets and number of dimensions. Parameter does not appear in wrapper parameter list. The C expression between parenthesis returns the desired shape of type VglClShape.
-    
-  */
-
-//SHAPE img_shape (img_input->vglShape->asVglClShape())
-
 #include "vglClShape.h"
 #include "vglClStrEl.h"
 
@@ -14,13 +6,9 @@ __kernel void vglClNdErode (__global unsigned char* img_input,
                             __constant VglClShape* img_shape,
                             __constant VglClStrEl* window)
 {
-#if __OPENCL_VERSION__ < 200
   int coord = (  (get_global_id(2) - get_global_offset(2)) * get_global_size(1) * get_global_size(0)) +
               (  (get_global_id(1) - get_global_offset(1)) * get_global_size (0)  ) +
                  (get_global_id(0) - get_global_offset(0));
-#else
-  int coord = get_global_linear_id();
-#endif
 
   int ires;
   int idim;
@@ -29,6 +17,7 @@ __kernel void vglClNdErode (__global unsigned char* img_input,
   int img_coord[VGL_ARR_SHAPE_SIZE];
   int win_coord[VGL_ARR_SHAPE_SIZE];
 
+  // Loop para calcular as coordenadas da imagem
   for(int d = img_shape->ndim; d >= 1; d--)
   {
     int off = img_shape->offset[d];

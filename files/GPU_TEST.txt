@@ -1,2 +1,3 @@
+Tempo médio de 1 execuções do método vglClNdConvolution: 10.658000000000001 ms
 
-Valor total do tempo médio: 0.0
+Valor total do tempo médio: 10.658000000000001

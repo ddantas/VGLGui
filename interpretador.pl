@@ -1068,12 +1068,13 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
   
   my @params;
   my $output_var;
+  my $has_window = 0;
   for (my $i = 0; $i <= $#type; $i++) {
       if ($i == 0 || $i == 1 || $i == 2 && $semantics[$i] eq "__write_only") {
           push @params, "${basename}_$variable[$i]";  
       } elsif ($type[$i] eq "float*") {
           push @params, "tratnum(vGlyph.lst_par[" . ($i - 2) . "].getValue())";  # Para o float*
-      } if ($semantics[$i] eq "__write_only") {
+      } if ($semantics[$i] eq "__write_only" || $semantics[$i] eq "__global") {
           $output_var = "${basename}_$variable[$i]";
       } elsif ($type[$i] eq "int") {
           push @params, "np.uint32(vGlyph.lst_par[" . ($i - 2) . "].getValue())";  # Para o int
@@ -1081,6 +1082,12 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
       elsif ($type[$i] eq "float" && $variable[$i] eq "top") {
         push @params, "np.float32(vGlyph.lst_par[0].getValue())";
       }
+    elsif ($type[$i] eq "VglClStrEl*") {
+        $has_window = 1;
+        print PYTHON "        window = getImageInputByIdName(vGlyph.glyph_id, 'window')\n";
+        push @params, "window";
+    }
+
   }
   
 
@@ -1414,6 +1421,66 @@ for vGlyph in lstGlyph:
 
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id, None)
+
+    elif vGlyph.func == 'vglShape': #Function Shape
+
+        
+        vglShape_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+        #print(vglShape_img_input.prinfInfo())       
+        vglShape = vl.VglShape()
+        
+
+              
+        vglShape.constructorFromShapeNdimBps(vglShape.shape,int(vglShape_img_input.ndim))
+        
+        vglShape.shape[vl.VGL_SHAPE_NCHANNELS()] = 1
+        vglShape.shape[vl.VGL_SHAPE_WIDTH()] = int(vGlyph.lst_par[0].getValue())
+        vglShape.shape[vl.VGL_SHAPE_HEIGTH()] = int(vGlyph.lst_par[1].getValue())
+        #vglShape.shape[vl.VGL_SHAPE_LENGTH()] = int(vGlyph.lst_par[3].getValue())
+        vglShape.size = int(vGlyph.lst_par[0].getValue()) * int(vGlyph.lst_par[1].getValue())
+        print(vglShape.printInfo())
+        #print(vglShape.printInfo())
+      
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglShape)
+
+
+    elif vGlyph.func == 'vglStrel': #Function Erode
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+        
+        vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape')
+
+        ##CASO DO TYPE
+        if (len(vGlyph.lst_par) == 2): 
+          window = vl.VglStrEl()
+          kernel_type_map = {
+              'gaussian': 3,
+              'cross': 2,
+              'mean': 4,
+              'cube': 1
+          }
+          input = vGlyph.lst_par[0].getValue().strip().lower()
+          type = None
+          for key in kernel_type_map.keys():
+              if input.startswith(key):
+                  type = kernel_type_map[key]
+                  break          
+          print(type)
+          window.constructorFromTypeNdim(type, int(vGlyph.lst_par[1].getValue()))
+          #print(window.getData())
+          
+        if(len(vGlyph.lst_par) == 1):
+          str_list = vGlyph.lst_par[0].getValue()
+          data = np.array(str_list, dtype=np.float32) 
+          window = vl.VglStrEl()
+          window.constructorFromDataVglShape(data,vglShape)
+          #print(window.data)
+          
+
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, window)
 END_TEMPLATE
 
 # Escrevendo o código padrão no arquivo de saída

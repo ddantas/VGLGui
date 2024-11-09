@@ -57,7 +57,7 @@ msg = ""
 CPU = cl.device_type.CPU #2
 GPU = cl.device_type.GPU #4
 total = 0.0
-vl.vglClInit(CPU) 
+vl.vglClInit(GPU) 
 
 # Update the status of glyph entries
 for vGlyph in lstGlyph:
@@ -73,8 +73,8 @@ for vGlyph in lstGlyph:
 
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
         
-        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
-        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
+        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
         vl.vglLoadImage(vglLoadImage_img_input)
         if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
           vl.rgb_to_rgba(vglLoadImage_img_input)
@@ -314,4 +314,636 @@ for vGlyph in lstGlyph:
         vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
 
         GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdThreshold_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dBlurSq3':
+
+        vglCl3dBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dBlurSq3_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dBlurSq3_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dBlurSq3(vglCl3dBlurSq3_img_input, vglCl3dBlurSq3_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dBlurSq3_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dConvolution':
+
+        vglCl3dConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dConvolution_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dConvolution_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dConvolution_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dCopy':
+
+        vglCl3dCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dCopy_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dCopy_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dCopy(vglCl3dCopy_img_input, vglCl3dCopy_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dCopy_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dDilate':
+
+        vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dErode':
+
+        vglCl3dErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dMax':
+
+        vglCl3dMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dMax_img_input1, vl.VGL_CL_CONTEXT());
+        vglCl3dMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dMax_img_input2, vl.VGL_CL_CONTEXT());
+        vglCl3dMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dMax_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2, vglCl3dMax_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dMin':
+
+        vglCl3dMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dMin_img_input1, vl.VGL_CL_CONTEXT());
+        vglCl3dMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dMin_img_input2, vl.VGL_CL_CONTEXT());
+        vglCl3dMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dMin_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2, vglCl3dMin_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dNot':
+
+        vglCl3dNot_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dNot_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dNot_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dNot_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dNot(vglCl3dNot_img_input, vglCl3dNot_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dNot_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dSub':
+
+        vglCl3dSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dSub_img_input1, vl.VGL_CL_CONTEXT());
+        vglCl3dSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dSub_img_input2, vl.VGL_CL_CONTEXT());
+        vglCl3dSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dSub_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2, vglCl3dSub_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dSum':
+
+        vglCl3dSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglCl3dSum_img_input1, vl.VGL_CL_CONTEXT());
+        vglCl3dSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglCl3dSum_img_input2, vl.VGL_CL_CONTEXT());
+        vglCl3dSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dSum_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2, vglCl3dSum_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dThreshold':
+
+        vglCl3dThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+        vl.vglCheckContext(vglCl3dThreshold_src, vl.VGL_CL_CONTEXT());
+        vglCl3dThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+        vl.vglCheckContext(vglCl3dThreshold_dst, vl.VGL_CL_CONTEXT());
+        vglCl3dThreshold(vglCl3dThreshold_src, vglCl3dThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dThreshold_dst)
+
+
+    elif vGlyph.func == 'vglClBlurSq3':
+
+        vglClBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClBlurSq3_img_input, vl.VGL_CL_CONTEXT());
+        vglClBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClBlurSq3_img_output, vl.VGL_CL_CONTEXT());
+        vglClBlurSq3(vglClBlurSq3_img_input, vglClBlurSq3_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClBlurSq3_img_output)
+
+
+    elif vGlyph.func == 'vglClConvolution':
+
+        vglClConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClConvolution_img_input, vl.VGL_CL_CONTEXT());
+        vglClConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClConvolution_img_output, vl.VGL_CL_CONTEXT());
+        vglClConvolution(vglClConvolution_img_input, vglClConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClConvolution_img_output)
+
+
+    elif vGlyph.func == 'vglClCopy':
+
+        vglClCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClCopy_img_input, vl.VGL_CL_CONTEXT());
+        vglClCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClCopy_img_output, vl.VGL_CL_CONTEXT());
+        vglClCopy(vglClCopy_img_input, vglClCopy_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClCopy_img_output)
+
+
+    elif vGlyph.func == 'vglClDilate':
+
+        vglClDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClDilate(vglClDilate_img_input, vglClDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClErode':
+
+        vglClErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClErode(vglClErode_img_input, vglClErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClErode_img_output)
+
+
+    elif vGlyph.func == 'vglClInvert':
+
+        vglClInvert_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClInvert_img_input, vl.VGL_CL_CONTEXT());
+        vglClInvert_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClInvert_img_output, vl.VGL_CL_CONTEXT());
+        vglClInvert(vglClInvert_img_input, vglClInvert_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClInvert_img_output)
+
+
+    elif vGlyph.func == 'vglClMax':
+
+        vglClMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClMax_img_input1, vl.VGL_CL_CONTEXT());
+        vglClMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClMax_img_input2, vl.VGL_CL_CONTEXT());
+        vglClMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClMax_img_output, vl.VGL_CL_CONTEXT());
+        vglClMax(vglClMax_img_input1, vglClMax_img_input2, vglClMax_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_output)
+
+
+    elif vGlyph.func == 'vglClMin':
+
+        vglClMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClMin_img_input1, vl.VGL_CL_CONTEXT());
+        vglClMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClMin_img_input2, vl.VGL_CL_CONTEXT());
+        vglClMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClMin_img_output, vl.VGL_CL_CONTEXT());
+        vglClMin(vglClMin_img_input1, vglClMin_img_input2, vglClMin_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_output)
+
+
+    elif vGlyph.func == 'vglClRgb2Gray':
+
+        vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClRgb2Gray_img_input, vl.VGL_CL_CONTEXT());
+        vglClRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClRgb2Gray_img_output, vl.VGL_CL_CONTEXT());
+        vglClRgb2Gray(vglClRgb2Gray_img_input, vglClRgb2Gray_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output)
+
+
+    elif vGlyph.func == 'vglClSub':
+
+        vglClSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClSub_img_input1, vl.VGL_CL_CONTEXT());
+        vglClSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClSub_img_input2, vl.VGL_CL_CONTEXT());
+        vglClSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClSub_img_output, vl.VGL_CL_CONTEXT());
+        vglClSub(vglClSub_img_input1, vglClSub_img_input2, vglClSub_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_output)
+
+
+    elif vGlyph.func == 'vglClSum':
+
+        vglClSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+        vl.vglCheckContext(vglClSum_img_input1, vl.VGL_CL_CONTEXT());
+        vglClSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+        vl.vglCheckContext(vglClSum_img_input2, vl.VGL_CL_CONTEXT());
+        vglClSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClSum_img_output, vl.VGL_CL_CONTEXT());
+        vglClSum(vglClSum_img_input1, vglClSum_img_input2, vglClSum_img_output)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_output)
+
+
+    elif vGlyph.func == 'vglClSwapRgb':
+
+        vglClSwapRgb_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+        vl.vglCheckContext(vglClSwapRgb_src, vl.VGL_CL_CONTEXT());
+        vglClSwapRgb_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+        vl.vglCheckContext(vglClSwapRgb_dst, vl.VGL_CL_CONTEXT());
+        vglClSwapRgb(vglClSwapRgb_src, vglClSwapRgb_dst)
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClSwapRgb_dst)
+
+
+    elif vGlyph.func == 'vglClThreshold':
+
+        vglClThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+        vl.vglCheckContext(vglClThreshold_src, vl.VGL_CL_CONTEXT());
+        vglClThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+        vl.vglCheckContext(vglClThreshold_dst, vl.VGL_CL_CONTEXT());
+        vglClThreshold(vglClThreshold_src, vglClThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClThreshold_dst)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyAlgDilate':
+
+        vglCl3dFuzzyAlgDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyAlgDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyAlgDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyAlgDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyAlgDilate(vglCl3dFuzzyAlgDilate_img_input, vglCl3dFuzzyAlgDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyAlgDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyAlgErode':
+
+        vglCl3dFuzzyAlgErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyAlgErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyAlgErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyAlgErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyAlgErode(vglCl3dFuzzyAlgErode_img_input, vglCl3dFuzzyAlgErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyAlgErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyArithDilate':
+
+        vglCl3dFuzzyArithDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyArithDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyArithDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyArithDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyArithDilate(vglCl3dFuzzyArithDilate_img_input, vglCl3dFuzzyArithDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyArithDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyArithErode':
+
+        vglCl3dFuzzyArithErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyArithErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyArithErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyArithErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyArithErode(vglCl3dFuzzyArithErode_img_input, vglCl3dFuzzyArithErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyArithErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyBoundDilate':
+
+        vglCl3dFuzzyBoundDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyBoundDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyBoundDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyBoundDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyBoundDilate(vglCl3dFuzzyBoundDilate_img_input, vglCl3dFuzzyBoundDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyBoundDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyBoundErode':
+
+        vglCl3dFuzzyBoundErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyBoundErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyBoundErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyBoundErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyBoundErode(vglCl3dFuzzyBoundErode_img_input, vglCl3dFuzzyBoundErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyBoundErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyDaPDilate':
+
+        vglCl3dFuzzyDaPDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyDaPDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDaPDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyDaPDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDaPDilate(vglCl3dFuzzyDaPDilate_img_input, vglCl3dFuzzyDaPDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDaPDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyDaPErode':
+
+        vglCl3dFuzzyDaPErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyDaPErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDaPErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyDaPErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDaPErode(vglCl3dFuzzyDaPErode_img_input, vglCl3dFuzzyDaPErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDaPErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyDrasticDilate':
+
+        vglCl3dFuzzyDrasticDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyDrasticDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDrasticDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyDrasticDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDrasticDilate(vglCl3dFuzzyDrasticDilate_img_input, vglCl3dFuzzyDrasticDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDrasticDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyDrasticErode':
+
+        vglCl3dFuzzyDrasticErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyDrasticErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDrasticErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyDrasticErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyDrasticErode(vglCl3dFuzzyDrasticErode_img_input, vglCl3dFuzzyDrasticErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDrasticErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyGeoDilate':
+
+        vglCl3dFuzzyGeoDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyGeoDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyGeoDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyGeoDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyGeoDilate(vglCl3dFuzzyGeoDilate_img_input, vglCl3dFuzzyGeoDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyGeoDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyGeoErode':
+
+        vglCl3dFuzzyGeoErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyGeoErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyGeoErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyGeoErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyGeoErode(vglCl3dFuzzyGeoErode_img_input, vglCl3dFuzzyGeoErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyGeoErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyHamacherDilate':
+
+        vglCl3dFuzzyHamacherDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyHamacherDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyHamacherDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyHamacherDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyHamacherDilate(vglCl3dFuzzyHamacherDilate_img_input, vglCl3dFuzzyHamacherDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyHamacherDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyHamacherErode':
+
+        vglCl3dFuzzyHamacherErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyHamacherErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyHamacherErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyHamacherErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyHamacherErode(vglCl3dFuzzyHamacherErode_img_input, vglCl3dFuzzyHamacherErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyHamacherErode_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyStdDilate':
+
+        vglCl3dFuzzyStdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyStdDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyStdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyStdDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyStdDilate(vglCl3dFuzzyStdDilate_img_input, vglCl3dFuzzyStdDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyStdDilate_img_output)
+
+
+    elif vGlyph.func == 'vglCl3dFuzzyStdErode':
+
+        vglCl3dFuzzyStdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglCl3dFuzzyStdErode_img_input, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyStdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglCl3dFuzzyStdErode_img_output, vl.VGL_CL_CONTEXT());
+        vglCl3dFuzzyStdErode(vglCl3dFuzzyStdErode_img_input, vglCl3dFuzzyStdErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyStdErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyAlgDilate':
+
+        vglClFuzzyAlgDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyAlgDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyAlgDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyAlgDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyAlgDilate(vglClFuzzyAlgDilate_img_input, vglClFuzzyAlgDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyAlgDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyAlgErode':
+
+        vglClFuzzyAlgErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyAlgErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyAlgErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyAlgErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyAlgErode(vglClFuzzyAlgErode_img_input, vglClFuzzyAlgErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyAlgErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyArithDilate':
+
+        vglClFuzzyArithDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyArithDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyArithDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyArithDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyArithDilate(vglClFuzzyArithDilate_img_input, vglClFuzzyArithDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyArithDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyArithErode':
+
+        vglClFuzzyArithErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyArithErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyArithErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyArithErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyArithErode(vglClFuzzyArithErode_img_input, vglClFuzzyArithErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyArithErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyBoundDilate':
+
+        vglClFuzzyBoundDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyBoundDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyBoundDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyBoundDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyBoundDilate(vglClFuzzyBoundDilate_img_input, vglClFuzzyBoundDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyBoundDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyBoundErode':
+
+        vglClFuzzyBoundErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyBoundErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyBoundErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyBoundErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyBoundErode(vglClFuzzyBoundErode_img_input, vglClFuzzyBoundErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyBoundErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyDaPDilate':
+
+        vglClFuzzyDaPDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyDaPDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDaPDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyDaPDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDaPDilate(vglClFuzzyDaPDilate_img_input, vglClFuzzyDaPDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDaPDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyDaPErode':
+
+        vglClFuzzyDaPErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyDaPErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDaPErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyDaPErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDaPErode(vglClFuzzyDaPErode_img_input, vglClFuzzyDaPErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDaPErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyDrasticDilate':
+
+        vglClFuzzyDrasticDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyDrasticDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDrasticDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyDrasticDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDrasticDilate(vglClFuzzyDrasticDilate_img_input, vglClFuzzyDrasticDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDrasticDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyDrasticErode':
+
+        vglClFuzzyDrasticErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyDrasticErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDrasticErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyDrasticErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyDrasticErode(vglClFuzzyDrasticErode_img_input, vglClFuzzyDrasticErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDrasticErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyGeoDilate':
+
+        vglClFuzzyGeoDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyGeoDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyGeoDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyGeoDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyGeoDilate(vglClFuzzyGeoDilate_img_input, vglClFuzzyGeoDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyGeoDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyGeoErode':
+
+        vglClFuzzyGeoErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyGeoErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyGeoErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyGeoErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyGeoErode(vglClFuzzyGeoErode_img_input, vglClFuzzyGeoErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyGeoErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyHamacherDilate':
+
+        vglClFuzzyHamacherDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyHamacherDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyHamacherDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyHamacherDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyHamacherDilate(vglClFuzzyHamacherDilate_img_input, vglClFuzzyHamacherDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyHamacherDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyHamacherErode':
+
+        vglClFuzzyHamacherErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyHamacherErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyHamacherErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyHamacherErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyHamacherErode(vglClFuzzyHamacherErode_img_input, vglClFuzzyHamacherErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyHamacherErode_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyStdDilate':
+
+        vglClFuzzyStdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyStdDilate_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyStdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyStdDilate_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyStdDilate(vglClFuzzyStdDilate_img_input, vglClFuzzyStdDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdDilate_img_output)
+
+
+    elif vGlyph.func == 'vglClFuzzyStdErode':
+
+        vglClFuzzyStdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+        vl.vglCheckContext(vglClFuzzyStdErode_img_input, vl.VGL_CL_CONTEXT());
+        vglClFuzzyStdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        vl.vglCheckContext(vglClFuzzyStdErode_img_output, vl.VGL_CL_CONTEXT());
+        vglClFuzzyStdErode(vglClFuzzyStdErode_img_input, vglClFuzzyStdErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdErode_img_output)
 

@@ -1187,7 +1187,7 @@ print $USAGE;
 # PYTHON WRAPPER #
 ##################
 
-my $archiveName = "execwork";
+my $archiveName = "execWorkflowGen";
 $nargs = $#ARGV;
 $nargs++;
 print "Number of args = $nargs\n";

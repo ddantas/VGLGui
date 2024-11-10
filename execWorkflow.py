@@ -10,7 +10,8 @@ from cl2py_shaders import * # IMPORTING METHODS
 from cl2py_ND import *
 import os
 import sys                  # IMPORTING METHODS FROM VGLGui
-from readWorkflow import *
+# from readWorkflow import *
+from readWorkflowExpression import *
 import time as t
 from datetime import datetime
 
@@ -21,6 +22,7 @@ import matplotlib.pyplot as mp
 #window = vl.VglStrEl()
 #window.constructorFromTypeNdim(vl.VGL_STREL_CUBE(), 2)
 #print(window.data)
+variable_store = VariableStore()
 
 os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
@@ -42,7 +44,9 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
 
 # Reading the workflow file and loads into memory all glyphs and connections
 # Rule7: Glyphs have READY (ready to run) and DONE (executed) status, both status start being FALSE
-fileRead(lstGlyph, lstConnection)
+fileRead(lstGlyph, lstConnection, variable_store)
+# i_value = variable_store.get_variable('i')
+# print(f"Valor da variável i: {i_value}")
 
 def imshow(im):
     plot = mp.imshow(im, cmap=mp.gray(), origin="upper", vmin=0, vmax=255)
@@ -1368,14 +1372,14 @@ for vGlyph in lstGlyph:
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id, None)
  
-with open('files/GPU_TEST.txt', 'w') as arquivo:
-    #print(msg)
-    print(msg, file=arquivo)
-    msg1 = "Valor total do tempo médio: "+str(total)
-    print(msg1, file=arquivo)
+# with open('files/GPU_TEST.txt', 'w') as arquivo:
+#     #print(msg)
+#     print(msg, file=arquivo)
+#     msg1 = "Valor total do tempo médio: "+str(total)
+#     print(msg1, file=arquivo)
 
-print("-------------------------------------------------------------")
-print(msg)
-print("-------------------------------------------------------------")
-print("O valor total do tempo médio : "+str(total))
-print("-------------------------------------------------------------")
+# print("-------------------------------------------------------------")
+# print(msg)
+# print("-------------------------------------------------------------")
+# print("O valor total do tempo médio : "+str(total))
+# print("-------------------------------------------------------------")

@@ -35,3 +35,6 @@ runexec:
 
 rungenerator:
 	cd ~/Documents/TCC_1/VGLGui;  ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl
+
+runif:
+	cd ~/Documents/TCC_1/VGLGui;  ./execWorkflow.py  ./SAMPLES/ifelse.wksp 1

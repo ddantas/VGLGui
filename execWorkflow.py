@@ -14,6 +14,7 @@ import sys                  # IMPORTING METHODS FROM VGLGui
 from readWorkflowExpression import *
 import time as t
 from datetime import datetime
+import ast
 
 import matplotlib.pyplot as mp
 
@@ -104,6 +105,13 @@ for vGlyph in lstGlyph:
 
         # Actions after glyph execution
         GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL)
+
+    # Função para tratar o condicional
+    elif vGlyph.func == 'CONDITIONAL':
+        print(f"Executando condicional: {vGlyph.func}")
+        print(variable_store.get_variable('i'))
+        print(vGlyph.lst_par[0].getValue())
+
 
     elif vGlyph.func == 'vglClBlurSq3': #Function blur
         print("-------------------------------------------------")

@@ -866,7 +866,7 @@ sub PrintPythonFile { # ($basename, $comment, $semantics, $type, $variable, $def
       }
 
     } elsif (  ($semantics[$i] eq "__read_only") or ($semantics[$i] eq "__write_only")  ){
-      #TODO: add code to check image compatibility.
+      
     }
   }
 

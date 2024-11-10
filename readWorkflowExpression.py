@@ -201,6 +201,8 @@ def procCreateGlyphPar(procCreateGlyphPar_vGlyph, procCreateGlyphPar_vParameters
                 #r = re.compile(r'[^\d ]')
                 #r = re.compile(r'-?\d+\.?\d*')
                 #\[[\s\d\.,-]*\]
+
+                #TODO fazer if para se for "palavra" se for "> < " 
                 if procCreateGlyphPar_vpar[0] == '\'' or procCreateGlyphPar_vpar.isdigit():
                     procCreateGlyphPar_vGlyphPar = objGlyphParameters('Value', procCreateGlyphPar_vpar.replace("'", ''))
 
@@ -279,7 +281,8 @@ def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count):
             procCreateGlyph_vPosY = procCreateGlyph_contentGly[6]
             procCreateGlyph_vGlyphPar = procCreateGlyph_contentGly[7].replace(", ",',')  
             procCreateGlyph_vGlyphPar = procCreateGlyph_vGlyphPar.split(' ')  
-            
+
+        
         elif len(procCreateGlyph_contentGly) > 9: #Image type parameter
             procCreateGlyph_vBlib = procCreateGlyph_contentGly[1]
             procCreateGlyph_vFunc = procCreateGlyph_contentGly[2]
@@ -451,7 +454,8 @@ def procCreateConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnec
 
 # File to be read
 
-vfile = sys.argv[1]
+# vfile = sys.argv[1]
+vfile = 'SAMPLES/ifelse.wksp'
 
 vGlyph = objGlyph               #Glyph in memory 
 vGlyphPar = objGlyphParameters  #Glyph parameters in memory
@@ -497,7 +501,7 @@ def fileRead(lstGlyph, lstConnection, variable_store):
                             print(f"Variável '{var_name}' armazenada com valor {var_value}")
 
                     # Extrai os glifos
-                    if ('glyph:' in line.lower()) or ('extport:' in line.lower()):
+                    if ('glyph:' in line.lower()) or ('extport:' in line.lower() or 'conditional:' in line.lower()):
                         procCreateGlyph(line.split(':'), count)
 
                     # Cria as conexões
@@ -526,3 +530,6 @@ def fileRead(lstGlyph, lstConnection, variable_store):
 
     except UnboundLocalError:
         print("File not found.")
+
+variable_store = VariableStore()
+fileRead(lstGlyph, lstConnection, variable_store)

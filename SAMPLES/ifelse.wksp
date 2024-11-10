@@ -10,24 +10,26 @@ width_size = 2342
 height_size = 1144
 VariablesBegin:
 
-
-#
-# list of currently declared variables
-#
-
-# Simple expression 'i'
 i = 1
 
 
 VariablesEnd:
 
-
+#  Glyph
 #  Glyph 'Image load'
 Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
 
+#  Conditional 'If Else'
+Conditional:VGL:CONDITIONAL::if_else:7:245:165:: -filename 'i' 
 
 #  Glyph 'Image Show'
 Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
 
+
+
+
 #Connections 'Show'
-NodeConnection:data:1:img_output:19:image
+NodeConnection:data:1:img_output:7:image
+
+NodeConnection:data:7:o1:19:image
+

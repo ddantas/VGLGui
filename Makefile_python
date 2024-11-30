@@ -35,3 +35,5 @@ runexec:
 
 rungenerator:
 	cd ~/Documents/TCC_1/VGLGui;  ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl
+runprocedure:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/procedures/procedure.wksp

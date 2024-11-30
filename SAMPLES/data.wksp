@@ -1,0 +1,269 @@
+# Khoros Visual Programming Workspace
+#
+# cantata workspace file (/home/khoros/sveta/data.wksp) was created 
+# on Mon Jul  2 11:22:34 2001
+# by user khoros
+#
+
+WorkspaceBegin: 2.1
+
+VariablesBegin:
+
+
+#
+# list of currently declared variables
+#
+
+width_size = 2342
+height_size = 1144
+
+VariablesEnd:
+
+#  Glyph 'Switch Axes'
+Glyph:DATAMANIP:kaxis::localhost:1:302:122:: -wh -hw -dd 
+
+#  Glyph 'Labeling'
+Glyph:CYTOMETRY:kffl::localhost:3:382:122:: -conn 1 
+
+#  Glyph 'Switch Axes'
+Glyph:DATAMANIP:kaxis::localhost:5:462:122:: -wh -hw -dd 
+
+#  Glyph 'Shape     Analysis'
+Glyph:RETRO:vshape::localhost:7:562:82:: -ms 0 -mc 0 -mi 0 -mr 0 -col 0 
+
+#  Glyph 'Append'
+Glyph:DATAMANIP:kappend::localhost:9:882:302:: -append 1 -mapping 0 -e 
+
+#  Glyph 'Statistics'
+Glyph:DATAMANIP:kstats::localhost:11:742:482:: -w -h -d -e -mean 
+
+#  Glyph 'Blob extractor'
+Glyph:CYTOMETRY:kblobext::localhost:13:662:482:: -backvalue 0 -masklogic 1 
+
+#  Glyph 'Statistics'
+Glyph:DATAMANIP:kstats::localhost:15:742:382:: -w -h -d -e -mean 
+
+#  Glyph 'Blob extractor'
+Glyph:CYTOMETRY:kblobext::localhost:17:662:382:: -backvalue 0 -masklogic 1 
+
+#  Glyph 'Statistics'
+Glyph:DATAMANIP:kstats::localhost:19:742:282:: -w -h -d -e -mean 
+
+#  Glyph 'Blob extractor'
+Glyph:CYTOMETRY:kblobext::localhost:21:662:282:: -backvalue 0 -masklogic 1 
+
+#  Glyph 'Divide'
+Glyph:DATAMANIP:kdiv::localhost:23:722:142:: -real 'width_size' 
+
+#  Glyph 'Multiply'
+Glyph:DATAMANIP:kmul::localhost:25:782:142:: -real '100' 
+
+#  Glyph 'Multiply'
+Glyph:DATAMANIP:kmul::localhost:27:782:82:: -real '100' 
+
+#  Glyph 'Divide'
+Glyph:DATAMANIP:kdiv::localhost:29:722:82:: -real 'height_size' 
+
+#  Glyph 'Extract'
+Glyph:DATAMANIP:kextract::localhost:31:662:142:: -esize '1' -eoff '5' -subpos 0 
+
+#  Glyph 'Extract'
+Glyph:DATAMANIP:kextract::localhost:33:662:82:: -esize '1' -eoff '4' -subpos 0 
+
+#  Procedure 'cleanse'
+ProcedureBegin:cleanse:(unknown):localhost:35:222:122: 
+
+VariablesBegin:
+
+
+
+# No variables currently declared. #
+
+VariablesEnd:
+
+#  Glyph 'Inf-Reconstruction'
+Glyph:MMACH:vopenrec::localhost:1:902:142:: 
+
+#  Glyph '3x3 Str.El.'
+Glyph:MMACH:vstrflat::localhost:3:702:322:: -s00 '1' -s10 '1' -s20 '1' -s01 '1' -s11 '1' -s21 '1' -s02 '1' -s12 '1' -s22 '1' 
+
+#  Glyph 'Closing of Holes'
+Glyph:MMACH:vclohole::localhost:5:642:162:: 
+
+#  Glyph 'N Erosion'
+Glyph:MMACH:vnero::localhost:7:762:102:: -n '5' 
+
+#  ExtPort 'External Output (1)'
+ExtPort:out:External Output (1):o1:9:1142:142:
+
+#  ExtPort 'External Input (2)'
+ExtPort:in:External Input (2):i1:11:522:182:
+
+#  Glyph 'Erosion'
+Glyph:MMACH:vero::localhost:13:1022:222:: 
+
+
+#  Connections 'Inf-Reconstruction'
+NodeConnection:data:1:o:13:i:
+
+#  Connections '3x3 Str.El.'
+NodeConnection:data:3:o:5:str:
+NodeConnection:data:3:o:7:str:
+NodeConnection:data:3:o:1:str:
+NodeConnection:data:3:o:13:str:
+
+#  Connections 'Closing of Holes'
+NodeConnection:data:5:o:7:i:
+NodeConnection:data:5:o:1:i1:
+
+#  Connections 'N Erosion'
+NodeConnection:data:7:o:1:i2:
+
+#  Connections 'External Output (1)'
+
+#  Connections 'External Input (2)'
+NodeConnection:data:11::5:i:
+
+#  Connections 'Erosion'
+NodeConnection:data:13:o:9::
+
+AnnotationsBegin
+AnnotationsEnd
+
+ProcedureEnd:cleanse
+
+#  Glyph 'Supported Formats'
+Glyph:DATAMANIP:kformats::localhost:37:1022:302:: -kdf 
+
+#  Glyph 'chan1'
+Glyph:DATAMANIP:kextract:chan1:localhost:39:382:302:: -esize '1' -eoff '1' -subpos 0 
+
+#  Glyph 'chan3'
+Glyph:DATAMANIP:kextract:chan3:localhost:41:382:502:: -esize '1' -eoff '3' -subpos 0 
+
+#  Glyph 'chan2'
+Glyph:DATAMANIP:kextract:chan2:localhost:43:382:402:: -esize '1' -eoff '2' -subpos 0 
+
+#  Glyph 'Print Stats'
+Glyph:DATAMANIP:kprstats::localhost:45:522:362:: -wsize_var 'width_size' -hsize_var 'height_size' 
+
+#  Glyph 'Convert Type'
+Glyph:DATAMANIP:kconvert::localhost:47:142:122:: -type 3 -scale '1' -roff '0' -ioff '0' -val 
+
+#  Glyph 'Replace Value'
+Glyph:DATAMANIP:kreplace::localhost:49:262:222:: -oval '1' -nval '255' 
+
+#  Glyph 'Expand'
+Glyph:DATAMANIP:kexpand::localhost:51:462:362:: -wmag '2' -hmag '2' 
+
+#  Glyph 'Shrink'
+Glyph:DATAMANIP:kshrink::localhost:53:523:223:: -wmag '0.5' -hmag '0.5' 
+
+#  Glyph 'User defined'
+Glyph:DESIGN:user_def::localhost:90:42:122::  -o image:ball
+
+#  Glyph 'User defined'
+Glyph:DESIGN:user_def::localhost:93:183:403::  -o image:ball
+
+
+#  Connections 'Switch Axes'
+NodeConnection:data:1:o:3:i:
+
+#  Connections 'Labeling'
+NodeConnection:data:3:o:5:i:
+NodeConnection:control:3:out:39:in:
+
+#  Connections 'Switch Axes'
+NodeConnection:data:5:o:7:i1:
+NodeConnection:data:5:o:53:i:
+
+#  Connections 'Shape Analysis'
+NodeConnection:data:7:o3:33:i:
+NodeConnection:data:7:o3:31:i:
+
+#  Connections 'Append'
+NodeConnection:data:9:o:37:i:
+
+#  Connections 'Statistics'
+NodeConnection:data:11:o:9:i5:
+
+#  Connections 'Blob extractor'
+NodeConnection:data:13:o1:11:i:
+
+#  Connections 'Statistics'
+NodeConnection:data:15:o:9:i4:
+NodeConnection:control:15:out:13:in:
+
+#  Connections 'Blob extractor'
+NodeConnection:data:17:o1:15:i:
+
+#  Connections 'Statistics'
+NodeConnection:data:19:o:9:i3:
+NodeConnection:control:19:out:17:in:
+
+#  Connections 'Blob extractor'
+NodeConnection:data:21:o1:19:i:
+
+#  Connections 'Divide'
+NodeConnection:data:23:o:25:i1:
+
+#  Connections 'Multiply'
+NodeConnection:data:25:o:9:i1:
+NodeConnection:control:25:out:21:in:
+
+#  Connections 'Multiply'
+NodeConnection:data:27:o:9:i2:
+NodeConnection:control:27:out:31:in:
+
+#  Connections 'Divide'
+NodeConnection:data:29:o:27:i1:
+
+#  Connections 'Extract'
+NodeConnection:data:31:o:23:i1:
+
+#  Connections 'Extract'
+NodeConnection:data:33:o:29:i1:
+
+#  Connections 'cleanse'
+NodeConnection:data:35:o1:49:i:
+
+#  Connections 'Supported Formats'
+
+#  Connections 'chan1'
+NodeConnection:data:39:o:51:i:
+NodeConnection:data:39:o:21:i2:
+
+#  Connections 'chan3'
+NodeConnection:data:41:o:13:i2:
+
+#  Connections 'chan2'
+NodeConnection:data:43:o:17:i2:
+
+#  Connections 'Print Stats'
+
+#  Connections 'Convert Type'
+NodeConnection:data:47:o:35:i1:
+
+#  Connections 'Replace Value'
+NodeConnection:data:49:o:1:i:
+
+#  Connections 'Expand'
+NodeConnection:data:51:o:45:i:
+
+#  Connections 'Shrink'
+NodeConnection:data:53:o:21:i1:
+NodeConnection:data:53:o:17:i1:
+NodeConnection:data:53:o:13:i1:
+
+#  Connections 'User defined'
+NodeConnection:data:90:o:47:i:
+
+#  Connections 'User defined'
+NodeConnection:data:93:o:39:i:
+NodeConnection:data:93:o:43:i:
+NodeConnection:data:93:o:41:i:
+
+AnnotationsBegin
+AnnotationsEnd
+
+WorkspaceEnd: 2.1

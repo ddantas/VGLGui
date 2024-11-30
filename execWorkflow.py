@@ -78,8 +78,8 @@ for vGlyph in lstGlyph:
 
         vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
         
-        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
-        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
+        vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+        #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
         vl.vglLoadImage(vglLoadImage_img_input)
         if( vglLoadImage_img_input.getVglShape().getNChannels() == 3 ):
           vl.rgb_to_rgba(vglLoadImage_img_input)
@@ -1325,14 +1325,28 @@ for vGlyph in lstGlyph:
 
         if trinput is not None:
             GlyphExecutedUpdate(vGlyph.glyph_id,toutput)
-            
+
+    elif vGlyph.func == 'External Output (1)':
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+        print(vGlyph.glyph_id)
+
+        o = getImageInputByIdName(vGlyph.glyph_id, 'o')
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, o)
+
+    elif vGlyph.func == 'External Input (1)':
+        print("-------------------------------------------------")
+        print("A função " + vGlyph.func +" está sendo executada")
+        print("-------------------------------------------------")
+        print(vGlyph.glyph_id)
+
+        o = getImageInputByIdName(vGlyph.glyph_id, 'i')
+
+        GlyphExecutedUpdate(vGlyph.glyph_id, o)
 
 
-    
-
-         # Actions after glyph execution
-        #GlyphExecutedUpdate(vGlyph.glyph_id,toutput)
-        #GlyphExecutedUpdate(vGlyph.glyph_id,merge_img_input1)
 
 
     elif vGlyph.func == 'ShowImage':

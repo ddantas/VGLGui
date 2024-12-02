@@ -1,3 +1,4 @@
-Tempo médio de 1 execuções do método vglClNdConvolution: 10.658000000000001 ms
+Tempo médio de 1 execuções do método vglClRgb2Gray: 48.291000000000004 ms
+Tempo médio de 1 execuções do método vglClThreshold: 48.291000000000004 ms
 
-Valor total do tempo médio: 10.658000000000001
+Valor total do tempo médio: 96.58200000000001

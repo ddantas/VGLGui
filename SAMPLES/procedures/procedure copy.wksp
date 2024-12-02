@@ -16,7 +16,7 @@ i = 1
 VariablesEnd:
 
 
-ProcedureBegin:ExampleProcedure::localhost:1:122:45::
+
 #  Glyph 'Image load'
 Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
 
@@ -25,6 +25,13 @@ Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
 
 #  Glyph 'vglClRgb2Gray'
 Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
+
+#  Procedure 'cleanse'
+ProcedureBegin:VGL:(unknown)::localhost:35:222:122:: 
+
+#  Glyph 'vglClRgb2Gray'
+Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
+
 
 #  ExtPort 'External Input (1)'
 ExtPort:out:External Input (1)::localhost:10:1142:142::
@@ -55,4 +62,3 @@ NodeConnection:data:18:RETVAL:19:dst
 NodeConnection:data:19:dst:9:o
 
 NodeConnection:data:9:o:21:image
-

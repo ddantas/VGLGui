@@ -1,4 +1,3 @@
-Tempo médio de 1 execuções do método vglClRgb2Gray: 48.291000000000004 ms
-Tempo médio de 1 execuções do método vglClThreshold: 48.291000000000004 ms
+Tempo médio de 1 execuções do método vglClRgb2Gray: 47.428 ms
 
-Valor total do tempo médio: 96.58200000000001
+Valor total do tempo médio: 47.428

@@ -36,6 +36,8 @@ GPU = cl.device_type.GPU  # 4
 total = 0.0
 vl.vglClInit(CPU)
 
+processed_workflows = set()  # Usando um conjunto para armazenar IDs de workflows já processados
+
 # Actions after glyph execution
 def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image):
     # Rule10: Glyph becomes DONE = TRUE after its execution. Assign done to glyph
@@ -50,20 +52,35 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
 
 fileRead(lstGlyph, lstConnection)
 
-def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False):
+def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_id=None):
     print("Iniciando execWorkflow")
     if is_subworkflow:
-        print("Executando no contexto de um sub-workflow.")
+        print(f"Executando no contexto de um sub-workflow. (Sub-workflow ID: {parent_workflow_id})")
     else:
         print("Executando no workflow principal.")
-
+        
+    if parent_workflow_id in processed_workflows:
+        print(f"Workflow (ID: {parent_workflow_id}) já processado, evitando loop.")
+        return
+    
+    # Adiciona o workflow ao conjunto de workflows processados
+    processed_workflows.add(parent_workflow_id)
     for vGlyph in lstGlyph:
         print(f"Processando o glyph: {vGlyph.glyph_id} com função {vGlyph.func}")
 
-        if not vGlyph.getGlyphReady():
-            raise Error("Rule9: Glyph not ready for processing.", {vGlyph.glyph_id})
+        print(vGlyph.getGlyphReady())
+        try:
+            if not vGlyph.getGlyphReady():
+                break
+        except ValueError:
+            print("Rule9: Glyph not ready for processing: ", {vGlyph.glyph_id})
 
-        if vGlyph.func == 'vglLoadImage':
+
+        if vGlyph.func == 'ProcedureEnd':
+            print(f"Sub-workflow (ID: {parent_workflow_id}) finalizado, retornando ao workflow principal.")
+            continue
+        
+        elif vGlyph.func == 'vglLoadImage':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
@@ -77,32 +94,64 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False):
             GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input)
 
         elif vGlyph.func == 'vglCreateImage':
-            # Search the input image by connecting to the source glyph
-            vglCreateImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img')
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
 
+            vglCreateImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img')
             vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
             vglCreateImage_RETVAL.set_oclPtr(vl.get_similar_oclPtr_object(vglCreateImage_img_input))
             vl.vglAddContext(vglCreateImage_RETVAL, vl.VGL_CL_CONTEXT())
-
-            # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL)
 
         elif vGlyph.func == 'ProcedureBegin':
-            print("Iniciando sub-workflow...")
+            print(f"Iniciando sub-workflow (ID: {vGlyph.glyph_id})...")
             vGlyph.setGlyphReady(True)
 
             # Lê o sub-workflow
             sub_lstGlyph = []
             sub_lstConnection = []
             fileRead(sub_lstGlyph, sub_lstConnection)
-            print(f"Sub-workflow carregado")
+            print(f"Sub-workflow (ID: {vGlyph.glyph_id}) carregado")
 
             # Execução recursiva do sub-workflow
-            execWorkflow(sub_lstGlyph, sub_lstConnection, is_subworkflow=True)
+            execWorkflow(sub_lstGlyph, sub_lstConnection, is_subworkflow=True, parent_workflow_id=vGlyph.glyph_id)
 
-        elif vGlyph.func == 'ProcedureEnd':
-            print("Sub-workflow finalizado, retornando ao workflow principal.")
-            return  # Retorna ao fluxo principal após o sub-workflow
+
+
+        elif vGlyph.func == 'External Output (1)':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+
+            o = getImageInputByIdName(vGlyph.glyph_id, 'o')
+            GlyphExecutedUpdate(vGlyph.glyph_id, o)
+
+        elif vGlyph.func == 'External Input (1)':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+
+
+            o = getImageInputByIdName(vGlyph.glyph_id, 'i')
+            GlyphExecutedUpdate(vGlyph.glyph_id, o)
+            
+        elif vGlyph.func == 'vglClConvolution': #Function Convolution
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+
+            # Search the input image by connecting to the source glyph
+            vglClConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+            
+            # Search the output image by connecting to the source glyph
+            vglClConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+
+            # Apply Convolution function
+            #vl.vglCheckContext(vglClConvolution_img_output,vl.VGL_CL_CONTEXT())
+            vglClConvolution(vglClConvolution_img_input, vglClConvolution_img_output,tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+            # Actions after glyph execution
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglClConvolution_img_output)
 
         elif vGlyph.func == 'vglClBlurSq3':  # Function blur
             print("-------------------------------------------------")
@@ -139,6 +188,12 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False):
             GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output)
 
         elif vGlyph.func == 'ShowImage':
+
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+
+
             # Returns edge image based on glyph id
             ShowImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image')
 

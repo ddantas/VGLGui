@@ -426,7 +426,7 @@ def procCreateConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnec
 
 # File to be read
 
-vfile = "SAMPLES/procedures/newprocedure.wksp"
+vfile = "SAMPLES/procedures/iaprocedure.wksp"
 #vfile = sys.argv[1]
 
 vGlyph = objGlyph               #Glyph in memory 
@@ -450,7 +450,7 @@ def fileRead(lstGlyph, lstConnection):
                 count +=1   #line counter
 
                 #Extracts the contents of the workflow file line in a list separated by the information between the ":" character and create Glyph
-                if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()):
+                if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()) or ('procedureend:' in line.lower()):
                     procCreateGlyph(line.split(':'), count)
 
                 # Rule4: Edges are Connections between Glyphs and represent the image to be processed

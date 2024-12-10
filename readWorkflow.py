@@ -426,7 +426,7 @@ def procCreateConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnec
 
 # File to be read
 
-vfile = "SAMPLES/procedures/iaprocedure.wksp"
+vfile = "SAMPLES/procedures/apresentacao.wksp"
 #vfile = sys.argv[1]
 
 vGlyph = objGlyph               #Glyph in memory 

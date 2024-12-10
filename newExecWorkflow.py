@@ -14,13 +14,16 @@ from datetime import datetime
 
 import matplotlib.pyplot as mp
 
+
 os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
 
+
 def imshow(im):
-    plot = mp.imshow(im, cmap=mp.gray(), origin="upper", vmin=0, vmax=255)
-    plot.set_interpolation('nearest')
-    mp.show()
+    plot = mp.imshow(im, cmap="gray", origin="upper", vmin=0, vmax=255)
+    plot.set_interpolation('nearest')  # Configura a interpolação como "nearest"
+    mp.colorbar()  # Adiciona uma barra de cores para facilitar a visualização dos valores
+    mp.show()  # Exibe o gráfico
 
 def tratnum(num):
     listnum = []
@@ -118,7 +121,6 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_
             execWorkflow(sub_lstGlyph, sub_lstConnection, is_subworkflow=True, parent_workflow_id=vGlyph.glyph_id)
 
 
-
         elif vGlyph.func == 'External Output (1)':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func +" está sendo executada")
@@ -186,6 +188,28 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_
 
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output)
+
+        
+        elif vGlyph.func == 'vglSaveImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+
+            # Returns edge image based on glyph id
+            vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image')
+
+            if vglSaveImage_img_input is not None:
+
+                # SAVING IMAGE img
+                vpath = vGlyph.lst_par[0].getValue()
+
+                # Rule3: In a sink glyph, images (one or more) can only be input parameters
+                vl.vglCheckContext(vglSaveImage_img_input,vl.VGL_RAM_CONTEXT())             
+                vl.vglSaveImage(vpath, vglSaveImage_img_input)
+                
+
+                # Actions after glyph execution
+                GlyphExecutedUpdate(vGlyph.glyph_id, None)
 
         elif vGlyph.func == 'ShowImage':
 

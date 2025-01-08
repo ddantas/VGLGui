@@ -1,3 +1,6 @@
+#  Glyph 'Image load'
+Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap 0
+
 ProcedureBegin:VGL_GUI:ProcedureBegin::localhost:214:562:122::
 #  Glyph 'Image load'
 Glyph:VGL_CL:vglLoadImage::localhost:100:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap 0
@@ -42,8 +45,6 @@ NodeConnection:data:700:img_output:9:o
 
 ProcedureEnd:VGL_CL:ProcedureEnd::localhost:215:562:122::
 
-Glyph:VGL_CL:vglSaveImage::localhost:210:882:482:: -filename 'proc/img2.png'
+Glyph:VGL_CL:ShowImage::localhost:210:882:482:: -filename 'proc/img2.png'
 
 NodeConnection:data:9:o:210:image
-
-WorkspaceEnd: 1.0

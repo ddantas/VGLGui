@@ -233,7 +233,7 @@ def procCreateGlyphPar(procCreateGlyphPar_vGlyph, procCreateGlyphPar_vParameters
         print("Non-standard information in the Parameter declaration","\nLine",{procCreateGlyphPar_count} , "{s}")
 
 # Create Glyph
-def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count):
+def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count, workspace):
     try:
         
         procCreateGlyph_vBlib = ''
@@ -276,6 +276,8 @@ def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count):
 
         #Create the Glyph
         lstGlyph.append(procCreateGlyph_vGlyph)
+
+        workspace.add_glyph(procCreateGlyph_vGlyph)
 
     except IndexError as d: #rule102 - Variable not found
         print("Non-standard information in the Glyph declaration"," \nLine",{procCreateGlyph_count}, "{d}")
@@ -424,9 +426,55 @@ def procCreateConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnec
         procCreateConnection_vConnPar = objConnectionPar(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname)
         addInputConnection (procCreateConnection_vConnPar, procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname)
 
+def procCreateConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname, procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname, workspace):
+    
+    if not getOutputConnection(procCreateConnection_voutput_Glyph_ID):
+        procCreateConnection_vConnCre = objConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname)
+        lstConnection.append(procCreateConnection_vConnCre)
+        workspace.add_connection(procCreateConnection_vConnCre)
+    
+    if getOutputConnectionByIdName(procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname) is None:
+        procCreateConnection_vConnPar = objConnectionPar(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname)
+        addInputConnection(procCreateConnection_vConnPar, procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname)
+
+
+class Workspace:
+    def __init__(self):
+        # Lista de glifos
+        self.lstGlyph = []         
+
+        # Lista de conexões
+        self.lstConnections = []
+
+        self.procedures = {}  
+    
+    # Método para adicionar um glifo à lista
+    def add_glyph(self, glyph):
+        self.lstGlyph.append(glyph)
+    
+    # Método para adicionar uma conexão à lista
+    def add_connection(self, connection):
+        self.lstConnections.append(connection)
+
+    # Método para exibir o conteúdo do Workspace
+    def display(self):
+        print("Workspace:")
+        print("Glyphs:")
+        for glyph in self.lstGlyph:
+            print(vars(glyph))  # Mostra os atributos do objeto glyph
+        print("\nConnections:")
+        for connection in self.lstConnections:
+            print(connection)
+
+    # Método para limpar o workspace
+    def clear(self):
+        self.lstGlyph.clear()
+        self.lstConnections.clear()
+
+
 # File to be read
 
-vfile = "SAMPLES/procedures/apresentacao.wksp"
+vfile = "SAMPLES/demo.wksp"
 #vfile = sys.argv[1]
 
 vGlyph = objGlyph               #Glyph in memory 
@@ -437,52 +485,109 @@ vConnection = objConnection     #Connection in memory
 vConnectionOutput = objConnectionPar   #Connection input in memory
 
 # Method for reading the workflow file
-def fileRead(lstGlyph, lstConnection):
+# def fileRead(lstGlyph, lstConnection):
+#     try:
+#         if os.path.isfile(vfile):
+
+#             count = 0 #line counter
+
+#             # Opens the workflow file
+#             file1 = open(vfile,"r")
+#             for line in file1:
+
+#                 count +=1   #line counter
+
+#                 #Extracts the contents of the workflow file line in a list separated by the information between the ":" character and create Glyph
+#                 if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()) or ('procedureend:' in line.lower()):
+#                     procCreateGlyph(line.split(':'), count)
+
+#                 # Rule4: Edges are Connections between Glyphs and represent the image to be processed
+#                 #         Creates the connections of the workflow file
+#                 if 'nodeconnection:' in line.lower():
+#                     try:
+
+#                         contentCon = line.split(':')
+#                         voutput_Glyph_ID    = contentCon[2]
+#                         voutput_varname     = contentCon[3].replace('\n','')
+#                         vinput_Glyph_ID     = contentCon[4]
+#                         vinput_varname      = contentCon[5].replace('\n','')
+
+#                         #rule105 - Invalid Glyph Id
+#                         try:
+#                             if int(voutput_Glyph_ID)  <0 or int(vinput_Glyph_ID) < 0:
+#                                 raise Error("Invalid glyph id on line: ",{count})
+#                         except ValueError:
+#                             print("Invalid Connection Creation Values." , " check the line: ",{count})
+
+#                         procCreateConnection(voutput_Glyph_ID, voutput_varname, vinput_Glyph_ID, vinput_varname)
+
+#                     except IndexError as f: #rule 102 - Variable not found
+#                         print("Connections indices not found",{f},"on line ",{count}," of the file")             
+                    
+#             file1.close()
+
+#             # Rule11: Source glyph is already created with READY = TRUE. 
+#             # Create inputs and outputs of the Glyph
+#             procCreateGlyphInOut()
+
+#     except UnboundLocalError: #rule101 - File not found
+#         print("File not found.")
+
+def fileRead(workspace):
     try:
         if os.path.isfile(vfile):
 
-            count = 0 #line counter
+            count = 0  # Line counter
 
             # Opens the workflow file
-            file1 = open(vfile,"r")
-            for line in file1:
+            with open(vfile, "r") as file1:
+                for line in file1:
+                    count += 1  # Line counter
 
-                count +=1   #line counter
+                    # Extracts the contents of the workflow file line and creates Glyphs
+                    if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()) or ('procedureend:' in line.lower()):
+                        procCreateGlyph(line.split(':'), count, workspace)
 
-                #Extracts the contents of the workflow file line in a list separated by the information between the ":" character and create Glyph
-                if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()) or ('procedureend:' in line.lower()):
-                    procCreateGlyph(line.split(':'), count)
-
-                # Rule4: Edges are Connections between Glyphs and represent the image to be processed
-                #         Creates the connections of the workflow file
-                if 'nodeconnection:' in line.lower():
-                    try:
-
-                        contentCon = line.split(':')
-                        voutput_Glyph_ID    = contentCon[2]
-                        voutput_varname     = contentCon[3].replace('\n','')
-                        vinput_Glyph_ID     = contentCon[4]
-                        vinput_varname      = contentCon[5].replace('\n','')
-
-                        #rule105 - Invalid Glyph Id
+                    # Rule4: Edges are Connections between Glyphs and represent the image to be processed
+                    # Creates the connections of the workflow file
+                    if 'nodeconnection:' in line.lower():
                         try:
-                            if int(voutput_Glyph_ID)  <0 or int(vinput_Glyph_ID) < 0:
-                                raise Error("Invalid glyph id on line: ",{count})
-                        except ValueError:
-                            print("Invalid Connection Creation Values." , " check the line: ",{count})
+                            contentCon = line.split(':')
+                            voutput_Glyph_ID    = contentCon[2]
+                            voutput_varname     = contentCon[3].replace('\n','')
+                            vinput_Glyph_ID     = contentCon[4]
+                            vinput_varname      = contentCon[5].replace('\n','')
 
-                        procCreateConnection(voutput_Glyph_ID, voutput_varname, vinput_Glyph_ID, vinput_varname)
+                            # Rule105 - Invalid Glyph Id
+                            try:
+                                if int(voutput_Glyph_ID) < 0 or int(vinput_Glyph_ID) < 0:
+                                    raise Error("Invalid glyph id on line: ",{count})
+                            except ValueError:
+                                print("Invalid Connection Creation Values.", " check the line: ", {count})
 
-                    except IndexError as f: #rule 102 - Variable not found
-                        print("Connections indices not found",{f},"on line ",{count}," of the file")             
-                    
-            file1.close()
+                            # Cria a conexão passando o workspace
+                            procCreateConnection(voutput_Glyph_ID, voutput_varname, vinput_Glyph_ID, vinput_varname, workspace)
 
-            # Rule11: Source glyph is already created with READY = TRUE. 
+                        except IndexError as f:  # Rule 102 - Variable not found
+                            print("Connections indices not found", {f}, "on line", {count}, "of the file")
+
+            # Rule11: Source glyph is already created with READY = TRUE.
             # Create inputs and outputs of the Glyph
             procCreateGlyphInOut()
 
-    except UnboundLocalError: #rule101 - File not found
+    except UnboundLocalError:  # Rule101 - File not found
         print("File not found.")
 
-# fileRead(lstGlyph, lstConnection)
+
+
+# workspace = Workspace()
+
+# fileRead(workspace)
+# print("Verificando os glifos e conexões carregados:")
+# print(f"Glifos: {len(workspace.lstGlyph)}")
+# for glyph in workspace.lstGlyph:
+#     print(vars(glyph))
+
+# print(f"Conexões: {len(workspace.lstConnections)}")
+# for connection in workspace.lstConnections:
+#     print(vars(connection))

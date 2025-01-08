@@ -112,7 +112,7 @@ NodeConnection:data:13:img_output:15:img_input
 NodeConnection:data:14:RETVAL:15:img_output
 
 #Connections 'Save Erode'
-NodeConnection:data:15:img_output:18:image
+NodeConnection:data:15:img_output:19:image
 
 AnnotationsBegin
 AnnotationsEnd

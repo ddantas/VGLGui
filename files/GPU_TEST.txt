@@ -1,3 +1,9 @@
-Tempo médio de 1 execuções do método vglClRgb2Gray: 47.428 ms
+Tempo médio de 1 execuções do método vglClRgb2Gray: 58.443000000000005 ms
+Tempo médio de 1 execuções do método vglClConvolution: 1618.965 ms
+Tempo médio de 1 execuções do método vglClConvolution: 2159.081 ms
+Tempo médio de 1 execuções do método vglClDilate: 1585.787 ms
+Tempo médio de 1 execuções do método vglClDilate: 2132.0800000000004 ms
+Tempo médio de 1 execuções do método vglClErode: 2387.181 ms
+Tempo médio de 1 execuções do método vglClErode: 1982.6019999999999 ms
 
-Valor total do tempo médio: 47.428
+Valor total do tempo médio: 11924.139

@@ -11,7 +11,7 @@ import sys                  # IMPORTING METHODS FROM VGLGui
 from readWorkflow import *
 import time as t
 from datetime import datetime
-
+from readWorkflow import *  
 import matplotlib.pyplot as mp
 
 
@@ -37,7 +37,7 @@ msg = ""
 CPU = cl.device_type.CPU  # 2
 GPU = cl.device_type.GPU  # 4
 total = 0.0
-vl.vglClInit(CPU)
+vl.vglClInit(GPU)
 
 processed_workflows = set()  # Usando um conjunto para armazenar IDs de workflows já processados
 
@@ -52,10 +52,12 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
 
     # Rule2: In a source glyph, images (one or more) can only be output parameters.
     setImageConnectionByOutputId(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
+    
+workspace = Workspace()
 
-fileRead(lstGlyph, lstConnection)
+fileRead(workspace)
 
-def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_id=None):
+def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
     print("Iniciando execWorkflow")
     if is_subworkflow:
         print(f"Executando no contexto de um sub-workflow. (Sub-workflow ID: {parent_workflow_id})")
@@ -67,8 +69,8 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_
         return
     
     # Adiciona o workflow ao conjunto de workflows processados
-    processed_workflows.add(parent_workflow_id)
-    for vGlyph in lstGlyph:
+    # processed_workflows.add(parent_workflow_id)
+    for vGlyph in workspace.lstGlyph:
         print(f"Processando o glyph: {vGlyph.glyph_id} com função {vGlyph.func}")
 
         print(vGlyph.getGlyphReady())
@@ -114,12 +116,47 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_
             # Lê o sub-workflow
             sub_lstGlyph = []
             sub_lstConnection = []
-            fileRead(sub_lstGlyph, sub_lstConnection)
+            fileRead(workspace)
             print(f"Sub-workflow (ID: {vGlyph.glyph_id}) carregado")
 
             # Execução recursiva do sub-workflow
-            execWorkflow(sub_lstGlyph, sub_lstConnection, is_subworkflow=True, parent_workflow_id=vGlyph.glyph_id)
+            execWorkflow(workspace)
 
+        elif vGlyph.func == 'vglClDilate': #Function Dilate
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+        
+            # Search the input image by connecting to the source glyph
+            vglClDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+
+            # Search the output image by connecting to the source glyph
+            vglClDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+
+            # Apply Dilate function
+            vl.vglCheckContext(vglClDilate_img_output,vl.VGL_CL_CONTEXT())
+            vglClDilate(vglClDilate_img_input, vglClDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()),np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglClDilate_img_output)
+
+        elif vGlyph.func == 'vglClErode': #Function Erode
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+
+            # Search the input image by connecting to the source glyph
+            vglClErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+            
+            # Search the output image by connecting to the source glyph
+            vglClErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+        
+            # Apply Erode function
+            vl.vglCheckContext(vglClErode_img_output,vl.VGL_CL_CONTEXT())
+            vglClErode(vglClErode_img_input, vglClErode_img_output, tratnum(vGlyph.lst_par[0].getValue()),np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+            
+
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglClErode_img_output)
 
         elif vGlyph.func == 'External Output (1)':
             print("-------------------------------------------------")
@@ -230,4 +267,4 @@ def execWorkflow(lstGlyph, lstConnection, is_subworkflow=False, parent_workflow_
                 # Actions after glyph execution
                 GlyphExecutedUpdate(vGlyph.glyph_id, None)
 
-execWorkflow(lstGlyph, lstConnection)
+execWorkflow(workspace)

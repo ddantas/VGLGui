@@ -111,16 +111,19 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
 
         elif vGlyph.func == 'ProcedureBegin':
             print(f"Iniciando sub-workflow (ID: {vGlyph.glyph_id})...")
-            vGlyph.setGlyphReady(True)
-
-            # Lê o sub-workflow
-            sub_lstGlyph = []
-            sub_lstConnection = []
-            fileRead(workspace)
-            print(f"Sub-workflow (ID: {vGlyph.glyph_id}) carregado")
-
-            # Execução recursiva do sub-workflow
-            execWorkflow(workspace)
+            # Identifica a procedure e processa recursivamente
+            sub_workspace = Workspace()  # Cria um novo workspace para o sub-workflow
+            sub_workspace.lstGlyph = []  # Lista de glifos para o sub-workflow
+            sub_workspace.lstConnection = []  # Lista de conexões para o sub-workflow
+            is_subworkflow = True
+            
+            # Processa o sub-workflow recursivamente
+            execWorkflow(sub_workspace, is_subworkflow=True, parent_workflow_id=vGlyph.glyph_id)
+            continue  # Volta para o próximo glyph do workflow principal
+        
+        # elif vGlyph.func == 'ProcedureEnd':
+        #     print(f"Sub-workflow (ID: {parent_workflow_id}) finalizado, retornando ao workflow principal.")
+        #     continue
 
         elif vGlyph.func == 'vglClDilate': #Function Dilate
             print("-------------------------------------------------")

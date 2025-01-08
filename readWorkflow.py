@@ -474,7 +474,7 @@ class Workspace:
 
 # File to be read
 
-vfile = "SAMPLES/demo.wksp"
+vfile = "SAMPLES/procedures/apresentacao.wksp"
 #vfile = sys.argv[1]
 
 vGlyph = objGlyph               #Glyph in memory 

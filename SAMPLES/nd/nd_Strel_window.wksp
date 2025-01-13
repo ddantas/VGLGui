@@ -22,7 +22,7 @@ Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
 Glyph:VGL_CL:vglShape::localhost:3:382:182:: -width 5 -height 5
  
 #  Glyph 'vglStrel'
-Glyph:VGL_CL:vglStrel::localhost:4:382:182:: -window [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Glyph:VGL_CL:vglStrel::localhost:4:382:182:: -window [1, 1, 1, 1, 1,1, 1, 1, 1, 1,1, 1, 1, 1, 1,1, 1, 1, 1, 1,1, 1, 1, 1, 1,]
 
 #  Glyph 'vglClNdErode'
 Glyph:VGL_CL:vglClNdErode::localhost:5:382:182::

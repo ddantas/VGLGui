@@ -446,7 +446,6 @@ class Workspace:
         # Lista de conexões
         self.lstConnections = []
 
-        self.procedures = {}  
     
     # Método para adicionar um glifo à lista
     def add_glyph(self, glyph):
@@ -456,26 +455,11 @@ class Workspace:
     def add_connection(self, connection):
         self.lstConnections.append(connection)
 
-    # Método para exibir o conteúdo do Workspace
-    def display(self):
-        print("Workspace:")
-        print("Glyphs:")
-        for glyph in self.lstGlyph:
-            print(vars(glyph))  # Mostra os atributos do objeto glyph
-        print("\nConnections:")
-        for connection in self.lstConnections:
-            print(connection)
-
-    # Método para limpar o workspace
-    def clear(self):
-        self.lstGlyph.clear()
-        self.lstConnections.clear()
-
 
 # File to be read
 
-vfile = "SAMPLES/procedures/apresentacao.wksp"
-#vfile = sys.argv[1]
+# vfile = "SAMPLES/procedures/apresentacao.wksp"
+vfile = sys.argv[1]
 
 vGlyph = objGlyph               #Glyph in memory 
 vGlyphPar = objGlyphParameters  #Glyph parameters in memory

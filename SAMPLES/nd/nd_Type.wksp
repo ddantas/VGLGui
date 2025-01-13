@@ -19,7 +19,7 @@ Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'lena_gray.tif' -iscol
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
 
 #  Glyph 'vglClNdErode'
-Glyph:VGL_CL:vglClNdErode::localhost:3:382:182:: -type 'Cube
+Glyph:VGL_CL:vglClNdErode::localhost:3:382:182:: -type 'Cube'
 
 Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erode_type.tiff'
 

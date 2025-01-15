@@ -1,9 +1,9 @@
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap 0
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap 0
 
 ProcedureBegin:VGL_GUI:ProcedureBegin::localhost:214:562:122::
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadImage::localhost:1:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap 0
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap 0
 
 #  Glyph 'Create Image Rgb2Gray'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::

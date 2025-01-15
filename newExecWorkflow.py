@@ -38,7 +38,7 @@ msg = ""
 CPU = cl.device_type.CPU  # 2
 GPU = cl.device_type.GPU  # 4
 total = 0.0
-vl.vglClInit(CPU)
+vl.vglClInit(GPU)
 
 processed_workflows = set()  # Usando um conjunto para armazenar IDs de workflows já processados
 
@@ -86,12 +86,42 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
             print(f"Sub-workflow (ID: {parent_workflow_id}) finalizado, retornando ao workflow principal.")
             continue
         
-        elif vGlyph.func == 'vglLoadImage':
+        elif vGlyph.func == 'vglLoad2dImage':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
             vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
-            #vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE())
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+
+
+            vl.vglLoadImage(vglLoadImage_img_input)
+            if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
+                vl.rgb_to_rgba(vglLoadImage_img_input)
+
+            vl.vglClUpload(vglLoadImage_img_input)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input)
+
+        elif vGlyph.func == 'vglLoad3dImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE())
+
+            vl.vglLoadImage(vglLoadImage_img_input)
+            if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
+                vl.rgb_to_rgba(vglLoadImage_img_input)
+
+            vl.vglClUpload(vglLoadImage_img_input)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input)
+
+
+        elif vGlyph.func == 'vglLoadNdImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
+
             vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
 
             vl.vglLoadImage(vglLoadImage_img_input)

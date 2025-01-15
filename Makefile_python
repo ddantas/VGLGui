@@ -1,15 +1,15 @@
 rundemo:
-	cd ~/Documents/repo/VGLGui; ./newExecWorkflow.py ./SAMPLES/demo.wksp 1
+	cd ~/Documents/repo/VGLGui; ./execWorkflowGen.py ./SAMPLES/demo.wksp 1
 runfundus:
-	cd ~/Documents/repo/VGLGui; ./newExecWorkflow.py ./SAMPLES/fundus.wksp 1
+	cd ~/Documents/repo/VGLGui; ./execWorkflowGen.py ./SAMPLES/fundus.wksp 1
 run3d:
-	cd ~/Documents/TCC_1/VGLGui; ./newExecWorkflow.py  ./SAMPLES/3d/functions3d.wksp 1
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/3d/functions3d.wksp 1
 
 runnd_strel_type:
-	cd ~/Documents/TCC_1/VGLGui; ./newExecWorkflow.py  ./SAMPLES/nd/nd_Strel_type.wksp 1
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/nd_Strel_type.wksp 1
 
 runnd_strel_window:
-	cd ~/Documents/TCC_1/VGLGui; ./newExecWorkflow.py  ./SAMPLES/nd/nd_Strel_window.wksp 1
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/nd_Strel_window.wksp 1
 
 rungenerator:
 	cd ~/Documents/TCC_1/VGLGui;  ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl

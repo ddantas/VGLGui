@@ -1,0 +1,78 @@
+
+WorkspaceBegin: 1.0
+
+VariablesBegin:
+
+#
+# list of currently declared variables
+#
+
+width_size = 2342
+height_size = 1144
+
+VariablesEnd:
+
+#  Glyph 'Image load'
+Glyph:VGL_CL:vglLoadNdImage::localhost:1:302:82:: -filename 'files/images/orig.png' -iscolor 1 -has_mipmap
+
+#  Glyph 'Create Image'
+Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
+
+#Glyph 'vglShape'
+Glyph:VGL_CL:vglShape::localhost:3:382:182:: -width 5 -height 5
+ 
+#  Glyph 'vglStrel'
+Glyph:VGL_CL:vglStrel::localhost:4:382:182:: -window [1, 1, 1, 1, 1,1, 1, 1, 1, 1,1, 1, 1, 1, 1,1, 1, 1, 1, 1,1, 1, 1, 1, 1]
+
+#  Glyph 'vglClNdErode'
+Glyph:VGL_CL:vglClNdErode::localhost:5:382:182::
+
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erode.tiff'
+
+#  Glyph 'vglClNdDilate'
+Glyph:VGL_CL:vglClNdDilate::localhost:6:382:182::
+
+Glyph:VGL_CL:vglSaveImage::localhost:17:882:482:: -filename 'out/nd/nd_dilate.tiff'
+
+#  Glyph 'vglClNdConvolution'
+Glyph:VGL_CL:vglClNdConvolution::localhost:7:382:182::
+
+Glyph:VGL_CL:vglSaveImage::localhost:18:882:482:: -filename 'out/nd/nd_conv.tiff'
+
+# vglClNdErode
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:5:img_input
+NodeConnection:data:2:RETVAL:5:img_output
+
+NodeConnection:data:2:RETVAL:3:img_output
+
+NodeConnection:data_shape:3:SHAPE:4:shape
+NodeConnection:data_strel:4:STREL:5:window
+
+NodeConnection:data:5:img_output:16:image
+
+
+# vglClNdDilate
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:6:img_input
+NodeConnection:data:2:RETVAL:6:img_output
+
+NodeConnection:data:2:RETVAL:3:img_output
+
+NodeConnection:data_shape:3:SHAPE:4:shape
+NodeConnection:data_strel:4:STREL:6:window
+
+NodeConnection:data:6:img_output:17:image
+
+# vglClNdConvolution
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:7:img_input
+NodeConnection:data:2:RETVAL:7:img_output
+
+NodeConnection:data:2:RETVAL:3:img_output
+
+NodeConnection:data_shape:3:SHAPE:4:shape
+NodeConnection:data_strel:4:STREL:7:window
+
+NodeConnection:data:7:img_output:18:image
+

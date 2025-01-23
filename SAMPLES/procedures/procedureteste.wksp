@@ -1,0 +1,28 @@
+#  Glyph 'Image load'
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
+
+#  Glyph 'Create Image Rgb2Gray'
+Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
+
+#  Glyph 'vglClRgb2Gray'
+Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
+
+ExtPort:out:External Input (1)::localhost:92:1142:142::
+
+Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
+
+#  Connections 'Applying Rgb2Gray’
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+NodeConnection:data:3:img_output:92:i
+
+ProcedureBegin:VGL_GUI:ProcedureBegin::localhost:214:562:122::
+#  Glyph 'Image Show Erode'
+Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
+
+NodeConnection:data:92:i:19:image
+
+
+ProcedureEnd:VGL_CL:ProcedureEnd::localhost:215:562:122:
+

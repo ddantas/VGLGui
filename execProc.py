@@ -88,11 +88,17 @@ def execute_glifos_in_workspace(workspace):
             print("Glyph ID:", vGlyph.glyph_id)
 
             vglCreateImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img', workspace)
-            # print(vglCreateImage_img_input.ipl)
-            vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
-            vglCreateImage_RETVAL.set_oclPtr(vl.get_similar_oclPtr_object(vglCreateImage_img_input))
-            vl.vglAddContext(vglCreateImage_RETVAL, vl.VGL_CL_CONTEXT())
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL, workspace)
+            
+            if vglCreateImage_img_input is None:
+                print(f"Nenhuma imagem encontrada para glyph_id={vGlyph.glyph_id} e name=img")
+                # Aqui você pode decidir o que fazer: talvez criar uma imagem padrão ou continuar sem imagem
+                return  # Ou talvez você queira continuar com um comportamento alternativo
+            else:
+                vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
+                vglCreateImage_RETVAL.set_oclPtr(vl.get_similar_oclPtr_object(vglCreateImage_img_input))
+                vl.vglAddContext(vglCreateImage_RETVAL, vl.VGL_CL_CONTEXT())
+                GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL, workspace)
+
 
         elif vGlyph.func == "ShowImage":
 
@@ -115,6 +121,37 @@ def execute_glifos_in_workspace(workspace):
                 # Actions after glyph execution
                 GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
 
+
+
+        elif vGlyph.func == 'External Input (1)':
+            print("-------------------------------------------------")
+            print(f"A função {vGlyph.func} está sendo executada")
+            print("-------------------------------------------------")
+            
+            # Obter o glyph relacionado ao External Input
+            glyph = next((g for g in workspace.lstGlyph if g.glyph_id == vGlyph.glyph_id), None)
+            if glyph:
+                print(f"Glyph com ID {glyph.glyph_id} encontrado.")
+                o = getImageInputByIdName(glyph.glyph_id, 'i', workspace)
+                print("Imagem no glifo 92:", o)
+
+                print(o)
+                # Verificar se o glyph está conectado a um subworkspace
+                if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
+                    for subWorkspace in workspace.subWorkspaces:
+                        # Passar dados para o subworkspace
+                        print(f"Enviando dados para o subworkspace {subWorkspace}")
+                        # Aqui você pode criar o processo de transferência para o subworkspace
+                        # Adicionar uma conexão entre o glyph atual e o subworkspace, se necessário
+                        # Exemplo fictício: enviar a variável 'o' (a entrada de dados) para o subworkspace
+                        execute_glifos_in_workspace(subWorkspace)  # Chamada recursiva para processar o subworkspace
+                        # break
+                # Atualizar o workspace principal após a execução
+                
+                GlyphExecutedUpdate(glyph.glyph_id, o, workspace)
+
+
+
         elif vGlyph.func == 'External Output (1)':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func +" está sendo executada")
@@ -123,16 +160,15 @@ def execute_glifos_in_workspace(workspace):
             o = getImageInputByIdName(vGlyph.glyph_id, 'o', workspace)
             GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)
 
-        elif vGlyph.func == 'External Input (1)':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func +" está sendo executada")
-            print("-------------------------------------------------")
-            
-            o = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
-            GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)
+
             
         elif vGlyph.func == 'vglClRgb2Gray':
-
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func +" está sendo executada")
+          print("-------------------------------------------------")
+          print('s')
+          
+        #   vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
           vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
           vl.vglCheckContext(vglClRgb2Gray_img_input, vl.VGL_CL_CONTEXT());
           vglClRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)

@@ -2,13 +2,13 @@
 from vgl_lib.vglClUtil import vglClEqual
 
 from vgl_lib.vglImage import VglImage
-import pyopencl as cl  # OPENCL LIBRARY
-import vgl_lib as vl  # VGL LIBRARYS
-import numpy as np  # TO WORK WITH MAIN
-from cl2py_shaders import *  # IMPORTING METHODS
+import pyopencl as cl
+import vgl_lib as vl
+import numpy as np
+from cl2py_shaders import * 
 from cl2py_ND import *
 import os
-import sys  # IMPORTING METHODS FROM VGLGui
+import sys
 from readWorkflow import *
 import time as t
 from datetime import datetime
@@ -22,10 +22,8 @@ sys.path.append(os.getcwd())
 
 def imshow(im):
     plot = mp.imshow(im, cmap="gray", origin="upper", vmin=0, vmax=255)
-    # Configura a interpolação como "nearest"
     plot.set_interpolation("nearest")
-    mp.colorbar()  # Adiciona uma barra de cores para facilitar a visualização dos valores
-    mp.show()  # Exibe o gráfico
+    mp.show() 
 
 
 def tratnum(num):
@@ -38,8 +36,8 @@ def tratnum(num):
 
 nSteps = 1
 msg = ""
-CPU = cl.device_type.CPU  # 2
-GPU = cl.device_type.GPU  # 4
+CPU = cl.device_type.CPU 
+GPU = cl.device_type.GPU
 total = 0.0
 vl.vglClInit(GPU)
 
@@ -59,8 +57,7 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image,
     setImageConnectionByOutputId(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image, workspace)
     
 
-def execute_glifos_in_workspace(workspace):
-    # Executa os glifos do workspace atual
+def execute_workspace(workspace):
     print(f"Processando workspace: {workspace}")
 
     for vGlyph in workspace.lstGlyph:
@@ -122,46 +119,137 @@ def execute_glifos_in_workspace(workspace):
                 GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
 
 
-
         elif vGlyph.func == 'External Input (1)':
             print("-------------------------------------------------")
             print(f"A função {vGlyph.func} está sendo executada")
             print("-------------------------------------------------")
             
-            # Obter o glyph relacionado ao External Input
             glyph = next((g for g in workspace.lstGlyph if g.glyph_id == vGlyph.glyph_id), None)
             if glyph:
                 print(f"Glyph com ID {glyph.glyph_id} encontrado.")
                 o = getImageInputByIdName(glyph.glyph_id, 'i', workspace)
-                print("Imagem no glifo 92:", o)
 
-                print(o)
-                # Verificar se o glyph está conectado a um subworkspace
                 if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
                     for subWorkspace in workspace.subWorkspaces:
-                        # Passar dados para o subworkspace
                         print(f"Enviando dados para o subworkspace {subWorkspace}")
-                        # Aqui você pode criar o processo de transferência para o subworkspace
-                        # Adicionar uma conexão entre o glyph atual e o subworkspace, se necessário
-                        # Exemplo fictício: enviar a variável 'o' (a entrada de dados) para o subworkspace
-                        execute_glifos_in_workspace(subWorkspace)  # Chamada recursiva para processar o subworkspace
-                        # break
-                # Atualizar o workspace principal após a execução
+                        execute_workspace(subWorkspace)  # Chamada recursiva para processar o subworkspace
                 
                 GlyphExecutedUpdate(glyph.glyph_id, o, workspace)
 
+        elif vGlyph.func == 'vglLoadNdImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
 
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
 
-        elif vGlyph.func == 'External Output (1)':
+            vl.vglLoadImage(vglLoadImage_img_input)
+            if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
+                vl.rgb_to_rgba(vglLoadImage_img_input)
+
+            vl.vglClUpload(vglLoadImage_img_input)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
+
+        elif vGlyph.func == 'vglShape': #Function Shape
             print("-------------------------------------------------")
             print("A função " + vGlyph.func +" está sendo executada")
             print("-------------------------------------------------")
-
-            o = getImageInputByIdName(vGlyph.glyph_id, 'o', workspace)
-            GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)
-
-
             
+            vglShape_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+            
+            #print(vglShape_img_input.prinfInfo())       
+            vglShape = vl.VglShape()
+            
+
+                
+            vglShape.constructorFromShapeNdimBps(vglShape.shape,int(vglShape_img_input.ndim))
+            
+            vglShape.shape[vl.VGL_SHAPE_NCHANNELS()] = 1
+            vglShape.shape[vl.VGL_SHAPE_WIDTH()] = int(vGlyph.lst_par[0].getValue())
+            vglShape.shape[vl.VGL_SHAPE_HEIGTH()] = int(vGlyph.lst_par[1].getValue())
+            #vglShape.shape[vl.VGL_SHAPE_LENGTH()] = int(vGlyph.lst_par[3].getValue())
+            vglShape.size = int(vGlyph.lst_par[0].getValue()) * int(vGlyph.lst_par[1].getValue())
+            print(vglShape.printInfo())
+            #print(vglShape.printInfo())
+        
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglShape, workspace)
+
+        elif vGlyph.func == 'vglStrel': #Function Erode
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+            
+            vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape', workspace)
+
+            ##CASO DO TYPE
+            if (len(vGlyph.lst_par) == 2): 
+                window = vl.VglStrEl()
+                kernel_type_map = {
+                    'gaussian': 3,
+                    'cross': 2,
+                    'mean': 4,
+                    'cube': 1
+                }
+                input = vGlyph.lst_par[0].getValue().strip().lower()
+                type = None
+                for key in kernel_type_map.keys():
+                    if input.startswith(key):
+                        type = kernel_type_map[key]
+                        break          
+                print(type)
+                window.constructorFromTypeNdim(type, int(vGlyph.lst_par[1].getValue()))
+                #print(window.getData())
+            
+            if(len(vGlyph.lst_par) == 1):
+                str_list = vGlyph.lst_par[0].getValue()
+                data = np.array(str_list, dtype=np.float32) 
+                window = vl.VglStrEl()
+                window.constructorFromDataVglShape(data,vglShape)
+            #print(window.data)
+            
+
+
+            GlyphExecutedUpdate(vGlyph.glyph_id, window, workspace)
+
+
+        elif vGlyph.func == 'vglClNdErode':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func +" está sendo executada")
+          print("-------------------------------------------------")
+
+          vglClNdConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vl.vglCheckContext(vglClNdConvolution_img_input, vl.VGL_CL_CONTEXT());
+          vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vl.vglCheckContext(vglClNdConvolution_img_output, vl.VGL_CL_CONTEXT());
+          window = getImageInputByIdName(vGlyph.glyph_id, 'window', workspace)
+          vglClNdErode(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdConvolution_img_output, workspace)
+
+        elif vGlyph.func == 'vglSaveImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+
+            # Returns edge image based on glyph id
+            vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image', workspace)
+            print("path = ",vGlyph.lst_par[0].getValue())
+            print("vglSaveImage_img_input = ",vglSaveImage_img_input)
+            if vglSaveImage_img_input is not None:
+
+              # SAVING IMAGE img
+              vpath = vGlyph.lst_par[0].getValue()
+
+              # Rule3: In a sink glyph, images (one or more) can only be input parameters
+              vl.vglCheckContext(vglSaveImage_img_input,vl.VGL_RAM_CONTEXT())             
+              vl.vglSaveImage(vpath, vglSaveImage_img_input)
+              
+
+              # Actions after glyph execution
+              GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+
+
         elif vGlyph.func == 'vglClRgb2Gray':
           print("-------------------------------------------------")
           print("A função " + vGlyph.func +" está sendo executada")
@@ -295,9 +383,8 @@ def execute_glifos_in_workspace(workspace):
         for subWorkspace in workspace.subWorkspaces:
             print(f"Entrando no subWorkspace: {subWorkspace}")
             # Chamada recursiva para o sub-workspace
-            execute_glifos_in_workspace(subWorkspace)
-
+            execute_workspace(subWorkspace)
 
 
 # Executa os glifos no workspace principal
-execute_glifos_in_workspace(workspace)
+execute_workspace(workspace)

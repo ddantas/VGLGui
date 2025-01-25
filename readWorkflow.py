@@ -1,7 +1,6 @@
 # Objective: read VGLGui workflow file and load content into memory
 # File type: structure.txt
 
-#
 import sys
 import re
 import os
@@ -539,8 +538,10 @@ class Workspace:
 # File to be read
 
 # vfile = "SAMPLES/procedures/apresentacao.wksp"
-# vfile = sys.argv[1]
-vfile = "SAMPLES/procedures/procedureteste.wksp"
+vfile = sys.argv[1]
+# vfile = "SAMPLES/procedures/procedureteste.wksp"
+# vfile = "SAMPLES/procedures/tcc/demo_fundus.wksp"
+# vfile = "SAMPLES/nd/nd_Strel_type.wksp"
 # vfile = "SAMPLES/procedures/demo_procedure.wksp"
 # vfile = "SAMPLES/fundus.wksp"
 
@@ -551,54 +552,6 @@ vGlyphOut = objGlyphOutput      #Glyph output in memory
 vConnection = objConnection     #Connection in memory
 vConnectionOutput = objConnectionPar   #Connection input in memory
 
-# Method for reading the workflow file
-# def fileRead(lstGlyph, lstConnection):
-#     try:
-#         if os.path.isfile(vfile):
-
-#             count = 0 #line counter
-
-#             # Opens the workflow file
-#             file1 = open(vfile,"r")
-#             for line in file1:
-
-#                 count +=1   #line counter
-
-#                 #Extracts the contents of the workflow file line in a list separated by the information between the ":" character and create Glyph
-#                 if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()) or ('procedureend:' in line.lower()):
-#                     procCreateGlyph(line.split(':'), count)
-
-#                 # Rule4: Edges are Connections between Glyphs and represent the image to be processed
-#                 #         Creates the connections of the workflow file
-#                 if 'nodeconnection:' in line.lower():
-#                     try:
-
-#                         contentCon = line.split(':')
-#                         voutput_Glyph_ID    = contentCon[2]
-#                         voutput_varname     = contentCon[3].replace('\n','')
-#                         vinput_Glyph_ID     = contentCon[4]
-#                         vinput_varname      = contentCon[5].replace('\n','')
-
-#                         #rule105 - Invalid Glyph Id
-#                         try:
-#                             if int(voutput_Glyph_ID)  <0 or int(vinput_Glyph_ID) < 0:
-#                                 raise Error("Invalid glyph id on line: ",{count})
-#                         except ValueError:
-#                             print("Invalid Connection Creation Values." , " check the line: ",{count})
-
-#                         procCreateConnection(voutput_Glyph_ID, voutput_varname, vinput_Glyph_ID, vinput_varname)
-
-#                     except IndexError as f: #rule 102 - Variable not found
-#                         print("Connections indices not found",{f},"on line ",{count}," of the file")             
-                    
-#             file1.close()
-
-#             # Rule11: Source glyph is already created with READY = TRUE. 
-#             # Create inputs and outputs of the Glyph
-#             procCreateGlyphInOut()
-
-#     except UnboundLocalError: #rule101 - File not found
-#         print("File not found.")
 def fileRead(workspace):
     try:
         if os.path.isfile(vfile):
@@ -668,7 +621,7 @@ def print_workspace_info(workspace, indent=0):
     """
     Função para exibir as informações de um workspace, incluindo seus sub-workspaces.
     """
-    prefix = " " * indent  # Define a indentação
+    prefix = " " * indent
     print(f"{prefix}Workspace:")
     print(f"{prefix}  - Número de Glyphs: {len(workspace.lstGlyph)}")
     print(f"{prefix}  - Número de Conexões: {len(workspace.lstConnections)}")
@@ -692,23 +645,22 @@ def print_workspace_info(workspace, indent=0):
             print(f"{prefix}    Sub-workspace {idx}:")
             print_workspace_info(sub_workspace, indent + 4)
 
-# Exibe as informações do workspace principal
 
 
-workspace = Workspace()
-fileRead(workspace)
-# for subWorkspace in workspace.subWorkspaces:
-#     if not subWorkspace.lstGlyph:
-#         print("Lista de sub_vGlyph está vazia.")
-#     for sub_vGlyph in subWorkspace.lstGlyph:
-#         print("Função do sub_vGlyph:", sub_vGlyph.func)
+# workspace = Workspace()
+# fileRead(workspace)
+# # for subWorkspace in workspace.subWorkspaces:
+# #     if not subWorkspace.lstGlyph:
+# #         print("Lista de sub_vGlyph está vazia.")
+# #     for sub_vGlyph in subWorkspace.lstGlyph:
+# #         print("Função do sub_vGlyph:", sub_vGlyph.func)
 
-# 
-# print_workspace_info(workspace.lstGlyph)
-# print_workspace_info(workspace)
-# print(f"Sub-workspaces: {len(workspace.subWorkspaces)}")
-# for idx, sub in enumerate(workspace.subWorkspaces, start=1):
-#     print(f"Sub-workspace {idx} contém {len(sub.lstGlyph)} glifos e {len(sub.lstConnections)} conexões.")
+
+# # print_workspace_info(workspace.lstGlyph)
+# # print_workspace_info(workspace)
+# # print(f"Sub-workspaces: {len(workspace.subWorkspaces)}")
+# # for idx, sub in enumerate(workspace.subWorkspaces, start=1):
+# #     print(f"Sub-workspace {idx} contém {len(sub.lstGlyph)} glifos e {len(sub.lstConnections)} conexões.")
 
 
 # print("Verificando os glifos e conexões carregados:")

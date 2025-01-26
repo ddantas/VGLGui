@@ -3,7 +3,7 @@ rundemo:
 runfundus:
 	cd ~/Documents/repo/VGLGui; ./execProc.py ./SAMPLES/fundus.wksp 1
 run3d:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/3d/functions3d.wksp 1
+	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/3d/3d.wksp 1
 
 runnd_strel_type:
 	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/nd/nd_Strel_type.wksp 1

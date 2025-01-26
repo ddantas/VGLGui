@@ -39,7 +39,7 @@ msg = ""
 CPU = cl.device_type.CPU 
 GPU = cl.device_type.GPU
 total = 0.0
-vl.vglClInit(GPU)
+vl.vglClInit(CPU)
 
 
 workspace = Workspace()  # Inicializa seu workspace principal
@@ -376,6 +376,34 @@ def execute_workspace(workspace):
 
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output, workspace)
+
+        elif vGlyph.func == 'vglLoad3dImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE())
+
+            vl.vglLoadImage(vglLoadImage_img_input)
+            if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
+                vl.rgb_to_rgba(vglLoadImage_img_input)
+
+            vl.vglClUpload(vglLoadImage_img_input)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
+
+        elif vGlyph.func == 'vglCl3dDilate':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func +" está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vl.vglCheckContext(vglCl3dDilate_img_input, vl.VGL_CL_CONTEXT());
+          vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vl.vglCheckContext(vglCl3dDilate_img_output, vl.VGL_CL_CONTEXT());
+          vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output, workspace)
+        
 
 
     # Se houver sub-workspaces, realiza a chamada recursiva para processá-los também

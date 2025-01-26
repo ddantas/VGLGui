@@ -24,7 +24,7 @@ Glyph:VGL_CL:vglStrel::localhost:3:382:182:: -type 'cross' -ndim 2
 #  Glyph 'vglClNdErode'
 Glyph:VGL_CL:vglClNdErode::localhost:4:382:182::
 
-Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erode1_strel_type.tiff'
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erodem1_strel_type.tiff'
 
 
 #  Connections 'Applying vglClNdErode’

@@ -39,11 +39,11 @@ msg = ""
 CPU = cl.device_type.CPU 
 GPU = cl.device_type.GPU
 total = 0.0
-vl.vglClInit(CPU)
+vl.vglClInit(GPU)
 
 
-workspace = Workspace()  # Inicializa seu workspace principal
-fileRead(workspace)  # Lê os dados no workspace
+workspace = Workspace()
+fileRead(workspace)
 
 def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image, workspace):
     # Rule10: Glyph becomes DONE = TRUE after its execution. Assign done to glyph
@@ -60,7 +60,18 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image,
 def execute_workspace(workspace):
     print(f"Processando workspace: {workspace}")
 
+    in_procedure = False
+    sub_workspace = None
+
+
+        # # Verifica se o workspace tem sub-workspaces e executa-os recursivamente
+    if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
+        for subWorkspace in workspace.subWorkspaces:
+            print(f"Entrando no subWorkspace: {subWorkspace}")
+            execute_workspace(subWorkspace)  # Chamada recursiva para o sub-workspace
+
     for vGlyph in workspace.lstGlyph:
+        
         if vGlyph.func == 'vglLoad2dImage':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
@@ -128,13 +139,43 @@ def execute_workspace(workspace):
             if glyph:
                 print(f"Glyph com ID {glyph.glyph_id} encontrado.")
                 o = getImageInputByIdName(glyph.glyph_id, 'i', workspace)
-
+                print("input ext",o)
                 if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
                     for subWorkspace in workspace.subWorkspaces:
                         print(f"Enviando dados para o subworkspace {subWorkspace}")
                         execute_workspace(subWorkspace)  # Chamada recursiva para processar o subworkspace
                 
                 GlyphExecutedUpdate(glyph.glyph_id, o, workspace)
+
+        elif vGlyph.func == 'External Output (1)':
+            print("-------------------------------------------------")
+            print(f"A função {vGlyph.func} está sendo executada")
+            print("-------------------------------------------------")
+            
+            # Buscando o glifo com o ID correspondente
+            glyph = next((g for g in workspace.lstGlyph if g.glyph_id == vGlyph.glyph_id), None)
+            if glyph:
+                print(f"Glyph com ID {glyph.glyph_id} encontrado.")
+                
+                # Procurando imagem de saída associada ao glifo
+                o = getImageInputByIdName(glyph.glyph_id, 'o', workspace)
+                if o is None:
+                    print(f"Imagem para glyph_id={glyph.glyph_id} e name='o' não encontrada.")
+                else:
+                    print(f"Imagem encontrada: {o}")
+
+                # Se a imagem não for None, envie os dados para o workspace principal
+                if o is not None:
+                    print(f"Enviando dados para o workspace principal.")
+                    GlyphExecutedUpdate(glyph.glyph_id, o, workspace)  # Atualiza o estado do glifo no workspace principal
+                    print(f"Dados enviados e workspace principal atualizado.")
+                else:
+                    print(f"Nenhuma imagem para enviar ao workspace principal.")
+            else:
+                print(f"Glifo com ID {vGlyph.glyph_id} não encontrado.")
+
+
+
 
         elif vGlyph.func == 'vglLoadNdImage':
             print("-------------------------------------------------")
@@ -405,14 +446,10 @@ def execute_workspace(workspace):
           GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output, workspace)
         
 
-
-    # Se houver sub-workspaces, realiza a chamada recursiva para processá-los também
+    # # Verifica se o workspace tem sub-workspaces e executa-os recursivamente
     if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
         for subWorkspace in workspace.subWorkspaces:
             print(f"Entrando no subWorkspace: {subWorkspace}")
-            # Chamada recursiva para o sub-workspace
-            execute_workspace(subWorkspace)
-
-
+            execute_workspace(subWorkspace)  # Chamada recursiva para o sub-workspace
 # Executa os glifos no workspace principal
 execute_workspace(workspace)

@@ -1,0 +1,29 @@
+
+
+ProcedureBegin:Demo:ProcedureBegin::localhost:100:562:122::
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
+
+Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
+Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
+
+Glyph:VGL_CL:vglCreateImage::localhost:4:562:242::
+
+Glyph:VGL_CL:vglClConvolution::localhost:5:462:302:: -convolution_window ['0.00037832','0.00055477','0.00080091','0.00113832','0.00159279','0.00219416','0.00297573','0.00397312','0.00522256','0.0067585','0.00861055','0.01080005','0.01333629','0.0162128','0.01940418','0.02286371','0.02652237','0.0302895','0.0340554','0.03769589','0.04107865','0.04407096','0.04654821','0.04840248','0.04955031','0.04993894','0.04955031','0.04840248','0.04654821','0.04407096','0.04107865','0.03769589','0.0340554',0'0.0302895','0.02652237','0.02286371','0.01940418','0.0162128','0.01333629','0.01080005','0.00861055','0.0067585','0.00522256','0.00397312','0.00297573','0.00219416','0.00159279','0.00113832','0.00080091','0.00055477','0.00037832'] -windows 51 -windows 1
+
+ExtPort:out:External Output (1)::localhost:93:1142:142::
+
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+
+NodeConnection:data:3:img_output:4:img
+NodeConnection:data:3:img_output:5:img_input
+NodeConnection:data:4:RETVAL:5:img_output
+
+NodeConnection:data:5:img_output:93:o
+ProcedureEnd:Demo:ProcedureEnd::localhost:215:562:122::
+
+Glyph:VGL_CL:ShowImage::localhost:18:882:482:: -winame 'erode.png'
+
+NodeConnection:data:93:o:18:image
+

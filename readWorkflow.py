@@ -538,12 +538,12 @@ class Workspace:
 # File to be read
 
 # vfile = "SAMPLES/procedures/apresentacao.wksp"
-vfile = sys.argv[1]
+# vfile = sys.argv[1]
 # vfile = "SAMPLES/procedures/procedureteste.wksp"
 # vfile = "SAMPLES/procedures/tcc/demo_fundus.wksp"
 # vfile = "SAMPLES/nd/nd_Strel_type.wksp"
 # vfile = "SAMPLES/procedures/demo_procedure.wksp"
-# vfile = "SAMPLES/fundus.wksp"
+vfile = "SAMPLES/teste.wksp"
 
 vGlyph = objGlyph               #Glyph in memory 
 vGlyphPar = objGlyphParameters  #Glyph parameters in memory
@@ -647,8 +647,12 @@ def print_workspace_info(workspace, indent=0):
 
 
 
-# workspace = Workspace()
-# fileRead(workspace)
+workspace = Workspace()
+fileRead(workspace)
+
+
+# for vGlyph in lstGlyph:
+#     print(vars(vGlyph))
 # # for subWorkspace in workspace.subWorkspaces:
 # #     if not subWorkspace.lstGlyph:
 # #         print("Lista de sub_vGlyph está vazia.")
@@ -657,7 +661,7 @@ def print_workspace_info(workspace, indent=0):
 
 
 # # print_workspace_info(workspace.lstGlyph)
-# # print_workspace_info(workspace)
+# print_workspace_info(workspace)
 # # print(f"Sub-workspaces: {len(workspace.subWorkspaces)}")
 # # for idx, sub in enumerate(workspace.subWorkspaces, start=1):
 # #     print(f"Sub-workspace {idx} contém {len(sub.lstGlyph)} glifos e {len(sub.lstConnections)} conexões.")

@@ -1,7 +1,11 @@
 
-
-ProcedureBegin:Demo:ProcedureBegin::localhost:100:562:122::
 Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
+
+ExtPort:out:External Input (1)::localhost:92:1142:142::
+
+NodeConnection:data:1:RETVAL:92:i
+
+ProcedureBegin:VGL_CL:ProcedureBegin::localhost:100:562:122::
 
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
 Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
@@ -12,8 +16,10 @@ Glyph:VGL_CL:vglClConvolution::localhost:5:462:302:: -convolution_window ['0.000
 
 ExtPort:out:External Output (1)::localhost:93:1142:142::
 
-NodeConnection:data:1:RETVAL:2:img
-NodeConnection:data:1:RETVAL:3:img_input
+
+
+NodeConnection:data:92:i:2:img
+NodeConnection:data:92:i:3:img_input
 NodeConnection:data:2:RETVAL:3:img_output
 
 NodeConnection:data:3:img_output:4:img
@@ -21,8 +27,9 @@ NodeConnection:data:3:img_output:5:img_input
 NodeConnection:data:4:RETVAL:5:img_output
 
 NodeConnection:data:5:img_output:93:o
-ProcedureEnd:Demo:ProcedureEnd::localhost:215:562:122::
 
+
+ProcedureEnd:Demo:ProcedureEnd::localhost:215:562:122::
 Glyph:VGL_CL:ShowImage::localhost:18:882:482:: -winame 'erode.png'
 
 NodeConnection:data:93:o:18:image

@@ -564,25 +564,25 @@ def fileRead(workspace):
             with open(vfile, "r") as file1:
                 for line in file1:
                     count += 1  # Line counter
-
                     # Verifica início de um procedimento
-                    if 'procedurebegin:' in line.lower():
-                        in_procedure = True
-                        sub_workspace = Workspace()  # Cria um novo sub-workspace
-                        print(f"Sub-workspace iniciado na linha {count}")
+                    # if 'procedurebegin:' in line.lower():
+                    #     in_procedure = True
+                    #     sub_workspace = Workspace()  # Cria um novo sub-workspace
+                    #     print(f"Sub-workspace iniciado na linha {count}")
 
-                    # Verifica fim de um procedimento
-                    elif 'procedureend:' in line.lower():
-                        if in_procedure and sub_workspace:
-                            workspace.add_subworkspace(sub_workspace)  # Adiciona o sub-workspace ao principal
-                            print(f"Sub-workspace finalizado na linha {count}")
-                            sub_workspace = None
-                            in_procedure = False
-                        else:
-                            print(f"Erro: 'procedureend:' encontrado sem correspondente 'procedurebegin:' na linha {count}")
+                    # # Verifica fim de um procedimento
+                    # elif 'procedureend:' in line.lower():
+                    #     if in_procedure and sub_workspace:
+                    #         workspace.add_subworkspace(sub_workspace)  # Adiciona o sub-workspace ao principal
+                    #         print(f"Sub-workspace finalizado na linha {count}")
+                    #         sub_workspace = None
+                    #         in_procedure = False
+                    #     else:
+                    #         print(f"Erro: 'procedureend:' encontrado sem correspondente 'procedurebegin:' na linha {count}")
 
                     # Criação de Glyphs ou conexões
-                    elif ('glyph:' in line.lower()) or ('extport:' in line.lower()):
+                    if ('glyph:' in line.lower()) or ('extport:' in line.lower()) or ('procedurebegin:' in line.lower()) or ('procedureend:' in line.lower()):
+                        print(line)
                         target_workspace = sub_workspace if in_procedure else workspace
                         procCreateGlyph(line.split(':'), count, target_workspace)
 

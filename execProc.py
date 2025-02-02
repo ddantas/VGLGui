@@ -59,27 +59,29 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image,
 
 def execute_workspace(workspace):
     print(f"Processando workspace: {workspace}")
-
-    in_procedure = False
-    sub_workspace = None
-
-
         # # Verifica se o workspace tem sub-workspaces e executa-os recursivamente
-    if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
-        for subWorkspace in workspace.subWorkspaces:
-            print(f"Entrando no subWorkspace: {subWorkspace}")
-            execute_workspace(subWorkspace)  # Chamada recursiva para o sub-workspace
+    # if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
+    #     for subWorkspace in workspace.subWorkspaces:
+    #         print(f"Entrando no subWorkspace: {subWorkspace}")
+    #         execute_workspace(subWorkspace)  # Chamada recursiva para o sub-workspace
+    in_procedure = True
+    # sub_workspace = Workspace()
 
     for vGlyph in workspace.lstGlyph:
-        
-        if vGlyph.func == 'vglLoad2dImage':
+
+
+        if vGlyph.func == 'ProcedureEnd':
+            # print(f"Sub-workflow (ID: {parent_workflow_id}) finalizado, retornando ao workflow principal.")
+            continue
+
+        elif vGlyph.func == 'vglLoad2dImage':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
             vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
             vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
 
-
+            # print(vGlyph.getStatus)
             vl.vglLoadImage(vglLoadImage_img_input)
             if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
                 vl.rgb_to_rgba(vglLoadImage_img_input)
@@ -146,6 +148,20 @@ def execute_workspace(workspace):
                         execute_workspace(subWorkspace)  # Chamada recursiva para processar o subworkspace
                 
                 GlyphExecutedUpdate(glyph.glyph_id, o, workspace)
+
+        elif vGlyph.func == 'ProcedureBegin':
+            print("-------------------------------------------------")
+            print(f"A função {vGlyph.func} está sendo executada")
+            print("-------------------------------------------------")
+            sub_workspace = Workspace()  # Cria um novo workspace para o sub-workflow
+            sub_workspace.lstGlyph = []  # Lista de glifos para o sub-workflow
+            sub_workspace.lstConnection = []  # Lista de conexões para o sub-workflow
+            is_subworkflow = True
+            
+            execute_workspace(sub_workspace)  # Chamada recursiva para processar o sub-workflow
+            continue
+            
+
 
         elif vGlyph.func == 'External Output (1)':
             print("-------------------------------------------------")
@@ -446,7 +462,7 @@ def execute_workspace(workspace):
           GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output, workspace)
         
 
-    # # Verifica se o workspace tem sub-workspaces e executa-os recursivamente
+    # # # Verifica se o workspace tem sub-workspaces e executa-os recursivamente
     if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
         for subWorkspace in workspace.subWorkspaces:
             print(f"Entrando no subWorkspace: {subWorkspace}")

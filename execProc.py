@@ -59,22 +59,20 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image,
 
 def execute_workspace(workspace):
     print(f"Processando workspace: {workspace}")
-        # # Verifica se o workspace tem sub-workspaces e executa-os recursivamente
-    # if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
-    #     for subWorkspace in workspace.subWorkspaces:
-    #         print(f"Entrando no subWorkspace: {subWorkspace}")
-    #         execute_workspace(subWorkspace)  # Chamada recursiva para o sub-workspace
-    in_procedure = True
-    # sub_workspace = Workspace()
 
     for vGlyph in workspace.lstGlyph:
+        try:
+            # Verifica se o glifo está pronto para ser processado
+            if vGlyph.getGlyphReady() is False:
+                print(f"ERROR: Glyph {vGlyph.glyph_id} not ready for processing.")
+                break  # Interrompe o loop se algum glifo não estiver pronto
+        except Exception as e:
+            # Captura qualquer outro erro que possa acontecer
+            print(f"Unexpected error while processing glyph {vGlyph.glyph_id}: {e}")
+            break  # Interrompe o loop em caso de erro inesperado
 
-
-        if vGlyph.func == 'ProcedureEnd':
-            # print(f"Sub-workflow (ID: {parent_workflow_id}) finalizado, retornando ao workflow principal.")
-            continue
-
-        elif vGlyph.func == 'vglLoad2dImage':
+            
+        if vGlyph.func == 'vglLoad2dImage':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
@@ -134,33 +132,14 @@ def execute_workspace(workspace):
 
         elif vGlyph.func == 'External Input (1)':
             print("-------------------------------------------------")
-            print(f"A função {vGlyph.func} está sendo executada")
+            print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
-            
-            glyph = next((g for g in workspace.lstGlyph if g.glyph_id == vGlyph.glyph_id), None)
-            if glyph:
-                print(f"Glyph com ID {glyph.glyph_id} encontrado.")
-                o = getImageInputByIdName(glyph.glyph_id, 'i', workspace)
-                print("input ext",o)
-                if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
-                    for subWorkspace in workspace.subWorkspaces:
-                        print(f"Enviando dados para o subworkspace {subWorkspace}")
-                        execute_workspace(subWorkspace)  # Chamada recursiva para processar o subworkspace
-                
-                GlyphExecutedUpdate(glyph.glyph_id, o, workspace)
 
-        elif vGlyph.func == 'ProcedureBegin':
-            print("-------------------------------------------------")
-            print(f"A função {vGlyph.func} está sendo executada")
-            print("-------------------------------------------------")
-            sub_workspace = Workspace()  # Cria um novo workspace para o sub-workflow
-            sub_workspace.lstGlyph = []  # Lista de glifos para o sub-workflow
-            sub_workspace.lstConnection = []  # Lista de conexões para o sub-workflow
-            is_subworkflow = True
-            
-            execute_workspace(sub_workspace)  # Chamada recursiva para processar o sub-workflow
-            continue
-            
+            # Enviar dados para o subworkspace
+            input_value_sub = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
+            if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
+                for subWorkspace in workspace.subWorkspaces:
+                    GlyphExecutedUpdate(vGlyph.glyph_id, input_value_sub, subWorkspace)
 
 
         elif vGlyph.func == 'External Output (1)':
@@ -168,27 +147,27 @@ def execute_workspace(workspace):
             print(f"A função {vGlyph.func} está sendo executada")
             print("-------------------------------------------------")
             
-            # Buscando o glifo com o ID correspondente
+            # Buscando o glifo com o ID correspondente no workspace
             glyph = next((g for g in workspace.lstGlyph if g.glyph_id == vGlyph.glyph_id), None)
+            
             if glyph:
                 print(f"Glyph com ID {glyph.glyph_id} encontrado.")
                 
                 # Procurando imagem de saída associada ao glifo
                 o = getImageInputByIdName(glyph.glyph_id, 'o', workspace)
+                print('Tem isso: ',o)
                 if o is None:
                     print(f"Imagem para glyph_id={glyph.glyph_id} e name='o' não encontrada.")
                 else:
                     print(f"Imagem encontrada: {o}")
 
-                # Se a imagem não for None, envie os dados para o workspace principal
-                if o is not None:
+                    # Se a imagem não for None, envie os dados para o workspace principal
                     print(f"Enviando dados para o workspace principal.")
                     GlyphExecutedUpdate(glyph.glyph_id, o, workspace)  # Atualiza o estado do glifo no workspace principal
                     print(f"Dados enviados e workspace principal atualizado.")
-                else:
-                    print(f"Nenhuma imagem para enviar ao workspace principal.")
             else:
                 print(f"Glifo com ID {vGlyph.glyph_id} não encontrado.")
+
 
 
 

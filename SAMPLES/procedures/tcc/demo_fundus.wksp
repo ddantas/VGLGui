@@ -1,29 +1,11 @@
 
-Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/2_good.JPG' -iscolor 1 -has_mipmap 0
 
 ExtPort:out:External Input (1)::localhost:92:1142:142::
 
-#  Connections 'Applying Rgb2Gray’
-
 NodeConnection:data:1:RETVAL:92:i
 
-ProcedureBegin:VGL_GUI:ProcedureBegin::localhost:100:562:122::
-
-
-WorkspaceBegin: 1.0
-
-VariablesBegin:
-
-#
-# list of currently declared variables
-#
-
-width_size = 2342
-height_size = 1144
-
-VariablesEnd:
-
-
+ProcedureBegin:Demo:ProcedureBegin::localhost:100:562:122::
 
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
 Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
@@ -64,17 +46,9 @@ Glyph:VGL_CL:vglCreateImage::localhost:14:562:242::
 #  Glyph 'Erode'
 Glyph:VGL_CL:vglClErode::localhost:15:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
 
-#  Glyph 'Image save Convolution'
-Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/conv.png'
 
-#  Glyph 'Image save Dilate'
-Glyph:VGL_CL:vglSaveImage::localhost:17:882:482:: -filename 'out/dilate.png'
 
-#  Glyph 'Image save Erode'
-Glyph:VGL_CL:vglSaveImage::localhost:18:882:482:: -filename 'out/erode.png'
-
-#  Glyph 'Image Show Erode'
-Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
+ExtPort:out:External Output (1)::localhost:91:1142:142::
 
 NodeConnection:data:92:i:2:img
 NodeConnection:data:92:i:3:img_input
@@ -121,20 +95,26 @@ NodeConnection:data:14:RETVAL:15:img_output
 #Connections 'Save Erode'
 NodeConnection:data:15:img_output:19:image
 
-AnnotationsBegin
-AnnotationsEnd
+NodeConnection:data:15:img_output:91:o
+
+NodeConnection:data:91:o:100:o
+
+ProcedureEnd:Demo:ProcedureEnd::localhost:215:562:122::
+
+Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
+
+NodeConnection:data:100:o:19:image
+
+ProcedureBegin:Fundus:ProcedureBegin::localhost:214:562:122::
 
 
-ProcedureEnd:VGL_CL:ProcedureEnd::localhost:215:562:122::
+VariablesEnd:
 
-ProcedureBegin:VGL_GUI:ProcedureBegin::localhost:214:562:122::
-
-#  Connections 'Applying Rgb2Gray’
-
+#  Glyph 'Create Image Rgb2Gray'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
-Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
-Glyph:VGL_CL:ShowImage::localhost:21:883:481:: -winame 'erode.png'
 
+#  Glyph 'vglClRgb2Gray'
+Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
 
 #  Glyph 'Create Image Convolution'
 Glyph:VGL_CL:vglCreateImage::localhost:4:562:242::
@@ -189,17 +169,44 @@ Glyph:VGL_CL:vglCreateImage::localhost:20:562:242::
 
 #  Glyph 'Reconstruct'
 Glyph:VGL_CL:Reconstruct::localhost:21:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 17 -window_size_y 17
-#  Glyph 'Image save Rec'
-Glyph:VGL_CL:ShowImage::localhost:22:882:362:: -filename 'out/artigo1/fundusRec.png'
 
+#  Glyph 'Image save Rbg2Gray'
+Glyph:VGL_CL:vglSaveImage::localhost:22:882:362:: -filename 'out/artigo1/fundusRgb2gray.png'
+
+#  Glyph 'Image save Convolution'
+Glyph:VGL_CL:vglSaveImage::localhost:23:882:362:: -filename 'out/artigo1/fundusConvolution.png'
+
+#  Glyph 'Image save Dilate'
+Glyph:VGL_CL:vglSaveImage::localhost:24:882:362:: -filename 'out/artigo1/fundusDilate.png' 
+
+#  Glyph 'Image save Erode'
+Glyph:VGL_CL:vglSaveImage::localhost:25:882:362:: -filename 'out/artigo1/fundusErode.png' 
+
+#  Glyph 'Image save Sub'
+Glyph:VGL_CL:vglSaveImage::localhost:26:882:362:: -filename 'out/artigo1/fundusSub.png' 
+
+#  Glyph 'Image save Thresh'
+Glyph:VGL_CL:vglSaveImage::localhost:27:882:362:: -filename 'out/artigo1/fundusThresh.png'
+
+#  Glyph 'Image save Rec'
+Glyph:VGL_CL:vglSaveImage::localhost:28:882:362:: -filename 'out/artigo1/fundusRec.png'
+
+
+ExtPort:out:External Output (1)::localhost:91:1142:142::
+
+#  Connections 'Applying Rgb2Gray’
 NodeConnection:data:92:i:2:img
 NodeConnection:data:92:i:3:img_input
 NodeConnection:data:2:RETVAL:3:img_output
-NodeConnection:data:3:img_output:21:image
 
+# Connections ‘Show in Rgb2Gray'
+NodeConnection:data:3:img_output:22:image
+
+#Connections 'Applying Convolution_1x51'
 NodeConnection:data:3:img_output:4:img
 NodeConnection:data:3:img_output:5:img_input
 NodeConnection:data:4:RETVAL:5:img_output
+
 #Connections 'Applying Convolution_51x1'
 NodeConnection:data:5:img_output:6:img
 NodeConnection:data:5:img_output:7:img_input
@@ -256,6 +263,13 @@ NodeConnection:data:19:dst:21:img_input
 NodeConnection:data:20:RETVAL:21:img_output
 
 #Connections 'Save Rec'
-NodeConnection:data:21:img_output:22:image
+NodeConnection:data:21:img_output:28:image
+
+NodeConnection:data:21:img_output:91:o
+NodeConnection:data:91:o:214:o
 
 ProcedureEnd:VGL_CL:ProcedureEnd::localhost:215:562:122::
+
+Glyph:VGL_CL:ShowImage::localhost:20:882:482:: -winame 'erode.png'
+
+NodeConnection:data:214:o:20:image

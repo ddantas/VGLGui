@@ -1,35 +1,14 @@
 rundemo:
-	cd ~/Documents/repo/VGLGui; ./execProc.py ./SAMPLES/demo.wksp 1
+	cd ~/Documents/repo/VGLGui; ./execWorkflowGen.py ./SAMPLES/demo.wksp 1
 runfundus:
-	cd ~/Documents/repo/VGLGui; ./execProc.py ./SAMPLES/fundus.wksp 1
+	cd ~/Documents/repo/VGLGui; ./execWorkflowGen.py ./SAMPLES/fundus.wksp 1
 run3d:
-	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/3d/3d.wksp 1
-
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/3d/functions3d.wksp 1
 runnd_strel_type:
-	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/nd/nd_Strel_type.wksp 1
-
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/nd_Strel_type.wksp 1
 runnd_strel_window:
-	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/nd/nd_Strel_window.wksp 1
-
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/nd_Strel_window.wksp 1
+runprocedure:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/procedures/tcc/demo_fundus.wksp 1
 rungenerator:
 	cd ~/Documents/TCC_1/VGLGui;  ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl
-
-runprocedure:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/procedures/apresentacao.wksp
-	
-runoldprocedure:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/procedures/newprocedure.wksp
-
-runnd:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd/nd.wksp 1
-
-runprocdemo:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/procedures/demo_procedure.wksp 1
-
-runprocdemotrue	:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/procedures/demo_procedure_true.wksp 1
-runprocteste	:
-	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/procedures/procedureteste.wksp 1
-
-rundemofundus:
-	cd ~/Documents/TCC_1/VGLGui; ./execProc.py  ./SAMPLES/procedures/tcc/demo_fundus.wksp 1

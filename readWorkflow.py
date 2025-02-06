@@ -8,12 +8,6 @@ import string
 from collections import defaultdict
 import numpy as np
 
-# # lstGlyph = []                   #List to store Glyphs
-# lstGlyphPar = []                #List to store Glyphs Parameters
-# # lstConnection = []              #List to store Connections
-# lstConnectionInput = []         #List to store Connections inputs
-# lstGlyphIn = []                 #List to store Glyphs Inputs
-# lstGlyphOut = []                #List to store Glyphs Outputs
 
 class Error (Exception): #Class for treat a exception defined for user
     pass
@@ -130,19 +124,14 @@ def procCreateGlyphInOut(workspace):  # Pass the workspace object as an argument
     # Percorrendo lstConnections
     for procCreateGlyphInOut_indexConn, procCreateGlyphInOut_vConnection in enumerate(workspace.lstConnections):
         print(f"Processando conexão {procCreateGlyphInOut_indexConn}")
-
-        # Percorrendo lstGlyph
         for procCreateGlyphInOut_i, procCreateGlyphInOut_vGlyph in enumerate(workspace.lstGlyph):
             print(f"Processando glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
-
-            # Criando o input para o glyph
             for procCreateGlyphInOut_vInputPar in procCreateGlyphInOut_vConnection.lst_con_input:
                 if procCreateGlyphInOut_vInputPar.Par_name != '\n' and procCreateGlyphInOut_vGlyph.glyph_id == procCreateGlyphInOut_vInputPar.Par_glyph_id:
                     procCreateGlyphInOut_vGlyphIn = objGlyphInput(procCreateGlyphInOut_vInputPar.Par_name, False)
                     workspace.lstGlyph[procCreateGlyphInOut_i].funcGlyphAddIn(procCreateGlyphInOut_vGlyphIn)
                     print(f"Adicionando input {procCreateGlyphInOut_vInputPar.Par_name} ao glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
 
-            # Criando o output para o glyph   
             if procCreateGlyphInOut_vConnection.output_varname != '\n' and procCreateGlyphInOut_vGlyph.glyph_id == procCreateGlyphInOut_vConnection.output_glyph_id:
                 procCreateGlyphInOut_vGlyphOut = objGlyphOutput(procCreateGlyphInOut_vConnection.output_varname, False)
                 workspace.lstGlyph[procCreateGlyphInOut_i].funcGlyphAddOut(procCreateGlyphInOut_vGlyphOut)
@@ -280,9 +269,7 @@ def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count, workspace
         if x_pos < 0 or x_pos > 100000 or y_pos < 0 or y_pos > 100000:
             raise ValueError(f"Glyph position on screen is out of bounds. Check the line: {procCreateGlyph_count}")
         
-        # Adiciona o Glyph ao workspace
         workspace.add_glyph(procCreateGlyph_vGlyph)
-        # lstGlyph.append(procCreateGlyph_vGlyph)
 
     except IndexError as d:
         print(f"Non-standard information in the Glyph declaration at line {procCreateGlyph_count}. Error: {d}")
@@ -295,41 +282,15 @@ def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count, workspace
 #        Reading the image from another glyph does not change this status.
 #        Set READY = TRUE to glyph input and READY = TRUE to glyph 
 def setGlyphInputReadyByIdOut(setGlyphInputReadyByIdOut_vOutputGlyph_id, workspace):
-    # # Primeiro, percorre a lista global lstConnection
-    # for setGlyphInputReadyByIdOut_i_Con, setGlyphInputReadyByIdOut_vConnection in enumerate(lstConnection):
 
-    #     # Verifica se o Glyph de saída da conexão corresponde ao Glyph de saída fornecido
-    #     if setGlyphInputReadyByIdOut_vConnection.output_glyph_id == setGlyphInputReadyByIdOut_vOutputGlyph_id:
-
-    #         # Marca a conexão como "pronta"
-    #         lstConnection[setGlyphInputReadyByIdOut_i_Con].setReadyConnection(True)
-
-    #         # Para cada entrada de conexão, marca o Glyph correspondente como pronto
-    #         for setGlyphInputReadyByIdOut_vConnInput in setGlyphInputReadyByIdOut_vConnection.lst_con_input:
-    #             setGlyphInputReady(setGlyphInputReadyByIdOut_vConnInput.Par_glyph_id, setGlyphInputReadyByIdOut_vConnInput.Par_name, workspace)
-
-    # Agora, percorre a lista de conexões dentro do workspace (workspace.lstConnections)
     for setGlyphInputReadyByIdOut_i_Con, setGlyphInputReadyByIdOut_vConnection in enumerate(workspace.lstConnections):
-
-        # Verifica se o Glyph de saída da conexão corresponde ao Glyph de saída fornecido
         if setGlyphInputReadyByIdOut_vConnection.output_glyph_id == setGlyphInputReadyByIdOut_vOutputGlyph_id:
-
-            # Marca a conexão como "pronta"
             workspace.lstConnections[setGlyphInputReadyByIdOut_i_Con].setReadyConnection(True)
-
-            # Para cada entrada de conexão, marca o Glyph correspondente como pronto
             for setGlyphInputReadyByIdOut_vConnInput in setGlyphInputReadyByIdOut_vConnection.lst_con_input:
                 setGlyphInputReady(setGlyphInputReadyByIdOut_vConnInput.Par_glyph_id, setGlyphInputReadyByIdOut_vConnInput.Par_name, workspace)
 
 # Rule10: Glyph becomes DONE = TRUE after its execution. Assign done to glyph
 def setGlyphDoneId(setGlyphDoneId_vGlyphIdUpd, workspace):
-    # # Primeiro, percorre a lista global lstGlyph
-    # for setGlyphDoneId_i_GliUpd, setGlyphDoneId_vGlyph in enumerate(lstGlyph):
-    #     if setGlyphDoneId_vGlyph.glyph_id == setGlyphDoneId_vGlyphIdUpd:
-    #         lstGlyph[setGlyphDoneId_i_GliUpd].setGlyphDone(True)
-    #         break
-
-    # Agora, percorre a lista de glyphs dentro do workspace (workspace.lstGlyph)
     for setGlyphDoneId_i_GliUpd, setGlyphDoneId_vGlyph in enumerate(workspace.lstGlyph):
         if setGlyphDoneId_vGlyph.glyph_id == setGlyphDoneId_vGlyphIdUpd:
             workspace.lstGlyph[setGlyphDoneId_i_GliUpd].setGlyphDone(True)
@@ -337,21 +298,6 @@ def setGlyphDoneId(setGlyphDoneId_vGlyphIdUpd, workspace):
 
 def setGlyphInputReady(setGlyphInputReady_vPar_glyph_id, setGlyphInputReady_vPar_name, workspace):
 
-    # # Primeiro, percorre a lista global lstGlyph
-    # for setGlyphInputReady_i_Gly, setGlyphInputReady_vGlyph in enumerate(lstGlyph):
-
-    #     if setGlyphInputReady_vGlyph.glyph_id == setGlyphInputReady_vPar_glyph_id:
-
-    #         # Regra 8: Quando todas as entradas estiverem READY=TRUE, o glyph muda para READY=TRUE
-    #         for setGlyphInputReady_i_GlyInput, setGlyphInputReady_vGlyphIn in enumerate(setGlyphInputReady_vGlyph.lst_input):
-
-    #             if setGlyphInputReady_vGlyphIn.namein == setGlyphInputReady_vPar_name:
-    #                 lstGlyph[setGlyphInputReady_i_Gly].lst_input[setGlyphInputReady_i_GlyInput].statusin = True
-
-    #         lstGlyph[setGlyphInputReady_i_Gly].setGlyphReady(True)
-    #         break
-
-    # Agora, percorre a lista de glyphs dentro do workspace (workspace.lstGlyph)
     for setGlyphInputReady_i_Gly, setGlyphInputReady_vGlyph in enumerate(workspace.lstGlyph):
 
         if setGlyphInputReady_vGlyph.glyph_id == setGlyphInputReady_vPar_glyph_id:
@@ -402,12 +348,6 @@ class objConnectionPar(object):
         self.Par_name = vConnPar_Name           #variable name Parameter
 
 def getOutputConnection(getOutputConnection_vGlyph_IdOutput, workspace):
-    # # Primeiro, percorre a lista global lstConnections
-    # for getOutputConnection_vConnection in lstConnection:
-    #     if getOutputConnection_vConnection.output_glyph_id == getOutputConnection_vGlyph_IdOutput:
-    #         return True
-    
-    # Agora, percorre a lista de conexões no workspace
     for getOutputConnection_vConnection in workspace.lstConnections:
         if getOutputConnection_vConnection.output_glyph_id == getOutputConnection_vGlyph_IdOutput:
             return True
@@ -415,17 +355,7 @@ def getOutputConnection(getOutputConnection_vGlyph_IdOutput, workspace):
     return False
 
 # Find the connection's output of input glyph
-# Find the connection's output of input glyph
 def getOutputConnectionByIdName(getOutputConnectionByIdName_vGlyph_idInput, getOutputConnectionByIdName_vNameParInput, workspace):
-    
-    # # Primeira iteração sobre a lista global lstConnections
-    # for getOutputConnectionByIdName_vConnection in lstConnection:   
-    #     for getOutputConnectionByIdName_vInputPar in getOutputConnectionByIdName_vConnection.lst_con_input:          
-    #         if getOutputConnectionByIdName_vInputPar.Par_glyph_id == getOutputConnectionByIdName_vGlyph_idInput and getOutputConnectionByIdName_vInputPar.Par_name == getOutputConnectionByIdName_vNameParInput:
-    #             getOutputConnectionByIdName_vConnGet = objConnectionPar(getOutputConnectionByIdName_vConnection.output_glyph_id, getOutputConnectionByIdName_vConnection.output_varname)
-    #             return getOutputConnectionByIdName_vConnGet
-
-    # Agora itera sobre as conexões no workspace
     for getOutputConnectionByIdName_vConnection in workspace.lstConnections:
         for getOutputConnectionByIdName_vInputPar in getOutputConnectionByIdName_vConnection.lst_con_input:
             if getOutputConnectionByIdName_vInputPar.Par_glyph_id == getOutputConnectionByIdName_vGlyph_idInput and getOutputConnectionByIdName_vInputPar.Par_name == getOutputConnectionByIdName_vNameParInput:
@@ -438,14 +368,6 @@ def getOutputConnectionByIdName(getOutputConnectionByIdName_vGlyph_idInput, getO
 # Rule5: Each edge has an image stored
 #        Assign image to Connection
 def setImageConnectionByOutputId(setImageConnectionByOutputId_vGlyph_OutputId, setImageConnectionByOutputId_img, workspace):
-
-    # # Primeiro, percorre a lista global lstConnections
-    # for setImageConnectionByOutputId_indexConn, setImageConnectionByOutputId_vConnection in enumerate(lstConnection):   
-    #     if setImageConnectionByOutputId_vConnection.output_glyph_id == setImageConnectionByOutputId_vGlyph_OutputId:
-    #         # Atribui a imagem à conexão
-    #         lstConnection[setImageConnectionByOutputId_indexConn].image = setImageConnectionByOutputId_img
-
-    # Depois, percorre a lista de conexões no workspace
     for setImageConnectionByOutputId_indexConn, setImageConnectionByOutputId_vConnection in enumerate(workspace.lstConnections):   
         if setImageConnectionByOutputId_vConnection.output_glyph_id == setImageConnectionByOutputId_vGlyph_OutputId:
             # Atribui a imagem à conexão
@@ -454,19 +376,6 @@ def setImageConnectionByOutputId(setImageConnectionByOutputId_vGlyph_OutputId, s
 # Returns edge image based on glyph id
 def getImageInputByIdName(getImageInputByIdName_vGlyph_idInput, getImageInputByIdName_vNameParInput, workspace):
     print(f"Procurando imagem para glyph_id={getImageInputByIdName_vGlyph_idInput} e name={getImageInputByIdName_vNameParInput}")
-
-    # # Primeiro, percorre a lista global lstConnections
-    # for getImageInputByIdName_vConnection in lstConnection:   
-    #     for getImageInputByIdName_vInputPar in getImageInputByIdName_vConnection.lst_con_input:          
-    #         if getImageInputByIdName_vInputPar.Par_glyph_id == getImageInputByIdName_vGlyph_idInput and getImageInputByIdName_vInputPar.Par_name == getImageInputByIdName_vNameParInput:
-    #             image = getImageInputByIdName_vConnection.getImageConnection()
-    #             if image:
-    #                 print(f"Imagem encontrada na lista global: {image}")
-    #                 return image
-    #             else:
-    #                 print(f"Nenhuma imagem encontrada na conexão global para {getImageInputByIdName_vGlyph_idInput} e {getImageInputByIdName_vNameParInput}")
-
-    # Depois, percorre a lista de conexões no workspace
     for getImageInputByIdName_vConnection in workspace.lstConnections:   
         for getImageInputByIdName_vInputPar in getImageInputByIdName_vConnection.lst_con_input:          
             if getImageInputByIdName_vInputPar.Par_glyph_id == getImageInputByIdName_vGlyph_idInput and getImageInputByIdName_vInputPar.Par_name == getImageInputByIdName_vNameParInput:
@@ -482,14 +391,6 @@ def getImageInputByIdName(getImageInputByIdName_vGlyph_idInput, getImageInputByI
 # Add the connection's input glyph
 def addInputConnection(addInputConnection_vConnOutput, addInputConnection_vinput_Glyph_ID, addInputConnection_vinput_varname, workspace):
     if addInputConnection_vConnOutput is not None:
-        # # Primeiro, percorre a lista global lstConnections
-        # for addInputConnection_vConnIndex, addInputConnection_vConnection in enumerate(lstConnection):   
-        #     if addInputConnection_vConnection.output_glyph_id == addInputConnection_vConnOutput.Par_glyph_id and addInputConnection_vConnection.output_varname == addInputConnection_vConnOutput.Par_name:
-        #         addInputConnection_vConnParIn = objConnectionPar(addInputConnection_vinput_Glyph_ID, addInputConnection_vinput_varname)
-        #         lstConnection[addInputConnection_vConnIndex].addConnInput(addInputConnection_vConnParIn)
-        #         break
-        
-        # Depois, percorre a lista de conexões no workspace
         for addInputConnection_vConnIndex, addInputConnection_vConnection in enumerate(workspace.lstConnections):   
             if addInputConnection_vConnection.output_glyph_id == addInputConnection_vConnOutput.Par_glyph_id and addInputConnection_vConnection.output_varname == addInputConnection_vConnOutput.Par_name:
                 addInputConnection_vConnParIn = objConnectionPar(addInputConnection_vinput_Glyph_ID, addInputConnection_vinput_varname)
@@ -500,21 +401,13 @@ def addInputConnection(addInputConnection_vConnOutput, addInputConnection_vinput
 #Creates the connections of the workflow file
 def procCreateConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname, procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname, workspace):
     
-    # Verifica se já existe uma conexão de saída para o Glyph de saída, tanto na lista global quanto no workspace
+
     if not getOutputConnection(procCreateConnection_voutput_Glyph_ID, workspace):
         procCreateConnection_vConnCre = objConnection(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname)
-        
-        # Adiciona a nova conexão na lista global lstConnection
-        # lstConnection.append(procCreateConnection_vConnCre)
-        
-        # Adiciona a nova conexão no workspace
         workspace.add_connection(procCreateConnection_vConnCre)
     
-    # Verifica se já existe a conexão de entrada para o Glyph de entrada, tanto na lista global quanto no workspace
     if getOutputConnectionByIdName(procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname, workspace) is None:
         procCreateConnection_vConnPar = objConnectionPar(procCreateConnection_voutput_Glyph_ID, procCreateConnection_voutput_varname)
-        
-        # Adiciona a entrada da conexão tanto na lista global quanto no workspace
         addInputConnection(procCreateConnection_vConnPar, procCreateConnection_vinput_Glyph_ID, procCreateConnection_vinput_varname, workspace)
 
 class Workspace:
@@ -545,14 +438,7 @@ class Workspace:
 
 
 # File to be read
-
-# vfile = "SAMPLES/procedures/apresentacao.wksp"
-# vfile = sys.argv[1]
-# vfile = "SAMPLES/procedures/procedureteste.wksp"
-# vfile = "SAMPLES/procedures/tcc/demo_fundus.wksp"
-# vfile = "SAMPLES/nd/nd_Strel_type.wksp"
-# vfile = "SAMPLES/procedures/demo_procedure.wksp"
-vfile = "SAMPLES/nd/nd_Strel_type.wksp"
+vfile = sys.argv[1]
 
 vGlyph = objGlyph               #Glyph in memory 
 vGlyphPar = objGlyphParameters  #Glyph parameters in memory
@@ -616,25 +502,20 @@ def fileRead(workspace):
                         sub_workspace.parent_workspace = workspace  # Adiciona referência ao workspace principal
                         workspace.subWorkspaces.append(sub_workspace)  # Adiciona o sub-workspace à lista de sub-workspaces
                         print(f"Sub-workspace iniciado na linha {count}")
-                        continue  # Pula para a próxima linha, já que estamos dentro do procedimento
-                    # Verifica fim de um procedimento
+                        continue 
                     elif 'procedureend:' in line.lower():
                         if in_procedure and sub_workspace:
-                            workspace.add_subworkspace(sub_workspace)  # Adiciona o sub-workspace ao principal
+                            workspace.add_subworkspace(sub_workspace)
                             print(f"Sub-workspace finalizado na linha {count}")
-
-                            # Chama a função para configurar entradas e saídas no sub-workspace
                             print(f"Configurando entradas e saídas para o sub-workspace na linha {count}")
-                            procCreateGlyphInOut(sub_workspace)  # Configura entradas e saídas no sub-workspace
+                            procCreateGlyphInOut(sub_workspace)
                             
                             sub_workspace = None
                             in_procedure = False
                         else:
                             print(f"Erro: 'procedureend:' encontrado sem correspondente 'procedurebegin:' na linha {count}")
-                        continue  # Pula para a próxima linha, já que estamos saindo do procedimento
+                        continue
 
-
-            # Após finalizar o processamento de todos os glifos e conexões no workspace principal, configuramos as entradas e saídas
             print("Configurando entradas e saídas para todos os glifos no workspace principal.")
             procCreateGlyphInOut(workspace)
 

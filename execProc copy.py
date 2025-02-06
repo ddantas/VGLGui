@@ -84,34 +84,7 @@ def execute_workspace(workspace):
             vl.vglClUpload(vglLoadImage_img_input)
             GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
 
-        elif vGlyph.func == 'vglLoad3dImage':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func + " está sendo executada")
-            print("-------------------------------------------------")
-            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
-            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE())
 
-            vl.vglLoadImage(vglLoadImage_img_input)
-            if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
-                vl.rgb_to_rgba(vglLoadImage_img_input)
-
-            vl.vglClUpload(vglLoadImage_img_input)
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
-
-        elif vGlyph.func == 'vglLoadNdImage':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func + " está sendo executada")
-            print("-------------------------------------------------")
-            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
-
-            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
-
-            vl.vglLoadImage(vglLoadImage_img_input)
-            if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
-                vl.rgb_to_rgba(vglLoadImage_img_input)
-
-            vl.vglClUpload(vglLoadImage_img_input)
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
 
         elif vGlyph.func == 'vglCreateImage':
             print("-------------------------------------------------")
@@ -152,6 +125,8 @@ def execute_workspace(workspace):
                 GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
             else:
                 print(f"Aviso: Nenhuma imagem encontrada no workspace principal para o Glyph ID {vGlyph.glyph_id}")
+
+
 
 
         elif vGlyph.func == 'External Input (1)':
@@ -195,6 +170,20 @@ def execute_workspace(workspace):
                     print(f"Nenhuma imagem para enviar à procedure.")
             else:
                 print(f"Glifo com ID {vGlyph.glyph_id} não encontrado.")
+
+
+        elif vGlyph.func == 'vglClRgb2Gray':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func +" está sendo executada")
+          print("-------------------------------------------------")
+
+          vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vl.vglCheckContext(vglClRgb2Gray_img_input, vl.VGL_CL_CONTEXT());
+          vglClRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vl.vglCheckContext(vglClRgb2Gray_img_output, vl.VGL_CL_CONTEXT());
+          vglClRgb2Gray(vglClRgb2Gray_img_input, vglClRgb2Gray_img_output)
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output, workspace)
 
         elif vGlyph.func == 'ProcedureBegin':
             print("-------------------------------------------------")

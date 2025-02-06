@@ -552,7 +552,7 @@ class Workspace:
 # vfile = "SAMPLES/procedures/tcc/demo_fundus.wksp"
 # vfile = "SAMPLES/nd/nd_Strel_type.wksp"
 # vfile = "SAMPLES/procedures/demo_procedure.wksp"
-vfile = "SAMPLES/teste.wksp"
+vfile = "SAMPLES/nd/nd_Strel_type.wksp"
 
 vGlyph = objGlyph               #Glyph in memory 
 vGlyphPar = objGlyphParameters  #Glyph parameters in memory
@@ -574,31 +574,9 @@ def fileRead(workspace):
                 for line in file1:
                     count += 1  # Linha do arquivo
 
-                    # Verifica início de um procedimento
-                    if 'procedurebegin:' in line.lower():
-                        in_procedure = True
-                        sub_workspace = Workspace('sub')  # Cria um novo sub-workspace
-                        print(f"Sub-workspace iniciado na linha {count}")
-                        continue  # Pula para a próxima linha, já que estamos dentro do procedimento
-
-                    # Verifica fim de um procedimento
-                    elif 'procedureend:' in line.lower():
-                        if in_procedure and sub_workspace:
-                            workspace.add_subworkspace(sub_workspace)  # Adiciona o sub-workspace ao principal
-                            print(f"Sub-workspace finalizado na linha {count}")
-
-                            # Chama a função para configurar entradas e saídas no sub-workspace
-                            print(f"Configurando entradas e saídas para o sub-workspace na linha {count}")
-                            procCreateGlyphInOut(sub_workspace)  # Configura entradas e saídas no sub-workspace
-                            
-                            sub_workspace = None
-                            in_procedure = False
-                        else:
-                            print(f"Erro: 'procedureend:' encontrado sem correspondente 'procedurebegin:' na linha {count}")
-                        continue  # Pula para a próxima linha, já que estamos saindo do procedimento
-
-                    # Criação de Glyphs ou conexões
-                    elif ('glyph:' in line.lower()) or ('extport:' in line.lower()):
+                                        # Criação de Glyphs ou conexões
+                    if ('glyph:' in line.lower()) or ('extport:' in line.lower() or ('procedurebegin:' in line.lower())):
+                        print(line)
                         if in_procedure:  # Dentro de um procedimento
                             procCreateGlyph(line.split(':'), count, sub_workspace)  # Cria no sub-workspace
                         else:  # Fora de um procedimento
@@ -628,6 +606,33 @@ def fileRead(workspace):
 
                         except IndexError as f:
                             print(f"Connections indices not found {f} on line {count} of the file")
+
+
+
+                    # Verifica início de um procedimento
+                    if 'procedurebegin:' in line.lower():
+                        in_procedure = True
+                        sub_workspace = Workspace('sub')  # Cria um novo sub-workspace
+                        sub_workspace.parent_workspace = workspace  # Adiciona referência ao workspace principal
+                        workspace.subWorkspaces.append(sub_workspace)  # Adiciona o sub-workspace à lista de sub-workspaces
+                        print(f"Sub-workspace iniciado na linha {count}")
+                        continue  # Pula para a próxima linha, já que estamos dentro do procedimento
+                    # Verifica fim de um procedimento
+                    elif 'procedureend:' in line.lower():
+                        if in_procedure and sub_workspace:
+                            workspace.add_subworkspace(sub_workspace)  # Adiciona o sub-workspace ao principal
+                            print(f"Sub-workspace finalizado na linha {count}")
+
+                            # Chama a função para configurar entradas e saídas no sub-workspace
+                            print(f"Configurando entradas e saídas para o sub-workspace na linha {count}")
+                            procCreateGlyphInOut(sub_workspace)  # Configura entradas e saídas no sub-workspace
+                            
+                            sub_workspace = None
+                            in_procedure = False
+                        else:
+                            print(f"Erro: 'procedureend:' encontrado sem correspondente 'procedurebegin:' na linha {count}")
+                        continue  # Pula para a próxima linha, já que estamos saindo do procedimento
+
 
             # Após finalizar o processamento de todos os glifos e conexões no workspace principal, configuramos as entradas e saídas
             print("Configurando entradas e saídas para todos os glifos no workspace principal.")

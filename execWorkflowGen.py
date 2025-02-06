@@ -2,29 +2,29 @@
 from vgl_lib.vglClUtil import vglClEqual
 
 from vgl_lib.vglImage import VglImage
-import pyopencl as cl       # OPENCL LIBRARY
-import vgl_lib as vl        # VGL LIBRARYS
-import numpy as np          # TO WORK WITH MAIN
-from cl2py_shaders import * # IMPORTING METHODS
+import pyopencl as cl
+import vgl_lib as vl
+import numpy as np
+from cl2py_shaders import * 
 from cl2py_ND import *
 import os
-import sys                  # IMPORTING METHODS FROM VGLGui
+import sys
 from readWorkflow import *
 import time as t
 from datetime import datetime
-from readWorkflow import *  
+from readWorkflow import *
 import matplotlib.pyplot as mp
 
 
-os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
+os.environ["PYOPENCL_COMPILER_OUTPUT"] = "1"
 sys.path.append(os.getcwd())
 
 
 def imshow(im):
     plot = mp.imshow(im, cmap="gray", origin="upper", vmin=0, vmax=255)
-    plot.set_interpolation('nearest')  # Configura a interpolação como "nearest"
-    mp.colorbar()  # Adiciona uma barra de cores para facilitar a visualização dos valores
-    mp.show()  # Exibe o gráfico
+    plot.set_interpolation("nearest")
+    mp.show() 
+
 
 def tratnum(num):
     listnum = []
@@ -33,63 +33,56 @@ def tratnum(num):
     listnumpy = np.array(listnum, np.float32)
     return listnumpy
 
+
 nSteps = 1
 msg = ""
-CPU = cl.device_type.CPU  # 2
-GPU = cl.device_type.GPU  # 4
+CPU = cl.device_type.CPU 
+GPU = cl.device_type.GPU
 total = 0.0
 vl.vglClInit(GPU)
 
-processed_workflows = set()  # Usando um conjunto para armazenar IDs de workflows já processados
 
-# Actions after glyph execution
-def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image):
+workspace = Workspace()
+fileRead(workspace)
+
+def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image, workspace):
     # Rule10: Glyph becomes DONE = TRUE after its execution. Assign done to glyph
-    setGlyphDoneId(GlyphExecutedUpdate_Glyph_Id)
+    setGlyphDoneId(GlyphExecutedUpdate_Glyph_Id,workspace)
 
     # Rule6: Edges whose source glyph has already been executed, and which therefore already had their image generated, have READY=TRUE (image ready to be processed).
     #        Reading the image from another glyph does not change this status. Check the list of connections
-    setGlyphInputReadyByIdOut(GlyphExecutedUpdate_Glyph_Id)
+    setGlyphInputReadyByIdOut(GlyphExecutedUpdate_Glyph_Id, workspace)
 
     # Rule2: In a source glyph, images (one or more) can only be output parameters.
-    setImageConnectionByOutputId(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image)
+    setImageConnectionByOutputId(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image, workspace)
     
-workspace = Workspace()
 
-fileRead(workspace)
+def execute_workspace(workspace):
+    print(f"Processando workspace: {workspace}")
 
-def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
-
-    
     for vGlyph in workspace.lstGlyph:
-        print(f"Processando o glyph: {vGlyph.glyph_id} com função {vGlyph.func}")
-
-        print(vGlyph.getGlyphReady())
         try:
-            if not vGlyph.getGlyphReady():
+            # Verifica se o glifo está pronto para ser processado
+            if vGlyph.getGlyphReady() is False:
+                print(f"ERROR: Glyph {vGlyph.glyph_id} not ready for processing.")
                 break
-        except ValueError:
-            print("Rule9: Glyph not ready for processing: ", {vGlyph.glyph_id})
-
-
-        if vGlyph.func == 'ProcedureEnd':
-            print(f"Sub-workflow (ID: {parent_workflow_id}) finalizado, retornando ao workflow principal.")
-            continue
-        
-        elif vGlyph.func == 'vglLoad2dImage':
+        except Exception as e:
+            print(f"Unexpected error while processing glyph {vGlyph.glyph_id}: {e}")
+            
+        if vGlyph.func == 'vglLoad2dImage':
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
             vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
             vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
 
-
+            # print(vGlyph.getStatus)
             vl.vglLoadImage(vglLoadImage_img_input)
             if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
                 vl.rgb_to_rgba(vglLoadImage_img_input)
 
             vl.vglClUpload(vglLoadImage_img_input)
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
 
         elif vGlyph.func == 'vglLoad3dImage':
             print("-------------------------------------------------")
@@ -103,8 +96,7 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
                 vl.rgb_to_rgba(vglLoadImage_img_input)
 
             vl.vglClUpload(vglLoadImage_img_input)
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input)
-
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
 
         elif vGlyph.func == 'vglLoadNdImage':
             print("-------------------------------------------------")
@@ -119,101 +111,14 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
                 vl.rgb_to_rgba(vglLoadImage_img_input)
 
             vl.vglClUpload(vglLoadImage_img_input)
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input)
-
-        elif vGlyph.func == 'vglCreateImage':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func + " está sendo executada")
-            print("-------------------------------------------------")
-
-            vglCreateImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img')
-            vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
-            vglCreateImage_RETVAL.set_oclPtr(vl.get_similar_oclPtr_object(vglCreateImage_img_input))
-            vl.vglAddContext(vglCreateImage_RETVAL, vl.VGL_CL_CONTEXT())
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL)
-
-        elif vGlyph.func == 'ProcedureBegin':
-            print(f"Iniciando sub-workflow (ID: {vGlyph.glyph_id})...")
-            # Identifica a procedure e processa recursivamente
-            sub_workspace = Workspace()  # Cria um novo workspace para o sub-workflow
-            sub_workspace.lstGlyph = []  # Lista de glifos para o sub-workflow
-            sub_workspace.lstConnection = []  # Lista de conexões para o sub-workflow
-            is_subworkflow = True
-            
-            # Processa o sub-workflow recursivamente
-            execWorkflow(sub_workspace, is_subworkflow=True, parent_workflow_id=vGlyph.glyph_id)
-            continue  # Volta para o próximo glyph do workflow principal
-
-        elif vGlyph.func == 'External Output (1)':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func +" está sendo executada")
-            print("-------------------------------------------------")
-
-            o = getImageInputByIdName(vGlyph.glyph_id, 'o')
-            GlyphExecutedUpdate(vGlyph.glyph_id, o)
-
-        elif vGlyph.func == 'External Input (1)':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func +" está sendo executada")
-            print("-------------------------------------------------")
-            
-            o = getImageInputByIdName(vGlyph.glyph_id, 'i')
-            GlyphExecutedUpdate(vGlyph.glyph_id, o)
-
-        elif vGlyph.func == 'Reconstruct': #Function Reconstruct
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func +" está sendo executada")
-            print("-------------------------------------------------")
-        
-            # Search the input image by connecting to the source glyph
-            Rec_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
-
-            
-
-            # Search the output image by connecting to the source glyph
-            Rec_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
-
-            n_pixel = np.uint32(vGlyph.lst_par[0].getValue())
-            elemento = tratnum(vGlyph.lst_par[0].getValue())
-            x = np.uint32(vGlyph.lst_par[1].getValue())
-            y = np.uint32(vGlyph.lst_par[2].getValue())
-
-
-            #Runtime
-            vl.get_ocl().commandQueue.flush()
-            t0 = datetime.now()
-            Rec_imt1 = vl.create_blank_image_as(Rec_img_input)
-            Rec_buffer = vl.create_blank_image_as(Rec_img_input)
-            for i in range( nSteps ):
-            
-                vglClErode(Rec_img_input, Rec_img_output, elemento, x, y)
-
-                result = 0
-                count = 0
-                while (not result ):
-                    if ((count % 2) == 0):
-                      vglClDilate( Rec_img_output , Rec_buffer ,elemento, x, y)
-                      vglClMin(Rec_buffer , Rec_img_input, Rec_imt1)
-                    else:
-                      vglClDilate( Rec_imt1 , Rec_buffer , elemento, x, y)
-                      vglClMin(Rec_buffer, Rec_img_input, Rec_img_output)
-                    result = vglClEqual(Rec_imt1, Rec_img_output)
-                    count = count + 1
-                
-                #print("contador reconstrcut",count)  
-
-                vl.get_ocl().commandQueue.finish()
-
-
-            # Actions after glyph execution
-            GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
 
         elif vGlyph.func == 'vglShape': #Function Shape
             print("-------------------------------------------------")
             print("A função " + vGlyph.func +" está sendo executada")
             print("-------------------------------------------------")
             
-            vglShape_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+            vglShape_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
             
             #print(vglShape_img_input.prinfInfo())       
             vglShape = vl.VglShape()
@@ -230,35 +135,14 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
             print(vglShape.printInfo())
             #print(vglShape.printInfo())
         
-            GlyphExecutedUpdate(vGlyph.glyph_id, vglShape)
-
-        elif vGlyph.func == 'vglSaveImage':
-            print("-------------------------------------------------")
-            print("A função " + vGlyph.func + " está sendo executada")
-            print("-------------------------------------------------")
-
-            # Returns edge image based on glyph id
-            vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image')
-
-            if vglSaveImage_img_input is not None:
-
-                # SAVING IMAGE img
-                vpath = vGlyph.lst_par[0].getValue()
-
-                # Rule3: In a sink glyph, images (one or more) can only be input parameters
-                vl.vglCheckContext(vglSaveImage_img_input,vl.VGL_RAM_CONTEXT())             
-                vl.vglSaveImage(vpath, vglSaveImage_img_input)
-                
-
-                # Actions after glyph execution
-                GlyphExecutedUpdate(vGlyph.glyph_id, None)
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglShape, workspace)
 
         elif vGlyph.func == 'vglStrel': #Function Erode
             print("-------------------------------------------------")
             print("A função " + vGlyph.func +" está sendo executada")
             print("-------------------------------------------------")
             
-            vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape')
+            vglShape = getImageInputByIdName(vGlyph.glyph_id, 'shape', workspace)
 
             ##CASO DO TYPE
             if (len(vGlyph.lst_par) == 2): 
@@ -288,726 +172,880 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None):
             
 
 
-            GlyphExecutedUpdate(vGlyph.glyph_id, window)
+            GlyphExecutedUpdate(vGlyph.glyph_id, window, workspace)
 
-        elif vGlyph.func == 'ShowImage':
+        elif vGlyph.func == 'vglCreateImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            print("Glyph ID:", vGlyph.glyph_id)
+
+            vglCreateImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img', workspace)
+            
+            if vglCreateImage_img_input is None:
+                print(f"Nenhuma imagem encontrada para glyph_id={vGlyph.glyph_id} e name=img")
+                # Aqui você pode decidir o que fazer: talvez criar uma imagem padrão ou continuar sem imagem
+                return  # Ou talvez você queira continuar com um comportamento alternativo
+            else:
+                vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
+                vglCreateImage_RETVAL.set_oclPtr(vl.get_similar_oclPtr_object(vglCreateImage_img_input))
+                vl.vglAddContext(vglCreateImage_RETVAL, vl.VGL_CL_CONTEXT())
+                GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL, workspace)
+
+
+        elif vGlyph.func == "ShowImage":
 
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
 
-
+            print("Glyph ID:", vGlyph.glyph_id)
             # Returns edge image based on glyph id
-            ShowImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image')
+            ShowImage_img_input = getImageInputByIdName(vGlyph.glyph_id, "image", workspace)
 
             if ShowImage_img_input is not None:
-                # Rule3: In a sink glyph, images (one or more) can only be input parameters             
+                # Verifica se a imagem foi movida para o workspace principal
                 vl.vglCheckContext(ShowImage_img_input, vl.VGL_RAM_CONTEXT())
                 ShowImage_img_ndarray = VglImage.get_ipl(ShowImage_img_input)
                 imshow(ShowImage_img_ndarray)
 
+                # Após exibir a imagem, atualiza o estado do Glyph
+                GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+            else:
+                print(f"Aviso: Nenhuma imagem encontrada no workspace principal para o Glyph ID {vGlyph.glyph_id}")
+
+
+        elif vGlyph.func == 'External Input (1)':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+
+            # Enviar dados para o subworkspace
+            input_value_sub = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
+            if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
+                for subWorkspace in workspace.subWorkspaces:
+                    GlyphExecutedUpdate(vGlyph.glyph_id, input_value_sub, subWorkspace)
+
+
+
+        elif vGlyph.func == 'External Output (1)':
+            print("-------------------------------------------------")
+            print(f"A função {vGlyph.func} está sendo executada")
+            print("-------------------------------------------------")
+            
+            # Buscando o glifo com o ID correspondente
+            glyph = next((g for g in workspace.lstGlyph if g.glyph_id == vGlyph.glyph_id), None)
+            if glyph:
+                print(f"Glyph com ID {glyph.glyph_id} encontrado.")
+                
+                # Procurando imagem de saída associada ao glifo
+                o = getImageInputByIdName(glyph.glyph_id, 'o', workspace)
+                if o is None:
+                    print(f"Imagem para glyph_id={glyph.glyph_id} e name='o' não encontrada.")
+                else:
+                    print(f"Imagem encontrada: {o}")
+
+                # Se a imagem não for None, envie os dados para a procedure
+                if o is not None:
+                    print(f"Enviando dados para a procedure.")
+                    
+                    # Envia os dados para a procedure (sub-workspace)
+                    GlyphExecutedUpdate(glyph.glyph_id, o, workspace)  # Envia para a procedure
+                    print(f"Dados enviados para a procedure.")
+                else:
+                    print(f"Nenhuma imagem para enviar à procedure.")
+            else:
+                print(f"Glifo com ID {vGlyph.glyph_id} não encontrado.")
+
+        elif vGlyph.func == 'ProcedureBegin':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            
+            # Processa a Procedure chamando os subWorkspaces
+            if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
+                for subWorkspace in workspace.subWorkspaces:
+                    execute_workspace(subWorkspace)  # Executa a procedure
+
+                    # Obtém os dados de saída da procedure
+                    o = getImageInputByIdName(vGlyph.glyph_id, 'o', subWorkspace)
+                    
+                    # Envia os dados para o workspace principal
+                    if o is not None:
+                        print(f"Enviando dados da procedure para o workspace principal.")
+                        GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)  # Envia para o workspace principal
+                        print(f"Dados enviados e workspace principal atualizado.")
+                    else:
+                        print(f"Nenhuma imagem para enviar ao workspace principal.")
+            
+            print("-------------------------------------------------")
+            print("Retornando ao workspace principal após ProcedureBegin")
+
+        elif vGlyph.func == 'vglSaveImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+
+            # Returns edge image based on glyph id
+            vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image', workspace)
+
+            if vglSaveImage_img_input is not None:
+
+                # SAVING IMAGE img
+                vpath = vGlyph.lst_par[0].getValue()
+
+                # Rule3: In a sink glyph, images (one or more) can only be input parameters
+                vl.vglCheckContext(vglSaveImage_img_input,vl.VGL_RAM_CONTEXT())             
+                vl.vglSaveImage(vpath, vglSaveImage_img_input)
+
                 # Actions after glyph execution
-                GlyphExecutedUpdate(vGlyph.glyph_id, None)
+                GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+
+        elif vGlyph.func == 'Reconstruct': #Function Reconstruct
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func +" está sendo executada")
+            print("-------------------------------------------------")
+        
+            # Search the input image by connecting to the source glyph
+            Rec_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+
+            
+
+            # Search the output image by connecting to the source glyph
+            Rec_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+
+            n_pixel = np.uint32(vGlyph.lst_par[0].getValue())
+            elemento = tratnum(vGlyph.lst_par[0].getValue())
+            x = np.uint32(vGlyph.lst_par[1].getValue())
+            y = np.uint32(vGlyph.lst_par[2].getValue())
+
+
+            #Runtime
+            vl.get_ocl().commandQueue.flush()
+            t0 = datetime.now()
+            Rec_imt1 = vl.create_blank_image_as(Rec_img_input)
+            Rec_buffer = vl.create_blank_image_as(Rec_img_input)
+            for i in range( nSteps ):
+            
+                vglClErode(Rec_img_input, Rec_img_output, elemento, x, y)
+
+                result = 0
+                count = 0
+                while (not result ):
+                    if ((count % 2) == 0):
+                      vglClDilate( Rec_img_output , Rec_buffer ,elemento, x, y)
+                      vglClMin(Rec_buffer , Rec_img_input, Rec_imt1)
+                    else:
+                      vglClDilate( Rec_imt1 , Rec_buffer , elemento, x, y)
+                      vglClMin(Rec_buffer, Rec_img_input, Rec_img_output)
+                    result = vglClEqual(Rec_imt1, Rec_img_output)
+                    count = count + 1
+
+                vl.get_ocl().commandQueue.finish()
+
+
+            # Actions after glyph execution
+            GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output, workspace)
 
         elif vGlyph.func == 'vglClNdConvolution':
 
-          vglClNdConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClNdConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClNdConvolution_img_input, vl.VGL_CL_CONTEXT());
-          vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClNdConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdConvolution_img_output, vl.VGL_CL_CONTEXT());
-          window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+          window = getImageInputByIdName(vGlyph.glyph_id, 'window', workspace)
           vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdConvolution_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdConvolution_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClNdCopy':
 
-          vglClNdCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClNdCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClNdCopy_img_input, vl.VGL_CL_CONTEXT());
-          vglClNdCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClNdCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdCopy_img_output, vl.VGL_CL_CONTEXT());
           vglClNdCopy(vglClNdCopy_img_input, vglClNdCopy_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdCopy_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdCopy_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClNdDilate':
 
-          vglClNdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClNdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClNdDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClNdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClNdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdDilate_img_output, vl.VGL_CL_CONTEXT());
-          window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+          window = getImageInputByIdName(vGlyph.glyph_id, 'window', workspace)
           vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClNdErode':
 
-          vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClNdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClNdErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClNdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdErode_img_output, vl.VGL_CL_CONTEXT());
-          window = getImageInputByIdName(vGlyph.glyph_id, 'window')
+          window = getImageInputByIdName(vGlyph.glyph_id, 'window', workspace)
           vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClNdNot':
 
-          vglClNdNot_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClNdNot_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClNdNot_img_input, vl.VGL_CL_CONTEXT());
-          vglClNdNot_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClNdNot_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdNot_img_output, vl.VGL_CL_CONTEXT());
           vglClNdNot(vglClNdNot_img_input, vglClNdNot_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdNot_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdNot_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClNdThreshold':
 
-          vglClNdThreshold_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClNdThreshold_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClNdThreshold_img_input, vl.VGL_CL_CONTEXT());
-          vglClNdThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClNdThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdThreshold_img_output, vl.VGL_CL_CONTEXT());
           vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdThreshold_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClNdThreshold_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dBlurSq3':
 
-          vglCl3dBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dBlurSq3_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dBlurSq3_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dBlurSq3(vglCl3dBlurSq3_img_input, vglCl3dBlurSq3_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dBlurSq3_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dBlurSq3_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dConvolution':
 
-          vglCl3dConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dConvolution_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dConvolution_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dConvolution_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dConvolution_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dCopy':
 
-          vglCl3dCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dCopy_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dCopy_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dCopy(vglCl3dCopy_img_input, vglCl3dCopy_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dCopy_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dCopy_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dDilate':
 
-          vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dErode':
 
-          vglCl3dErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dMax':
 
-          vglCl3dMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglCl3dMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglCl3dMax_img_input1, vl.VGL_CL_CONTEXT());
-          vglCl3dMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglCl3dMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglCl3dMax_img_input2, vl.VGL_CL_CONTEXT());
-          vglCl3dMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dMax_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2, vglCl3dMax_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMax_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dMin':
 
-          vglCl3dMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglCl3dMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglCl3dMin_img_input1, vl.VGL_CL_CONTEXT());
-          vglCl3dMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglCl3dMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglCl3dMin_img_input2, vl.VGL_CL_CONTEXT());
-          vglCl3dMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dMin_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2, vglCl3dMin_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dMin_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dNot':
 
-          vglCl3dNot_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dNot_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dNot_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dNot_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dNot_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dNot_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dNot(vglCl3dNot_img_input, vglCl3dNot_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dNot_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dNot_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dSub':
 
-          vglCl3dSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglCl3dSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglCl3dSub_img_input1, vl.VGL_CL_CONTEXT());
-          vglCl3dSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglCl3dSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglCl3dSub_img_input2, vl.VGL_CL_CONTEXT());
-          vglCl3dSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dSub_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2, vglCl3dSub_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSub_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dSum':
 
-          vglCl3dSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglCl3dSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglCl3dSum_img_input1, vl.VGL_CL_CONTEXT());
-          vglCl3dSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglCl3dSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglCl3dSum_img_input2, vl.VGL_CL_CONTEXT());
-          vglCl3dSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dSum_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2, vglCl3dSum_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dSum_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dThreshold':
 
-          vglCl3dThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+          vglCl3dThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src' , workspace)
           vl.vglCheckContext(vglCl3dThreshold_src, vl.VGL_CL_CONTEXT());
-          vglCl3dThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+          vglCl3dThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst' , workspace)
           vl.vglCheckContext(vglCl3dThreshold_dst, vl.VGL_CL_CONTEXT());
           vglCl3dThreshold(vglCl3dThreshold_src, vglCl3dThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dThreshold_dst)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dThreshold_dst, workspace)
 
 
         elif vGlyph.func == 'vglClBlurSq3':
 
-          vglClBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClBlurSq3_img_input, vl.VGL_CL_CONTEXT());
-          vglClBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClBlurSq3_img_output, vl.VGL_CL_CONTEXT());
           vglClBlurSq3(vglClBlurSq3_img_input, vglClBlurSq3_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClBlurSq3_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClBlurSq3_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClConvolution':
 
-          vglClConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClConvolution_img_input, vl.VGL_CL_CONTEXT());
-          vglClConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClConvolution_img_output, vl.VGL_CL_CONTEXT());
           vglClConvolution(vglClConvolution_img_input, vglClConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClConvolution_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClConvolution_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClCopy':
 
-          vglClCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClCopy_img_input, vl.VGL_CL_CONTEXT());
-          vglClCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClCopy_img_output, vl.VGL_CL_CONTEXT());
           vglClCopy(vglClCopy_img_input, vglClCopy_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClCopy_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClCopy_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClDilate':
 
-          vglClDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClDilate(vglClDilate_img_input, vglClDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClErode':
 
-          vglClErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClErode_img_output, vl.VGL_CL_CONTEXT());
           vglClErode(vglClErode_img_input, vglClErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClInvert':
 
-          vglClInvert_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClInvert_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClInvert_img_input, vl.VGL_CL_CONTEXT());
-          vglClInvert_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClInvert_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClInvert_img_output, vl.VGL_CL_CONTEXT());
           vglClInvert(vglClInvert_img_input, vglClInvert_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClInvert_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClInvert_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClMax':
 
-          vglClMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglClMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglClMax_img_input1, vl.VGL_CL_CONTEXT());
-          vglClMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglClMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglClMax_img_input2, vl.VGL_CL_CONTEXT());
-          vglClMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClMax_img_output, vl.VGL_CL_CONTEXT());
           vglClMax(vglClMax_img_input1, vglClMax_img_input2, vglClMax_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClMax_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClMin':
 
-          vglClMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglClMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglClMin_img_input1, vl.VGL_CL_CONTEXT());
-          vglClMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglClMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglClMin_img_input2, vl.VGL_CL_CONTEXT());
-          vglClMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClMin_img_output, vl.VGL_CL_CONTEXT());
           vglClMin(vglClMin_img_input1, vglClMin_img_input2, vglClMin_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClMin_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClRgb2Gray':
 
-          vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClRgb2Gray_img_input, vl.VGL_CL_CONTEXT());
-          vglClRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClRgb2Gray_img_output, vl.VGL_CL_CONTEXT());
           vglClRgb2Gray(vglClRgb2Gray_img_input, vglClRgb2Gray_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClRgb2Gray_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClSub':
 
-          vglClSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglClSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglClSub_img_input1, vl.VGL_CL_CONTEXT());
-          vglClSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglClSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglClSub_img_input2, vl.VGL_CL_CONTEXT());
-          vglClSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClSub_img_output, vl.VGL_CL_CONTEXT());
           vglClSub(vglClSub_img_input1, vglClSub_img_input2, vglClSub_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClSub_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClSum':
 
-          vglClSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1')
+          vglClSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
           vl.vglCheckContext(vglClSum_img_input1, vl.VGL_CL_CONTEXT());
-          vglClSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2')
+          vglClSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
           vl.vglCheckContext(vglClSum_img_input2, vl.VGL_CL_CONTEXT());
-          vglClSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClSum_img_output, vl.VGL_CL_CONTEXT());
           vglClSum(vglClSum_img_input1, vglClSum_img_input2, vglClSum_img_output)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClSum_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClSwapRgb':
 
-          vglClSwapRgb_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+          vglClSwapRgb_src = getImageInputByIdName(vGlyph.glyph_id, 'src' , workspace)
           vl.vglCheckContext(vglClSwapRgb_src, vl.VGL_CL_CONTEXT());
-          vglClSwapRgb_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+          vglClSwapRgb_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst' , workspace)
           vl.vglCheckContext(vglClSwapRgb_dst, vl.VGL_CL_CONTEXT());
           vglClSwapRgb(vglClSwapRgb_src, vglClSwapRgb_dst)
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClSwapRgb_dst)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClSwapRgb_dst, workspace)
 
 
         elif vGlyph.func == 'vglClThreshold':
 
-          vglClThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src')
+          vglClThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src' , workspace)
           vl.vglCheckContext(vglClThreshold_src, vl.VGL_CL_CONTEXT());
-          vglClThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst')
+          vglClThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst' , workspace)
           vl.vglCheckContext(vglClThreshold_dst, vl.VGL_CL_CONTEXT());
           vglClThreshold(vglClThreshold_src, vglClThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClThreshold_dst)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClThreshold_dst, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyAlgDilate':
 
-          vglCl3dFuzzyAlgDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyAlgDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyAlgDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyAlgDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyAlgDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyAlgDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyAlgDilate(vglCl3dFuzzyAlgDilate_img_input, vglCl3dFuzzyAlgDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyAlgDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyAlgDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyAlgErode':
 
-          vglCl3dFuzzyAlgErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyAlgErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyAlgErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyAlgErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyAlgErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyAlgErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyAlgErode(vglCl3dFuzzyAlgErode_img_input, vglCl3dFuzzyAlgErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyAlgErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyAlgErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyArithDilate':
 
-          vglCl3dFuzzyArithDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyArithDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyArithDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyArithDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyArithDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyArithDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyArithDilate(vglCl3dFuzzyArithDilate_img_input, vglCl3dFuzzyArithDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyArithDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyArithDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyArithErode':
 
-          vglCl3dFuzzyArithErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyArithErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyArithErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyArithErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyArithErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyArithErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyArithErode(vglCl3dFuzzyArithErode_img_input, vglCl3dFuzzyArithErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyArithErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyArithErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyBoundDilate':
 
-          vglCl3dFuzzyBoundDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyBoundDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyBoundDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyBoundDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyBoundDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyBoundDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyBoundDilate(vglCl3dFuzzyBoundDilate_img_input, vglCl3dFuzzyBoundDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyBoundDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyBoundDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyBoundErode':
 
-          vglCl3dFuzzyBoundErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyBoundErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyBoundErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyBoundErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyBoundErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyBoundErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyBoundErode(vglCl3dFuzzyBoundErode_img_input, vglCl3dFuzzyBoundErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyBoundErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyBoundErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyDaPDilate':
 
-          vglCl3dFuzzyDaPDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyDaPDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDaPDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyDaPDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyDaPDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDaPDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyDaPDilate(vglCl3dFuzzyDaPDilate_img_input, vglCl3dFuzzyDaPDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDaPDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDaPDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyDaPErode':
 
-          vglCl3dFuzzyDaPErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyDaPErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDaPErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyDaPErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyDaPErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDaPErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyDaPErode(vglCl3dFuzzyDaPErode_img_input, vglCl3dFuzzyDaPErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDaPErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDaPErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyDrasticDilate':
 
-          vglCl3dFuzzyDrasticDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyDrasticDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDrasticDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyDrasticDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyDrasticDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDrasticDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyDrasticDilate(vglCl3dFuzzyDrasticDilate_img_input, vglCl3dFuzzyDrasticDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDrasticDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDrasticDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyDrasticErode':
 
-          vglCl3dFuzzyDrasticErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyDrasticErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDrasticErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyDrasticErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyDrasticErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyDrasticErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyDrasticErode(vglCl3dFuzzyDrasticErode_img_input, vglCl3dFuzzyDrasticErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDrasticErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyDrasticErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyGeoDilate':
 
-          vglCl3dFuzzyGeoDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyGeoDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyGeoDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyGeoDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyGeoDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyGeoDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyGeoDilate(vglCl3dFuzzyGeoDilate_img_input, vglCl3dFuzzyGeoDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyGeoDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyGeoDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyGeoErode':
 
-          vglCl3dFuzzyGeoErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyGeoErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyGeoErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyGeoErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyGeoErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyGeoErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyGeoErode(vglCl3dFuzzyGeoErode_img_input, vglCl3dFuzzyGeoErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyGeoErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyGeoErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyHamacherDilate':
 
-          vglCl3dFuzzyHamacherDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyHamacherDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyHamacherDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyHamacherDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyHamacherDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyHamacherDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyHamacherDilate(vglCl3dFuzzyHamacherDilate_img_input, vglCl3dFuzzyHamacherDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyHamacherDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyHamacherDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyHamacherErode':
 
-          vglCl3dFuzzyHamacherErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyHamacherErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyHamacherErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyHamacherErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyHamacherErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyHamacherErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyHamacherErode(vglCl3dFuzzyHamacherErode_img_input, vglCl3dFuzzyHamacherErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyHamacherErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyHamacherErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyStdDilate':
 
-          vglCl3dFuzzyStdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyStdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyStdDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyStdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyStdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyStdDilate_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyStdDilate(vglCl3dFuzzyStdDilate_img_input, vglCl3dFuzzyStdDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyStdDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyStdDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglCl3dFuzzyStdErode':
 
-          vglCl3dFuzzyStdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglCl3dFuzzyStdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyStdErode_img_input, vl.VGL_CL_CONTEXT());
-          vglCl3dFuzzyStdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglCl3dFuzzyStdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglCl3dFuzzyStdErode_img_output, vl.VGL_CL_CONTEXT());
           vglCl3dFuzzyStdErode(vglCl3dFuzzyStdErode_img_input, vglCl3dFuzzyStdErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyStdErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCl3dFuzzyStdErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyAlgDilate':
 
-          vglClFuzzyAlgDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyAlgDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyAlgDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyAlgDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyAlgDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyAlgDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyAlgDilate(vglClFuzzyAlgDilate_img_input, vglClFuzzyAlgDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyAlgDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyAlgDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyAlgErode':
 
-          vglClFuzzyAlgErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyAlgErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyAlgErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyAlgErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyAlgErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyAlgErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyAlgErode(vglClFuzzyAlgErode_img_input, vglClFuzzyAlgErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyAlgErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyAlgErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyArithDilate':
 
-          vglClFuzzyArithDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyArithDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyArithDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyArithDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyArithDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyArithDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyArithDilate(vglClFuzzyArithDilate_img_input, vglClFuzzyArithDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyArithDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyArithDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyArithErode':
 
-          vglClFuzzyArithErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyArithErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyArithErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyArithErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyArithErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyArithErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyArithErode(vglClFuzzyArithErode_img_input, vglClFuzzyArithErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyArithErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyArithErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyBoundDilate':
 
-          vglClFuzzyBoundDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyBoundDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyBoundDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyBoundDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyBoundDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyBoundDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyBoundDilate(vglClFuzzyBoundDilate_img_input, vglClFuzzyBoundDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyBoundDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyBoundDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyBoundErode':
 
-          vglClFuzzyBoundErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyBoundErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyBoundErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyBoundErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyBoundErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyBoundErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyBoundErode(vglClFuzzyBoundErode_img_input, vglClFuzzyBoundErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyBoundErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyBoundErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyDaPDilate':
 
-          vglClFuzzyDaPDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyDaPDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyDaPDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyDaPDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyDaPDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyDaPDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyDaPDilate(vglClFuzzyDaPDilate_img_input, vglClFuzzyDaPDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDaPDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDaPDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyDaPErode':
 
-          vglClFuzzyDaPErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyDaPErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyDaPErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyDaPErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyDaPErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyDaPErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyDaPErode(vglClFuzzyDaPErode_img_input, vglClFuzzyDaPErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDaPErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDaPErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyDrasticDilate':
 
-          vglClFuzzyDrasticDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyDrasticDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyDrasticDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyDrasticDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyDrasticDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyDrasticDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyDrasticDilate(vglClFuzzyDrasticDilate_img_input, vglClFuzzyDrasticDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDrasticDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDrasticDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyDrasticErode':
 
-          vglClFuzzyDrasticErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyDrasticErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyDrasticErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyDrasticErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyDrasticErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyDrasticErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyDrasticErode(vglClFuzzyDrasticErode_img_input, vglClFuzzyDrasticErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDrasticErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyDrasticErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyGeoDilate':
 
-          vglClFuzzyGeoDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyGeoDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyGeoDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyGeoDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyGeoDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyGeoDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyGeoDilate(vglClFuzzyGeoDilate_img_input, vglClFuzzyGeoDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyGeoDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyGeoDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyGeoErode':
 
-          vglClFuzzyGeoErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyGeoErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyGeoErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyGeoErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyGeoErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyGeoErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyGeoErode(vglClFuzzyGeoErode_img_input, vglClFuzzyGeoErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyGeoErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyGeoErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyHamacherDilate':
 
-          vglClFuzzyHamacherDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyHamacherDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyHamacherDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyHamacherDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyHamacherDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyHamacherDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyHamacherDilate(vglClFuzzyHamacherDilate_img_input, vglClFuzzyHamacherDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyHamacherDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyHamacherDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyHamacherErode':
 
-          vglClFuzzyHamacherErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyHamacherErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyHamacherErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyHamacherErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyHamacherErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyHamacherErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyHamacherErode(vglClFuzzyHamacherErode_img_input, vglClFuzzyHamacherErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyHamacherErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyHamacherErode_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyStdDilate':
 
-          vglClFuzzyStdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyStdDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyStdDilate_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyStdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyStdDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyStdDilate_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyStdDilate(vglClFuzzyStdDilate_img_input, vglClFuzzyStdDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdDilate_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdDilate_img_output, workspace)
 
 
         elif vGlyph.func == 'vglClFuzzyStdErode':
 
-          vglClFuzzyStdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input')
+          vglClFuzzyStdErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
           vl.vglCheckContext(vglClFuzzyStdErode_img_input, vl.VGL_CL_CONTEXT());
-          vglClFuzzyStdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output')
+          vglClFuzzyStdErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClFuzzyStdErode_img_output, vl.VGL_CL_CONTEXT());
           vglClFuzzyStdErode(vglClFuzzyStdErode_img_input, vglClFuzzyStdErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
 
-          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdErode_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdErode_img_output, workspace)
 
 
-execWorkflow(workspace)
+execute_workspace(workspace)

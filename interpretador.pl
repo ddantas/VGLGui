@@ -1037,7 +1037,10 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
   print PYTHON "\n";  
   print PYTHON "        elif vGlyph.func == '$basename':";
 	print PYTHON "\n"; 
-
+  print PYTHON "          print(\"-------------------------------------------------\")\n";
+  print PYTHON "          print(\"A função \" + vGlyph.func + \" está sendo executada\")\n";
+  print PYTHON "          print(\"-------------------------------------------------\")\n";
+  print PYTHON "\n";  
   print PYTHON "\n";                                 # ESCOPO DA FUNCAO TERMINA AQUI
 
   for (my $i = 0; $i <= $#variable; $i++) {
@@ -1093,7 +1096,25 @@ sub PrintExecFile { # ($basename, $comment, $semantics, $type, $variable, $defau
 
   my $function_call = "          $basename(" . join(", ", @params) . ")";
   print PYTHON "$function_call\n\n";
-  
+  my $function_call = "$basename(" . join(", ", @params) . ")";
+my $bench_call = <<'END_BENCH';
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            FUNC_CALL
+          t1 = datetime.now()
+          t = t1 - t0
+          media = (t.total_seconds() * 1000) / nSteps
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método FUNC_NAME: " + str(media) + " ms\n"
+          total = total + media
+END_BENCH
+
+  # Substitui FUNC_CALL pelo nome da função e seus parâmetros
+  $bench_call =~ s/FUNC_CALL/$function_call/g;
+  $bench_call =~ s/FUNC_NAME/$basename/g;
+
+  print PYTHON "$bench_call\n\n";
+
 
   print PYTHON "          GlyphExecutedUpdate(vGlyph.glyph_id, $output_var, workspace)\n";
 
@@ -1419,8 +1440,7 @@ def execute_workspace(workspace):
             
             if vglCreateImage_img_input is None:
                 print(f"Nenhuma imagem encontrada para glyph_id={vGlyph.glyph_id} e name=img")
-                # Aqui você pode decidir o que fazer: talvez criar uma imagem padrão ou continuar sem imagem
-                return  # Ou talvez você queira continuar com um comportamento alternativo
+                return
             else:
                 vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
                 vglCreateImage_RETVAL.set_oclPtr(vl.get_similar_oclPtr_object(vglCreateImage_img_input))

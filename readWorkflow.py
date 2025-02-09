@@ -123,25 +123,25 @@ class objGlyphOutput(object):
 def procCreateGlyphInOut(workspace):  # Pass the workspace object as an argument
     # Percorrendo lstConnections
     for procCreateGlyphInOut_indexConn, procCreateGlyphInOut_vConnection in enumerate(workspace.lstConnections):
-        print(f"Processando conexão {procCreateGlyphInOut_indexConn}")
+        # print(f"Processando conexão {procCreateGlyphInOut_indexConn}")
         for procCreateGlyphInOut_i, procCreateGlyphInOut_vGlyph in enumerate(workspace.lstGlyph):
-            print(f"Processando glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
+            # print(f"Processando glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
             for procCreateGlyphInOut_vInputPar in procCreateGlyphInOut_vConnection.lst_con_input:
                 if procCreateGlyphInOut_vInputPar.Par_name != '\n' and procCreateGlyphInOut_vGlyph.glyph_id == procCreateGlyphInOut_vInputPar.Par_glyph_id:
                     procCreateGlyphInOut_vGlyphIn = objGlyphInput(procCreateGlyphInOut_vInputPar.Par_name, False)
                     workspace.lstGlyph[procCreateGlyphInOut_i].funcGlyphAddIn(procCreateGlyphInOut_vGlyphIn)
-                    print(f"Adicionando input {procCreateGlyphInOut_vInputPar.Par_name} ao glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
+                    # print(f"Adicionando input {procCreateGlyphInOut_vInputPar.Par_name} ao glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
 
             if procCreateGlyphInOut_vConnection.output_varname != '\n' and procCreateGlyphInOut_vGlyph.glyph_id == procCreateGlyphInOut_vConnection.output_glyph_id:
                 procCreateGlyphInOut_vGlyphOut = objGlyphOutput(procCreateGlyphInOut_vConnection.output_varname, False)
                 workspace.lstGlyph[procCreateGlyphInOut_i].funcGlyphAddOut(procCreateGlyphInOut_vGlyphOut)
-                print(f"Adicionando output {procCreateGlyphInOut_vConnection.output_varname} ao glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
+                # print(f"Adicionando output {procCreateGlyphInOut_vConnection.output_varname} ao glifo {procCreateGlyphInOut_vGlyph.glyph_id}")
 
     # Rule 11: Glyph de origem já criado com READY = TRUE.
     for procCreateGlyphInOut_i, procCreateGlyphInOut_vGlyph in enumerate(workspace.lstGlyph):
         if len(procCreateGlyphInOut_vGlyph.lst_input) == 0:
             workspace.lstGlyph[procCreateGlyphInOut_i].setGlyphReady(True)
-            print(f"Glifo {procCreateGlyphInOut_vGlyph.glyph_id} configurado como READY.")
+            # print(f"Glifo {procCreateGlyphInOut_vGlyph.glyph_id} configurado como READY.")
 
 
 
@@ -462,7 +462,7 @@ def fileRead(workspace):
 
                                         # Criação de Glyphs ou conexões
                     if ('glyph:' in line.lower()) or ('extport:' in line.lower() or ('procedurebegin:' in line.lower())):
-                        print(line)
+                        # print(line)
                         if in_procedure:  # Dentro de um procedimento
                             procCreateGlyph(line.split(':'), count, sub_workspace)  # Cria no sub-workspace
                         else:  # Fora de um procedimento

@@ -1104,10 +1104,11 @@ my $bench_call = <<'END_BENCH';
             FUNC_CALL
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método FUNC_NAME: " + str(media) + " ms\n"
           total = total + media
 END_BENCH
+
 
   # Substitui FUNC_CALL pelo nome da função e seus parâmetros
   $bench_call =~ s/FUNC_CALL/$function_call/g;
@@ -1315,7 +1316,8 @@ def GlyphExecutedUpdate(GlyphExecutedUpdate_Glyph_Id, GlyphExecutedUpdate_image,
 
 def execute_workspace(workspace):
     print(f"Processando workspace: {workspace}")
-
+    msg = ""
+    total = 0.0
     for vGlyph in workspace.lstGlyph:
         try:
             # Verifica se o glifo está pronto para ser processado
@@ -1581,24 +1583,29 @@ def execute_workspace(workspace):
             Rec_imt1 = vl.create_blank_image_as(Rec_img_input)
             Rec_buffer = vl.create_blank_image_as(Rec_img_input)
             for i in range( nSteps ):
-            
-                vglClErode(Rec_img_input, Rec_img_output, elemento, x, y)
+              
+              vglClErode(Rec_img_input, Rec_img_output, elemento, x, y)
 
-                result = 0
-                count = 0
-                while (not result ):
-                    if ((count % 2) == 0):
-                      vglClDilate( Rec_img_output , Rec_buffer ,elemento, x, y)
-                      vglClMin(Rec_buffer , Rec_img_input, Rec_imt1)
-                    else:
-                      vglClDilate( Rec_imt1 , Rec_buffer , elemento, x, y)
-                      vglClMin(Rec_buffer, Rec_img_input, Rec_img_output)
-                    result = vglClEqual(Rec_imt1, Rec_img_output)
-                    count = count + 1
+              result = 0
+              count = 0
+              while (not result ):
+                if ((count % 2) == 0):
+                  vglClDilate( Rec_img_output , Rec_buffer ,elemento, x, y)
+                  vglClMin(Rec_buffer , Rec_img_input, Rec_imt1)
+                else:
+                  vglClDilate( Rec_imt1 , Rec_buffer , elemento, x, y)
+                  vglClMin(Rec_buffer, Rec_img_input, Rec_img_output)
+                result = vglClEqual(Rec_imt1, Rec_img_output)
+                count = count + 1
+              
+              #print("contador reconstrcut",count)  
 
-                vl.get_ocl().commandQueue.finish()
-
-
+            vl.get_ocl().commandQueue.finish()
+            t1 = datetime.now()
+            diff = t1 - t0
+            media = round((diff.total_seconds() * 1000) / nSteps, 3)
+            msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Reconstruct: " + str(media) + " ms\n"
+            total = total + media
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output, workspace)
 END_TEMPLATE

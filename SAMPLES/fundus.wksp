@@ -98,16 +98,11 @@ Glyph:VGL_CL:vglSaveImage::localhost:26:882:362:: -filename 'out/artigo1/fundusS
 #  Glyph 'Image save Thresh'
 Glyph:VGL_CL:vglSaveImage::localhost:27:882:362:: -filename 'out/artigo1/fundusThresh.png'
 
-#  Glyph 'Image save Rec'
-Glyph:VGL_CL:vglSaveImage::localhost:28:882:362:: -filename 'out/artigo1/fundusRec.png'
-
 #  Connections 'Applying Rgb2Gray’
 NodeConnection:data:1:RETVAL:2:img
 NodeConnection:data:1:RETVAL:3:img_input
 NodeConnection:data:2:RETVAL:3:img_output
 
-# Connections ‘Show in Rgb2Gray'
-NodeConnection:data:3:img_output:22:image
 
 #Connections 'Applying Convolution_1x51'
 NodeConnection:data:3:img_output:4:img
@@ -168,9 +163,6 @@ NodeConnection:data:18:RETVAL:19:dst
 NodeConnection:data:19:dst:20:img
 NodeConnection:data:19:dst:21:img_input
 NodeConnection:data:20:RETVAL:21:img_output
-
-#Connections 'Save Rec'
-NodeConnection:data:21:img_output:28:image
 
 
 AnnotationsBegin

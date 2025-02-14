@@ -57,7 +57,17 @@ Glyph:VGL_CL:vglCreateImage::localhost:14:562:242::
 #  Glyph 'Erode'
 Glyph:VGL_CL:vglClErode::localhost:15:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
 
+#  Glyph 'Image save Convolution'
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/conv.png'
 
+#  Glyph 'Image save Dilate'
+Glyph:VGL_CL:vglSaveImage::localhost:17:882:482:: -filename 'out/dilate.png'
+
+#  Glyph 'Image save Erode'
+Glyph:VGL_CL:vglSaveImage::localhost:18:882:482:: -filename 'out/erode.png'
+
+#  Glyph 'Image Show Erode'
+Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
 
 #  Connections 'Applying Rgb2Gray’
 NodeConnection:data:1:RETVAL:2:img
@@ -74,7 +84,8 @@ NodeConnection:data:5:img_output:6:img
 NodeConnection:data:5:img_output:7:img_input
 NodeConnection:data:6:RETVAL:7:img_output
 
-
+#Connections 'Save Convolution'
+NodeConnection:data:7:img_output:16:image
 
 
 #Connections 'Applying Dilate 1x51'
@@ -87,7 +98,8 @@ NodeConnection:data:9:img_output:10:img
 NodeConnection:data:9:img_output:11:img_input
 NodeConnection:data:10:RETVAL:11:img_output
 
-
+#Connections 'Save Dilate'
+NodeConnection:data:11:img_output:17:image
 
 #Connections ‘Applying Erode 1x51'
 NodeConnection:data:11:img_output:12:img
@@ -99,6 +111,8 @@ NodeConnection:data:13:img_output:14:img
 NodeConnection:data:13:img_output:15:img_input
 NodeConnection:data:14:RETVAL:15:img_output
 
+#Connections 'Save Erode'
+NodeConnection:data:15:img_output:19:image
 
 AnnotationsBegin
 AnnotationsEnd

@@ -34,11 +34,11 @@ def tratnum(num):
     return listnumpy
 
 
-nSteps = 10
-
+nSteps = 100
+msg = ""
 CPU = cl.device_type.CPU 
 GPU = cl.device_type.GPU
-
+total = 0.0
 vl.vglClInit(GPU)
 
 
@@ -61,7 +61,6 @@ def execute_workspace(workspace):
     print(f"Processando workspace: {workspace}")
     msg = ""
     total = 0.0
-
     for vGlyph in workspace.lstGlyph:
         try:
             # Verifica se o glifo está pronto para ser processado
@@ -347,7 +346,7 @@ def execute_workspace(workspace):
             vl.get_ocl().commandQueue.finish()
             t1 = datetime.now()
             diff = t1 - t0
-            media = (diff.total_seconds() * 1000) / nSteps
+            media = round((diff.total_seconds() * 1000) / nSteps, 3)
             msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Reconstruct: " + str(media) + " ms\n"
             total = total + media
             # Actions after glyph execution
@@ -372,7 +371,7 @@ def execute_workspace(workspace):
             vglClNdConvolution(vglClNdConvolution_img_input, vglClNdConvolution_img_output, window)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClNdConvolution: " + str(media) + " ms\n"
           total = total + media
 
@@ -398,7 +397,7 @@ def execute_workspace(workspace):
             vglClNdCopy(vglClNdCopy_img_input, vglClNdCopy_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClNdCopy: " + str(media) + " ms\n"
           total = total + media
 
@@ -425,7 +424,7 @@ def execute_workspace(workspace):
             vglClNdDilate(vglClNdDilate_img_input, vglClNdDilate_img_output, window)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClNdDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -452,7 +451,7 @@ def execute_workspace(workspace):
             vglClNdErode(vglClNdErode_img_input, vglClNdErode_img_output, window)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClNdErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -478,7 +477,7 @@ def execute_workspace(workspace):
             vglClNdNot(vglClNdNot_img_input, vglClNdNot_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClNdNot: " + str(media) + " ms\n"
           total = total + media
 
@@ -504,7 +503,7 @@ def execute_workspace(workspace):
             vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClNdThreshold: " + str(media) + " ms\n"
           total = total + media
 
@@ -530,7 +529,7 @@ def execute_workspace(workspace):
             vglCl3dBlurSq3(vglCl3dBlurSq3_img_input, vglCl3dBlurSq3_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dBlurSq3: " + str(media) + " ms\n"
           total = total + media
 
@@ -556,7 +555,7 @@ def execute_workspace(workspace):
             vglCl3dConvolution(vglCl3dConvolution_img_input, vglCl3dConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dConvolution: " + str(media) + " ms\n"
           total = total + media
 
@@ -582,7 +581,7 @@ def execute_workspace(workspace):
             vglCl3dCopy(vglCl3dCopy_img_input, vglCl3dCopy_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dCopy: " + str(media) + " ms\n"
           total = total + media
 
@@ -608,7 +607,7 @@ def execute_workspace(workspace):
             vglCl3dDilate(vglCl3dDilate_img_input, vglCl3dDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -634,7 +633,7 @@ def execute_workspace(workspace):
             vglCl3dErode(vglCl3dErode_img_input, vglCl3dErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -662,7 +661,7 @@ def execute_workspace(workspace):
             vglCl3dMax(vglCl3dMax_img_input1, vglCl3dMax_img_input2, vglCl3dMax_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dMax: " + str(media) + " ms\n"
           total = total + media
 
@@ -690,7 +689,7 @@ def execute_workspace(workspace):
             vglCl3dMin(vglCl3dMin_img_input1, vglCl3dMin_img_input2, vglCl3dMin_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dMin: " + str(media) + " ms\n"
           total = total + media
 
@@ -716,7 +715,7 @@ def execute_workspace(workspace):
             vglCl3dNot(vglCl3dNot_img_input, vglCl3dNot_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dNot: " + str(media) + " ms\n"
           total = total + media
 
@@ -744,7 +743,7 @@ def execute_workspace(workspace):
             vglCl3dSub(vglCl3dSub_img_input1, vglCl3dSub_img_input2, vglCl3dSub_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dSub: " + str(media) + " ms\n"
           total = total + media
 
@@ -772,7 +771,7 @@ def execute_workspace(workspace):
             vglCl3dSum(vglCl3dSum_img_input1, vglCl3dSum_img_input2, vglCl3dSum_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dSum: " + str(media) + " ms\n"
           total = total + media
 
@@ -798,7 +797,7 @@ def execute_workspace(workspace):
             vglCl3dThreshold(vglCl3dThreshold_src, vglCl3dThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dThreshold: " + str(media) + " ms\n"
           total = total + media
 
@@ -824,7 +823,7 @@ def execute_workspace(workspace):
             vglClBlurSq3(vglClBlurSq3_img_input, vglClBlurSq3_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClBlurSq3: " + str(media) + " ms\n"
           total = total + media
 
@@ -850,7 +849,7 @@ def execute_workspace(workspace):
             vglClConvolution(vglClConvolution_img_input, vglClConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClConvolution: " + str(media) + " ms\n"
           total = total + media
 
@@ -876,7 +875,7 @@ def execute_workspace(workspace):
             vglClCopy(vglClCopy_img_input, vglClCopy_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClCopy: " + str(media) + " ms\n"
           total = total + media
 
@@ -902,7 +901,7 @@ def execute_workspace(workspace):
             vglClDilate(vglClDilate_img_input, vglClDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -928,7 +927,7 @@ def execute_workspace(workspace):
             vglClErode(vglClErode_img_input, vglClErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -954,7 +953,7 @@ def execute_workspace(workspace):
             vglClInvert(vglClInvert_img_input, vglClInvert_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClInvert: " + str(media) + " ms\n"
           total = total + media
 
@@ -982,7 +981,7 @@ def execute_workspace(workspace):
             vglClMax(vglClMax_img_input1, vglClMax_img_input2, vglClMax_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClMax: " + str(media) + " ms\n"
           total = total + media
 
@@ -1010,7 +1009,7 @@ def execute_workspace(workspace):
             vglClMin(vglClMin_img_input1, vglClMin_img_input2, vglClMin_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClMin: " + str(media) + " ms\n"
           total = total + media
 
@@ -1036,7 +1035,7 @@ def execute_workspace(workspace):
             vglClRgb2Gray(vglClRgb2Gray_img_input, vglClRgb2Gray_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClRgb2Gray: " + str(media) + " ms\n"
           total = total + media
 
@@ -1064,7 +1063,7 @@ def execute_workspace(workspace):
             vglClSub(vglClSub_img_input1, vglClSub_img_input2, vglClSub_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClSub: " + str(media) + " ms\n"
           total = total + media
 
@@ -1092,7 +1091,7 @@ def execute_workspace(workspace):
             vglClSum(vglClSum_img_input1, vglClSum_img_input2, vglClSum_img_output)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClSum: " + str(media) + " ms\n"
           total = total + media
 
@@ -1118,7 +1117,7 @@ def execute_workspace(workspace):
             vglClSwapRgb(vglClSwapRgb_src, vglClSwapRgb_dst)
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClSwapRgb: " + str(media) + " ms\n"
           total = total + media
 
@@ -1144,7 +1143,7 @@ def execute_workspace(workspace):
             vglClThreshold(vglClThreshold_src, vglClThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClThreshold: " + str(media) + " ms\n"
           total = total + media
 
@@ -1170,7 +1169,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyAlgDilate(vglCl3dFuzzyAlgDilate_img_input, vglCl3dFuzzyAlgDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyAlgDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1196,7 +1195,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyAlgErode(vglCl3dFuzzyAlgErode_img_input, vglCl3dFuzzyAlgErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyAlgErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1222,7 +1221,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyArithDilate(vglCl3dFuzzyArithDilate_img_input, vglCl3dFuzzyArithDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyArithDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1248,7 +1247,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyArithErode(vglCl3dFuzzyArithErode_img_input, vglCl3dFuzzyArithErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyArithErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1274,7 +1273,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyBoundDilate(vglCl3dFuzzyBoundDilate_img_input, vglCl3dFuzzyBoundDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyBoundDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1300,7 +1299,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyBoundErode(vglCl3dFuzzyBoundErode_img_input, vglCl3dFuzzyBoundErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyBoundErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1326,7 +1325,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyDaPDilate(vglCl3dFuzzyDaPDilate_img_input, vglCl3dFuzzyDaPDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyDaPDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1352,7 +1351,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyDaPErode(vglCl3dFuzzyDaPErode_img_input, vglCl3dFuzzyDaPErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyDaPErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1378,7 +1377,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyDrasticDilate(vglCl3dFuzzyDrasticDilate_img_input, vglCl3dFuzzyDrasticDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyDrasticDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1404,7 +1403,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyDrasticErode(vglCl3dFuzzyDrasticErode_img_input, vglCl3dFuzzyDrasticErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyDrasticErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1430,7 +1429,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyGeoDilate(vglCl3dFuzzyGeoDilate_img_input, vglCl3dFuzzyGeoDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyGeoDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1456,7 +1455,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyGeoErode(vglCl3dFuzzyGeoErode_img_input, vglCl3dFuzzyGeoErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyGeoErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1482,7 +1481,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyHamacherDilate(vglCl3dFuzzyHamacherDilate_img_input, vglCl3dFuzzyHamacherDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyHamacherDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1508,7 +1507,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyHamacherErode(vglCl3dFuzzyHamacherErode_img_input, vglCl3dFuzzyHamacherErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyHamacherErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1534,7 +1533,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyStdDilate(vglCl3dFuzzyStdDilate_img_input, vglCl3dFuzzyStdDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyStdDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1560,7 +1559,7 @@ def execute_workspace(workspace):
             vglCl3dFuzzyStdErode(vglCl3dFuzzyStdErode_img_input, vglCl3dFuzzyStdErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()), np.uint32(vGlyph.lst_par[3].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCl3dFuzzyStdErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1586,7 +1585,7 @@ def execute_workspace(workspace):
             vglClFuzzyAlgDilate(vglClFuzzyAlgDilate_img_input, vglClFuzzyAlgDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyAlgDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1612,7 +1611,7 @@ def execute_workspace(workspace):
             vglClFuzzyAlgErode(vglClFuzzyAlgErode_img_input, vglClFuzzyAlgErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyAlgErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1638,7 +1637,7 @@ def execute_workspace(workspace):
             vglClFuzzyArithDilate(vglClFuzzyArithDilate_img_input, vglClFuzzyArithDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyArithDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1664,7 +1663,7 @@ def execute_workspace(workspace):
             vglClFuzzyArithErode(vglClFuzzyArithErode_img_input, vglClFuzzyArithErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyArithErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1690,7 +1689,7 @@ def execute_workspace(workspace):
             vglClFuzzyBoundDilate(vglClFuzzyBoundDilate_img_input, vglClFuzzyBoundDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyBoundDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1716,7 +1715,7 @@ def execute_workspace(workspace):
             vglClFuzzyBoundErode(vglClFuzzyBoundErode_img_input, vglClFuzzyBoundErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyBoundErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1742,7 +1741,7 @@ def execute_workspace(workspace):
             vglClFuzzyDaPDilate(vglClFuzzyDaPDilate_img_input, vglClFuzzyDaPDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyDaPDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1768,7 +1767,7 @@ def execute_workspace(workspace):
             vglClFuzzyDaPErode(vglClFuzzyDaPErode_img_input, vglClFuzzyDaPErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyDaPErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1794,7 +1793,7 @@ def execute_workspace(workspace):
             vglClFuzzyDrasticDilate(vglClFuzzyDrasticDilate_img_input, vglClFuzzyDrasticDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyDrasticDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1820,7 +1819,7 @@ def execute_workspace(workspace):
             vglClFuzzyDrasticErode(vglClFuzzyDrasticErode_img_input, vglClFuzzyDrasticErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyDrasticErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1846,7 +1845,7 @@ def execute_workspace(workspace):
             vglClFuzzyGeoDilate(vglClFuzzyGeoDilate_img_input, vglClFuzzyGeoDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyGeoDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1872,7 +1871,7 @@ def execute_workspace(workspace):
             vglClFuzzyGeoErode(vglClFuzzyGeoErode_img_input, vglClFuzzyGeoErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyGeoErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1898,7 +1897,7 @@ def execute_workspace(workspace):
             vglClFuzzyHamacherDilate(vglClFuzzyHamacherDilate_img_input, vglClFuzzyHamacherDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyHamacherDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1924,7 +1923,7 @@ def execute_workspace(workspace):
             vglClFuzzyHamacherErode(vglClFuzzyHamacherErode_img_input, vglClFuzzyHamacherErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyHamacherErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1950,7 +1949,7 @@ def execute_workspace(workspace):
             vglClFuzzyStdDilate(vglClFuzzyStdDilate_img_input, vglClFuzzyStdDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyStdDilate: " + str(media) + " ms\n"
           total = total + media
 
@@ -1976,7 +1975,7 @@ def execute_workspace(workspace):
             vglClFuzzyStdErode(vglClFuzzyStdErode_img_input, vglClFuzzyStdErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
           t1 = datetime.now()
           t = t1 - t0
-          media = (t.total_seconds() * 1000) / nSteps
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
           msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClFuzzyStdErode: " + str(media) + " ms\n"
           total = total + media
 
@@ -1985,6 +1984,6 @@ def execute_workspace(workspace):
 
     print(msg)
     print("-------------------------------------------------------------")
-    print("O valor total do tempo médio : "+str(total))
+    print("O valor total do tempo médio : "+str(round(total, 3)) , "em ms" )
     print("-------------------------------------------------------------")
 execute_workspace(workspace)

@@ -15,4 +15,4 @@ rungenerator:
 runndtype:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndtype.wksp 1
 runndshape:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndshape.wksp 1
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndtotal.wksp 1

@@ -92,7 +92,8 @@ NodeConnection:data:13:img_output:14:img
 NodeConnection:data:13:img_output:15:img_input
 NodeConnection:data:14:RETVAL:15:img_output
 
-
+#Connections 'Save Erode'
+NodeConnection:data:15:img_output:19:image
 
 NodeConnection:data:15:img_output:91:o
 
@@ -100,7 +101,9 @@ NodeConnection:data:91:o:100:o
 
 ProcedureEnd:Demo:ProcedureEnd::localhost:215:562:122::
 
+Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
 
+NodeConnection:data:100:o:19:image
 
 ProcedureBegin:Fundus:ProcedureBegin::localhost:214:562:122::
 
@@ -167,6 +170,26 @@ Glyph:VGL_CL:vglCreateImage::localhost:20:562:242::
 #  Glyph 'Reconstruct'
 Glyph:VGL_CL:Reconstruct::localhost:21:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 17 -window_size_y 17
 
+#  Glyph 'Image save Rbg2Gray'
+Glyph:VGL_CL:vglSaveImage::localhost:22:882:362:: -filename 'out/artigo1/fundusRgb2gray.png'
+
+#  Glyph 'Image save Convolution'
+Glyph:VGL_CL:vglSaveImage::localhost:23:882:362:: -filename 'out/artigo1/fundusConvolution.png'
+
+#  Glyph 'Image save Dilate'
+Glyph:VGL_CL:vglSaveImage::localhost:24:882:362:: -filename 'out/artigo1/fundusDilate.png' 
+
+#  Glyph 'Image save Erode'
+Glyph:VGL_CL:vglSaveImage::localhost:25:882:362:: -filename 'out/artigo1/fundusErode.png' 
+
+#  Glyph 'Image save Sub'
+Glyph:VGL_CL:vglSaveImage::localhost:26:882:362:: -filename 'out/artigo1/fundusSub.png' 
+
+#  Glyph 'Image save Thresh'
+Glyph:VGL_CL:vglSaveImage::localhost:27:882:362:: -filename 'out/artigo1/fundusThresh.png'
+
+#  Glyph 'Image save Rec'
+Glyph:VGL_CL:vglSaveImage::localhost:28:882:362:: -filename 'out/artigo1/fundusRec.png'
 
 
 ExtPort:out:External Output (1)::localhost:91:1142:142::
@@ -176,6 +199,8 @@ NodeConnection:data:92:i:2:img
 NodeConnection:data:92:i:3:img_input
 NodeConnection:data:2:RETVAL:3:img_output
 
+# Connections ‘Show in Rgb2Gray'
+NodeConnection:data:3:img_output:22:image
 
 #Connections 'Applying Convolution_1x51'
 NodeConnection:data:3:img_output:4:img
@@ -245,3 +270,6 @@ NodeConnection:data:91:o:214:o
 
 ProcedureEnd:VGL_CL:ProcedureEnd::localhost:215:562:122::
 
+Glyph:VGL_CL:ShowImage::localhost:20:882:482:: -winame 'erode.png'
+
+NodeConnection:data:214:o:20:image

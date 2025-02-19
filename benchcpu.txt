@@ -1,0 +1,60 @@
+DEMO:
+
+Tempo médio de 100 execuções do método vglClRgb2Gray: 0.354 ms
+Tempo médio de 100 execuções do método vglClConvolution: 762.035 ms
+Tempo médio de 100 execuções do método vglClConvolution: 1054.689 ms
+Tempo médio de 100 execuções do método vglClDilate: 760.747 ms
+Tempo médio de 100 execuções do método vglClDilate: 985.808 ms
+Tempo médio de 100 execuções do método vglClErode: 1002.244 ms
+Tempo médio de 100 execuções do método vglClErode: 808.007 ms
+
+-------------------------------------------------------------
+O valor total do tempo médio : 5373.884 em ms
+-------------------------------------------------------------
+
+
+PROCEDURE DEMO
+
+Tempo médio de 100 execuções do método vglClRgb2Gray: 0.374 ms
+Tempo médio de 100 execuções do método vglClConvolution: 752.157 ms
+Tempo médio de 100 execuções do método vglClConvolution: 1019.074 ms
+Tempo médio de 100 execuções do método vglClDilate: 742.345 ms
+Tempo médio de 100 execuções do método vglClDilate: 940.256 ms
+Tempo médio de 100 execuções do método vglClErode: 1004.201 ms
+Tempo médio de 100 execuções do método vglClErode: 810.952 ms
+
+-------------------------------------------------------------
+O valor total do tempo médio : 5269.359 em ms
+-------------------------------------------------------------
+
+
+
+PROCEDURE FUNDUS:
+
+Tempo médio de 100 execuções do método vglClRgb2Gray: 0.376 ms
+Tempo médio de 100 execuções do método vglClConvolution: 749.446 ms
+Tempo médio de 100 execuções do método vglClConvolution: 1014.554 ms
+Tempo médio de 100 execuções do método vglClDilate: 741.628 ms
+Tempo médio de 100 execuções do método vglClDilate: 939.37 ms
+Tempo médio de 100 execuções do método vglClErode: 1011.195 ms
+Tempo médio de 100 execuções do método vglClErode: 858.614 ms
+Tempo médio de 100 execuções do método vglClSub: 0.409 ms
+Tempo médio de 100 execuções do método vglClThreshold: 0.467 ms
+Tempo médio de 100 execuções do método Reconstruct: 107935.213 ms
+
+-------------------------------------------------------------
+O valor total do tempo médio : 113251.272 em ms
+-------------------------------------------------------------
+
+
+
+
+Tempo médio de 100 execuções do método vglCl3dBlurSq3: 0.361 ms
+Tempo médio de 100 execuções do método vglCl3dConvolution: 717.024 ms
+Tempo médio de 100 execuções do método vglCl3dDilate: 718.612 ms
+Tempo médio de 100 execuções do método vglCl3dErode: 687.294 ms
+Tempo médio de 100 execuções do método vglCl3dThreshold: 0.551 ms
+
+-------------------------------------------------------------
+O valor total do tempo médio : 2123.842 em ms
+-------------------------------------------------------------

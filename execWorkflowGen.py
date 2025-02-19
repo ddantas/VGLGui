@@ -39,7 +39,7 @@ msg = ""
 CPU = cl.device_type.CPU 
 GPU = cl.device_type.GPU
 total = 0.0
-vl.vglClInit(GPU)
+vl.vglClInit(CPU)
 
 
 workspace = Workspace()

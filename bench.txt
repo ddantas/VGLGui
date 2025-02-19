@@ -104,3 +104,21 @@ Tempo médio de 100 execuções do método vglClNdConvolution: 1.76203 ms
 -------------------------------------------------------------
 O valor total do tempo médio : 5.30975 em ms
 -------------------------------------------------------------
+
+
+
+
+3d
+
+Tempo médio de 100 execuções do método vglCl3dBlurSq3: 0.149 ms
+Tempo médio de 100 execuções do método vglCl3dConvolution: 4.075 ms
+Tempo médio de 100 execuções do método vglCl3dDilate: 5.284 ms
+Tempo médio de 100 execuções do método vglCl3dErode: 5.089 ms
+Tempo médio de 100 execuções do método vglCl3dThreshold: 0.188 ms
+
+-------------------------------------------------------------
+O valor total do tempo médio : 14.785 em ms
+-------------------------------------------------------------
+
+
+

@@ -34,7 +34,8 @@ def reconstruct(im):
     #print(c)
     imt0 = imt1
     imdil = cv2.dilate(imt0, kernel)
-    imt1 = np.minimum(imdil, im)
+    # imt1 = np.minimum(imdil, im)
+    imt1 = cv2.min(imdil, im)
     is_equal = image_equal(imt0, imt1)
     #c = c + 1
   return imt1
@@ -65,7 +66,7 @@ TEST3 = True
 total = 0.0
 msg = ""
 if __name__ == "__main__":
-  nSteps = 1
+  nSteps = 100
   filename = "1_good.JPG"
   img = my.imread(filename)
   
@@ -91,7 +92,7 @@ if __name__ == "__main__":
       imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Rgb2Gray: " + str(media) + " ms\n"
     total = total + media
 
@@ -106,7 +107,7 @@ if __name__ == "__main__":
       imsmooth = cv2.sepFilter2D(imgray,-1,gauss,gauss)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Convolution: " + str(media) + " ms\n"
     total = total + media
 
@@ -118,7 +119,7 @@ if __name__ == "__main__":
       imsmooth2 = cv2.sepFilter2D(imsmooth,-1,gauss,gauss)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Convolution: " + str(media) + " ms\n"
     total = total + media
     
@@ -134,7 +135,7 @@ if __name__ == "__main__":
       imdil_1 = cv2.dilate(imsmooth2, kernel_51, 1)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Dilate: " + str(media) + " ms\n"
     total = total + media
     
@@ -146,7 +147,7 @@ if __name__ == "__main__":
       imdil_51 = cv2.dilate(imdil_1, kernel_1, 1)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Dilate: " + str(media) + " ms\n"
     total = total + media
 
@@ -158,7 +159,7 @@ if __name__ == "__main__":
      imerode_1 = cv2.erode(imdil_51, kernel_51, 1)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Erode: " + str(media) + " ms\n"
     total = total + media
 
@@ -171,7 +172,7 @@ if __name__ == "__main__":
       imerode_51 = cv2.erode(imerode_1, kernel_1, 1)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Erode: " + str(media) + " ms\n"
     total = total + media
     
@@ -186,7 +187,7 @@ if __name__ == "__main__":
       result = imerode_51 - imsmooth2
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execucoes do método Sub: " + str(media) + " ms\n"
     total = total + media
 
@@ -201,7 +202,7 @@ if __name__ == "__main__":
       imthresh = my.thresh(result, 2)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execucoes do método Threshold: " + str(media) + " ms\n"
     total = total + media
 
@@ -216,7 +217,7 @@ if __name__ == "__main__":
       imopenrec = reconstruct(imthresh)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
     msg = msg + "Tempo médio de " +str(nSteps)+ " execucoes do método Reconstruct: " + str(media) + " ms\n"
     total = total + media
 

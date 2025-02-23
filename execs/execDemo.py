@@ -47,72 +47,120 @@ def reconstruct(im):
 
 msg = ""
 media = 0.0
-nSteps = 10
-
+nSteps = 1
+total = 0.0
 TEST1 = False
 TEST2 = False
 TEST3 = True
 
 if __name__ == "__main__":
-  filename = "images/01.png"
+  filename = "1_good.JPG"
   img = my.imread(filename)
   imgray = my.imreadgray(filename)
   
 
   if (TEST3):
     msg = ""
+    kernel_t = cv2.getGaussianKernel(51, 1)
+    
+    #print(kernel_t)
+    kernel_size = 51
+    gauss = cv2.getGaussianKernel(kernel_size, 0)
+    # print(gauss)
+    
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    #my.imshow(imgray)
     t0 = datetime.now()
     for i in range( nSteps ):
       imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
-    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do metódo Rgb2Gray: " + str(media) + " ms\n"
-    #my.imshow(imgray)
-    kernel = np.ones((5, 5), np.uint8)
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Rgb2Gray: " + str(media) + " ms\n"
+    total = total + media
 
-    #1 Convolution
-    imconv = smooth(imgray, 5)
-
-    #Runtime
-    t0 = datetime.now()
-    for i in range( nSteps ):
-      imconv = smooth(imgray, 5)
-    t1 = datetime.now()
-    t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
-    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do metódo Convolution: " + str(media) + " ms\n"
-
-    #my.imshow(imconv)
-
-    #2 Dilate    
-    imdil = cv2.dilate(imconv, kernel, 1)
+    #2 suavização
+    #imsmooth1 = smooth(imgray, 15)
+    imsmooth = cv2.sepFilter2D(imgray,-1,gauss,gauss)
+    #imsmooth1 = convolve(imgray, tratnum(kernel_15x15))
 
     #Runtime
     t0 = datetime.now()
     for i in range( nSteps ):
-      imdil = cv2.dilate(imconv, kernel, 1)
+      imsmooth = cv2.sepFilter2D(imgray,-1,gauss,gauss)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
-    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do metódo Dilate: " + str(media) + " ms\n"
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Convolution: " + str(media) + " ms\n"
+    total = total + media
 
-    #my.imshow(imdil)
-
-    #3 Erode
-    imerode = cv2.erode(imdil, kernel, 1)
-
+    imsmooth2 = cv2.sepFilter2D(imsmooth,-1,gauss,gauss)
+    
+    #Runtime
     t0 = datetime.now()
     for i in range( nSteps ):
-      imerode = cv2.erode(imdil, kernel, 1)
+      imsmooth2 = cv2.sepFilter2D(imsmooth,-1,gauss,gauss)
     t1 = datetime.now()
     t = t1 - t0
-    media = (t.total_seconds() * 1000) / nSteps
-    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do metódo Erode: " + str(media) + " ms\n"
-    #my.imshow(imerode)
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Convolution: " + str(media) + " ms\n"
+    total = total + media
+    
+    #my.imshow(imsmooth)
+    kernel_51 = np.ones((51, 1), np.uint8)
+    kernel_1 = np.ones((1, 51), np.uint8)
 
+    imdil_1 = cv2.dilate(imsmooth2, kernel_51, 1)
 
-print("-------------------------------------------------------------")            
+    #Runtime
+    t0 = datetime.now()
+    for i in range( nSteps ):
+      imdil_1 = cv2.dilate(imsmooth2, kernel_51, 1)
+    t1 = datetime.now()
+    t = t1 - t0
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Dilate: " + str(media) + " ms\n"
+    total = total + media
+    
+    imdil_51 = cv2.dilate(imdil_1, kernel_1, 1)
+
+    #Runtime
+    t0 = datetime.now()
+    for i in range( nSteps ):
+      imdil_51 = cv2.dilate(imdil_1, kernel_1, 1)
+    t1 = datetime.now()
+    t = t1 - t0
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Dilate: " + str(media) + " ms\n"
+    total = total + media
+
+    imerode_1 = cv2.erode(imdil_51, kernel_51, 1)
+
+    #Runtime
+    t0 = datetime.now()
+    for i in range( nSteps ):
+     imerode_1 = cv2.erode(imdil_51, kernel_51, 1)
+    t1 = datetime.now()
+    t = t1 - t0
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Erode: " + str(media) + " ms\n"
+    total = total + media
+
+    
+    imerode_51 = cv2.erode(imerode_1, kernel_1, 1)
+    # imshow(imerode_51)
+
+    #Runtime
+    t0 = datetime.now()
+    for i in range( nSteps ):
+      imerode_51 = cv2.erode(imerode_1, kernel_1, 1)
+    t1 = datetime.now()
+    t = t1 - t0
+    media = round((t.total_seconds() * 1000) / nSteps, 2)
+    msg = msg + "Tempo médio de " +str(nSteps)+ " execuções do método Erode: " + str(media) + " ms\n"
+    total = total + media
+
+print("-------------------------------------------------------------")
 print(msg)
 print("-------------------------------------------------------------")
+print("Valo total médio: "+ str(total))

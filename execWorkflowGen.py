@@ -34,7 +34,7 @@ def tratnum(num):
     return listnumpy
 
 
-nSteps = 100
+nSteps = 1
 msg = ""
 CPU = cl.device_type.CPU 
 GPU = cl.device_type.GPU

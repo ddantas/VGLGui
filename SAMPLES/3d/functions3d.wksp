@@ -28,7 +28,7 @@ Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/3d/3d_blurSq3.t
 Glyph:VGL_CL:vglCreateImage::localhost:4:562:122:: 
 
 #  Glyph 'vglCl3dConvolution'
-Glyph:VGL_CL:vglCl3dConvolution::localhost:5:382:182:: -convolution_window ['0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.05595932', '0.09226132', '0.05595932', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628'] -windows 3 -windows 3 -windows 3
+Glyph:VGL_CL:vglCl3dConvolution::localhost:5:382:182:: -convolution_window [0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035, 0.037037037037037035] -windows 3 -windows 3 -windows 3
 
 Glyph:VGL_CL:vglSaveImage::localhost:17:882:482:: -filename 'out/3d/3d_convolution.tiff'
 
@@ -37,7 +37,7 @@ Glyph:VGL_CL:vglSaveImage::localhost:17:882:482:: -filename 'out/3d/3d_convoluti
 Glyph:VGL_CL:vglCreateImage::localhost:6:562:122:: 
 
 #  Glyph 'vglCl3dDilate'
-Glyph:VGL_CL:vglCl3dDilate::localhost:7:382:182:: -convolution_window ['0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.05595932', '0.09226132', '0.05595932', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628'] -windows 3 -windows 3 -windows 3
+Glyph:VGL_CL:vglCl3dDilate::localhost:7:382:182:: -convolution_window [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] -windows 3 -windows 3 -windows 3
 
 Glyph:VGL_CL:vglSaveImage::localhost:18:882:482:: -filename 'out/3d/3d_dilate.tiff'
 
@@ -45,7 +45,7 @@ Glyph:VGL_CL:vglSaveImage::localhost:18:882:482:: -filename 'out/3d/3d_dilate.ti
 Glyph:VGL_CL:vglCreateImage::localhost:8:562:122:: 
 
 #  Glyph 'vglCl3dErode'
-Glyph:VGL_CL:vglCl3dErode::localhost:9:382:182:: -convolution_window ['0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.05595932', '0.09226132', '0.05595932', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628'] -windows 3 -windows 3 -windows 3
+Glyph:VGL_CL:vglCl3dErode::localhost:9:382:182:: -convolution_window [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] -windows 3 -windows 3 -windows 3
 
 Glyph:VGL_CL:vglSaveImage::localhost:19:882:482:: -filename 'out/3d/3d_erode.tiff'
 
@@ -54,7 +54,7 @@ Glyph:VGL_CL:vglSaveImage::localhost:19:882:482:: -filename 'out/3d/3d_erode.tif
 Glyph:VGL_CL:vglCreateImage::localhost:10:562:122:: 
 
 #  Glyph 'vglCl3dThreshold'
-Glyph:VGL_CL:vglCl3dThreshold::localhost:11:382:182:: -thresh 0.00784 -top 1
+Glyph:VGL_CL:vglCl3dThreshold::localhost:11:382:182:: -thresh 0.2 -top 1
 
 Glyph:VGL_CL:vglSaveImage::localhost:20:882:482:: -filename 'out/3d/3d_threshold.tiff'
 

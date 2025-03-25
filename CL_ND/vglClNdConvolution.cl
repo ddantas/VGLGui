@@ -20,7 +20,6 @@ __kernel void vglClNdConvolution(__global unsigned char* img_input,
                  (get_global_id(0) - get_global_offset(0));
 
 
-
   int ires;
   int idim;
   ires = coord;

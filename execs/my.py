@@ -97,3 +97,11 @@ def histeq(im):
         result[im == i] = t[i]
     result = np.uint8(result)
     return result
+
+# mask333 = [1.0/27.0 for _ in range(27)]
+# print(mask333)
+
+
+
+erode_mask = [1] * 625
+print(erode_mask)

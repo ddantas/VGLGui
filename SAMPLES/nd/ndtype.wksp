@@ -13,13 +13,13 @@ height_size = 1144
 VariablesEnd:
 
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadNdImage::localhost:1:302:82:: -filename 'files/images/lena_std.tif' -iscolor 1 -has_mipmap
+Glyph:VGL_CL:vglLoadNdImage::localhost:1:302:82:: -filename 'files/images/mitosis_volume.tif' -iscolor 1 -has_mipmap
 
 #  Glyph 'Create Image vglClNdErode'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
 
 #  Glyph 'vglClStrel'
-Glyph:VGL_CL:vglStrel::localhost:3:382:182:: -type 'cross' -ndim 2
+Glyph:VGL_CL:vglStrel::localhost:3:382:182:: -type 'cube' -ndim 1
 
 #  Glyph 'vglClNdErode'
 Glyph:VGL_CL:vglClNdErode::localhost:4:382:182::
@@ -30,11 +30,23 @@ Glyph:VGL_CL:vglCreateImage::localhost:5:562:122::
 #  Glyph 'vglClNdDilate'
 Glyph:VGL_CL:vglClNdDilate::localhost:6:382:182::
 
-#  Glyph 'Create Image vglClNdConvolution'
+#  Glyph 'Create Image vglClNdNot'
 Glyph:VGL_CL:vglCreateImage::localhost:7:562:122:: 
 
-#  Glyph 'vglClNdConvolution'
-Glyph:VGL_CL:vglClNdConvolution::localhost:8:382:182::
+#  Glyph 'vglClNdNot'
+Glyph:VGL_CL:vglClNdNot::localhost:8:382:182::
+
+#  Glyph 'Create Image Threshold'
+Glyph:VGL_CL:vglCreateImage::localhost:9:562:122:: 
+
+#  Glyph 'vglClNdThreshold'
+Glyph:VGL_CL:vglClNdThreshold::localhost:10:382:182:: -thresh 30
+
+#  Glyph 'Create Image Threshold'
+Glyph:VGL_CL:vglCreateImage::localhost:11:562:122:: 
+
+#  Glyph 'vglClNdThreshold'
+Glyph:VGL_CL:vglClNdConvolution::localhost:12:382:182:: 
 
 Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erodem1_strel_type11.tiff'
 
@@ -68,6 +80,21 @@ NodeConnection:data:7:RETVAL:8:img_output
 NodeConnection:strel:3:STREL:8:window
 
 NodeConnection:data:8:img_output:18:image
+
+NodeConnection:data:1:RETVAL:9:img
+NodeConnection:data:1:RETVAL:10:img_input
+NodeConnection:data:9:RETVAL:10:img_output
+
+NodeConnection:strel:3:STREL:8:window
+
+NodeConnection:data:8:img_output:18:image
+
+
+NodeConnection:data:1:RETVAL:11:img
+NodeConnection:data:1:RETVAL:12:img_input
+NodeConnection:data:11:RETVAL:12:img_output
+
+NodeConnection:strel:3:STREL:12:window
 
 AnnotationsBegin
 AnnotationsEnd

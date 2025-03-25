@@ -37,25 +37,29 @@ Glyph:VGL_CL:vglClConvolution::localhost:7:462:302:: -convolution_window ['0.000
 Glyph:VGL_CL:vglCreateImage::localhost:8:562:242::
 
 #  Glyph 'Dilate'
-Glyph:VGL_CL:vglClDilate::localhost:9:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+Glyph:VGL_CL:vglClDilate::localhost:9:462:302:: -convolution_window [1, 1, 1, 1, 1, 1, 1, 1, 1]
+ -window_size_x 3 -window_size_y 3
 
 #  Glyph 'Create Image Dilate'
 Glyph:VGL_CL:vglCreateImage::localhost:10:562:242::
 
 #  Glyph 'vglClDilate'
-Glyph:VGL_CL:vglClDilate::localhost:11:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+Glyph:VGL_CL:vglClDilate::localhost:11:462:302:: -convolution_window [1, 1, 1, 1, 1, 1, 1, 1, 1]
+ -window_size_x 3 -window_size_y 3
 
 #  Glyph 'Create Image Erode'
 Glyph:VGL_CL:vglCreateImage::localhost:12:562:242::
 
 #  Glyph 'vglClErode'
-Glyph:VGL_CL:vglClErode::localhost:13:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+Glyph:VGL_CL:vglClErode::localhost:13:462:302::  -convolution_window [1, 1, 1, 1, 1, 1, 1, 1, 1]
+ -window_size_x 3 -window_size_y 3
 
 #  Glyph 'Create Image Erode'
 Glyph:VGL_CL:vglCreateImage::localhost:14:562:242::
 
 #  Glyph 'Erode'
-Glyph:VGL_CL:vglClErode::localhost:15:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+Glyph:VGL_CL:vglClErode::localhost:15:462:302::  -convolution_window [1, 1, 1, 1, 1, 1, 1, 1, 1]
+ -window_size_x 3 -window_size_y 3
 
 #  Glyph 'Image save Convolution'
 Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/conv.png'

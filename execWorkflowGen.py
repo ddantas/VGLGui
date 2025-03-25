@@ -105,7 +105,7 @@ def execute_workspace(workspace):
             print("-------------------------------------------------")
             vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
 
-            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE(), vl.IMAGE_ND_ARRAY())
 
             vl.vglLoadImage(vglLoadImage_img_input)
             if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
@@ -161,7 +161,7 @@ def execute_workspace(workspace):
                         type = kernel_type_map[key]
                         break          
                 print(type)
-                window.constructorFromTypeNdim(type, int(vGlyph.lst_par[1].getValue()))
+                window.constructorFromTypeNdim(vl.VGL_STREL_CROSS(), 1)
                 #print(window.getData())
             
             if(len(vGlyph.lst_par) == 1):
@@ -495,12 +495,12 @@ def execute_workspace(workspace):
           vl.vglCheckContext(vglClNdThreshold_img_input, vl.VGL_CL_CONTEXT());
           vglClNdThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdThreshold_img_output, vl.VGL_CL_CONTEXT());
-          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
+          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()))
 
           # Runtime
           t0 = datetime.now()
           for i in range(nSteps):
-            vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
+            vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()))
           t1 = datetime.now()
           t = t1 - t0
           media = round((t.total_seconds() * 1000) / nSteps, 3)

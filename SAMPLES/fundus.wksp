@@ -18,7 +18,7 @@ height_size = 1144
 VariablesEnd:
 
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/16_good.JPG' -iscolor 1 -has_mipmap 0
 
 #  Glyph 'Create Image Rgb2Gray'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
@@ -98,11 +98,16 @@ Glyph:VGL_CL:vglSaveImage::localhost:26:882:362:: -filename 'out/artigo1/fundusS
 #  Glyph 'Image save Thresh'
 Glyph:VGL_CL:vglSaveImage::localhost:27:882:362:: -filename 'out/artigo1/fundusThresh.png'
 
+#  Glyph 'Image save Rec'
+Glyph:VGL_CL:vglSaveImage::localhost:28:882:362:: -filename 'out/artigo1/fundusRec.png'
+
 #  Connections 'Applying Rgb2Gray’
 NodeConnection:data:1:RETVAL:2:img
 NodeConnection:data:1:RETVAL:3:img_input
 NodeConnection:data:2:RETVAL:3:img_output
 
+# Connections ‘Show in Rgb2Gray'
+NodeConnection:data:3:img_output:22:image
 
 #Connections 'Applying Convolution_1x51'
 NodeConnection:data:3:img_output:4:img
@@ -115,6 +120,7 @@ NodeConnection:data:5:img_output:7:img_input
 NodeConnection:data:6:RETVAL:7:img_output
 
 #Connections 'Save Convolution'
+NodeConnection:data:7:img_output:23:image
 
 NodeConnection:data:7:img_output:17:img_input2
 
@@ -141,7 +147,7 @@ NodeConnection:data:13:img_output:15:img_input
 NodeConnection:data:14:RETVAL:15:img_output
 
 #Connections 'Save Erode'
-
+NodeConnection:data:15:img_output:25:image
 
 # Connections ‘Applying Sub'
 NodeConnection:data:15:img_output:16:img
@@ -149,13 +155,15 @@ NodeConnection:data:15:img_output:17:img_input1
 NodeConnection:data:16:RETVAL:17:img_output
 
 #Connections 'Save Sub'
-
+NodeConnection:data:17:img_output:26:image
 
 # Connections ‘Applying Thresh'
 NodeConnection:data:17:img_output:18:img
 NodeConnection:data:17:img_output:19:src
 NodeConnection:data:18:RETVAL:19:dst
 
+
+NodeConnection:data:19:dst:27:image
 # Connections ‘Save Thresh'
 
 
@@ -163,6 +171,9 @@ NodeConnection:data:18:RETVAL:19:dst
 NodeConnection:data:19:dst:20:img
 NodeConnection:data:19:dst:21:img_input
 NodeConnection:data:20:RETVAL:21:img_output
+
+#Connections 'Save Rec'
+NodeConnection:data:21:img_output:28:image
 
 
 AnnotationsBegin

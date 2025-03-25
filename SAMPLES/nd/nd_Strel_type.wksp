@@ -13,16 +13,16 @@ height_size = 1144
 VariablesEnd:
 
 #  Glyph 'Image load'
-Glyph:VGL_CL:vglLoadNdImage::localhost:1:302:82:: -filename 'files/images/lena_std.tif' -iscolor 1 -has_mipmap
+Glyph:VGL_CL:vglLoadNdImage::localhost:1:302:82:: -filename 'files/images/retina.tif' -iscolor 1 -has_mipmap
 
 #  Glyph 'Create Image vglClNdErode'
 Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
 
 #  Glyph 'vglClStrel'
-Glyph:VGL_CL:vglStrel::localhost:3:382:182:: -type 'cross' -ndim 2
+Glyph:VGL_CL:vglStrel::localhost:3:382:182:: -type 'mean' -ndim 2
 
 #  Glyph 'vglClNdErode'
-Glyph:VGL_CL:vglClNdErode::localhost:4:382:182::
+Glyph:VGL_CL:vglClNdConvolution::localhost:4:382:182::
 
 Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/nd/nd_erodem1_strel_type.tiff'
 

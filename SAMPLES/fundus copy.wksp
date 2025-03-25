@@ -146,7 +146,7 @@ NodeConnection:data:13:img_output:15:img_input
 NodeConnection:data:14:RETVAL:15:img_output
 
 #Connections 'Save Erode'
-
+NodeConnection:data:15:img_output:25:image
 
 # Connections ‘Applying Sub'
 NodeConnection:data:15:img_output:16:img
@@ -154,13 +154,15 @@ NodeConnection:data:15:img_output:17:img_input1
 NodeConnection:data:16:RETVAL:17:img_output
 
 #Connections 'Save Sub'
-
+NodeConnection:data:17:img_output:26:image
 
 # Connections ‘Applying Thresh'
 NodeConnection:data:17:img_output:18:img
 NodeConnection:data:17:img_output:19:src
 NodeConnection:data:18:RETVAL:19:dst
 
+
+NodeConnection:data:19:dst:27:image
 # Connections ‘Save Thresh'
 
 

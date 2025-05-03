@@ -82,13 +82,13 @@ class VglImage(object):
 
     if(self.ndim is None):
       self.ndim = vl.VGL_IMAGE_2D_IMAGE()
-      print(":Assuming 2D Image!")
-    elif(self.ndim is vl.VGL_IMAGE_2D_IMAGE()):
-      print(":Creating 2D Image!")
-    elif(self.ndim is vl.VGL_IMAGE_3D_IMAGE()):
-      print(":Creating 3D Image!")
-    else:
-      print("vglImage: Warning! Image is not 2D or 3D. Execution will continue.")
+    #   print(":Assuming 2D Image!")
+    # elif(self.ndim is vl.VGL_IMAGE_2D_IMAGE()):
+    #   print(":Creating 2D Image!")
+    # elif(self.ndim is vl.VGL_IMAGE_3D_IMAGE()):
+    #   print(":Creating 3D Image!")
+    # else:
+    #   print("vglImage: Warning! Image is not 2D or 3D. Execution will continue.")
     
     #print(":::-->path", imgPath)
     #print(":::-->dept", depth)

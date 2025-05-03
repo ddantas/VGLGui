@@ -1,37 +1,18 @@
-runnew:
-	cd ~/Documents/repo/VGLGui; ./execWorkflow.py ./SAMPLES/fundus_v2.wksp 1
-runlotufu:
-	cd ~/Documents/repo/VGLGui; ./execWorkflow.py ./SAMPLES/area.wksp 1
-runfundus:
-	cd ~/Documents/repo/VGLGui; ./execWorkflow.py ./SAMPLES/fundus.wksp 1
 rundemo:
-	cd ~/Documents/repo/VGLGui; ./execWorkflow.py ./SAMPLES/demo.wksp 1
-runexmp:
-	cd ~/Documents/repo/VGLGui; ./execWorkflow.py ./SAMPLES/exmp.wksp 1
-runbench:
-	cd ~/Documents/repo/VGLGui; ./bench.py images/standard_test_images/lena_color_512.tif 1000 output/
-runtest:
-	cd ~/Documents/repo/VGLGui; ./testeamostra.py
-runfunduspy:
-	./execFundus.py
-rundemopy:
-	./execDemo.py
-runcontrol:
-	cd ~/Documents/repo/VGLGui; ./execWorkflow.py trigger.wk 1
-
+	cd ~/Documents/repo/VGLGui; ./execWorkflowGen.py ./SAMPLES/demo.wksp 1
+runfundus:
+	cd ~/Documents/repo/VGLGui; ./execWorkflowGen.py ./SAMPLES/fundus.wksp 1
 run3d:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/functions3d.wksp 1
-
-runnd_shape:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Shape.wksp 1
-
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/3d/functions3d.wksp 1
 runnd_strel_type:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Strel_type.wksp 1
-
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/nd_Strel_type.wksp 1
 runnd_strel_window:
-	cd ~/Documents/TCC_1/VGLGui; ./execWorkflow.py  ./SAMPLES/nd_Strel_window.wksp 1
-runexec:
-	cd ~/Documents/TCC_1/VGLGui; ./execwork.py ./SAMPLES/nd_Strel_type.wksp 1
-
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/nd_Strel_window.wksp 1
+runprocedure:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/procedures/tcc/demo_fundus.wksp 1
 rungenerator:
-	cd ~/Documents/TCC_1/VGLGui;  ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl
+	cd ~/Documents/TCC_1/VGLGui;  ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl CL_UTIL/*.cl
+runndtype:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndtype.wksp 1
+runndshape:
+	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndtotal.wksp 1

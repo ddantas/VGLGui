@@ -1,0 +1,275 @@
+
+Glyph:VGL_CL:vglLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/2_good.JPG' -iscolor 1 -has_mipmap 0
+
+ExtPort:out:External Input (1)::localhost:92:1142:142::
+
+NodeConnection:data:1:RETVAL:92:i
+
+ProcedureBegin:Demo:ProcedureBegin::localhost:100:562:122::
+
+Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
+Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
+
+#  Glyph 'Create Image Convolution'
+Glyph:VGL_CL:vglCreateImage::localhost:4:562:242::
+
+#  Glyph 'vglClConvolution'
+Glyph:VGL_CL:vglClConvolution::localhost:5:462:302:: -convolution_window ['0.00037832','0.00055477','0.00080091','0.00113832','0.00159279','0.00219416','0.00297573','0.00397312','0.00522256','0.0067585','0.00861055','0.01080005','0.01333629','0.0162128','0.01940418','0.02286371','0.02652237','0.0302895','0.0340554','0.03769589','0.04107865','0.04407096','0.04654821','0.04840248','0.04955031','0.04993894','0.04955031','0.04840248','0.04654821','0.04407096','0.04107865','0.03769589','0.0340554',0'0.0302895','0.02652237','0.02286371','0.01940418','0.0162128','0.01333629','0.01080005','0.00861055','0.0067585','0.00522256','0.00397312','0.00297573','0.00219416','0.00159279','0.00113832','0.00080091','0.00055477','0.00037832'] -windows 51 -windows 1
+
+#  Glyph 'Create Image Convolution'
+Glyph:VGL_CL:vglCreateImage::localhost:6:562:242::
+
+#  Glyph 'vglClConvolution'
+Glyph:VGL_CL:vglClConvolution::localhost:7:462:302:: -convolution_window ['0.00037832','0.00055477','0.00080091','0.00113832','0.00159279','0.00219416','0.00297573','0.00397312','0.00522256','0.0067585','0.00861055','0.01080005','0.01333629','0.0162128','0.01940418','0.02286371','0.02652237','0.0302895','0.0340554','0.03769589','0.04107865','0.04407096','0.04654821','0.04840248','0.04955031','0.04993894','0.04955031','0.04840248','0.04654821','0.04407096','0.04107865','0.03769589','0.0340554',0'0.0302895','0.02652237','0.02286371','0.01940418','0.0162128','0.01333629','0.01080005','0.00861055','0.0067585','0.00522256','0.00397312','0.00297573','0.00219416','0.00159279','0.00113832','0.00080091','0.00055477','0.00037832'] -windows 1 -windows 51
+
+#  Glyph 'Create Image Dilate'
+Glyph:VGL_CL:vglCreateImage::localhost:8:562:242::
+
+#  Glyph 'Dilate'
+Glyph:VGL_CL:vglClDilate::localhost:9:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+
+#  Glyph 'Create Image Dilate'
+Glyph:VGL_CL:vglCreateImage::localhost:10:562:242::
+
+#  Glyph 'vglClDilate'
+Glyph:VGL_CL:vglClDilate::localhost:11:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+
+#  Glyph 'Create Image Erode'
+Glyph:VGL_CL:vglCreateImage::localhost:12:562:242::
+
+#  Glyph 'vglClErode'
+Glyph:VGL_CL:vglClErode::localhost:13:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+
+#  Glyph 'Create Image Erode'
+Glyph:VGL_CL:vglCreateImage::localhost:14:562:242::
+
+#  Glyph 'Erode'
+Glyph:VGL_CL:vglClErode::localhost:15:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+
+
+
+ExtPort:out:External Output (1)::localhost:91:1142:142::
+
+NodeConnection:data:92:i:2:img
+NodeConnection:data:92:i:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+
+
+#Connections 'Applying Convolution_1x51'
+NodeConnection:data:3:img_output:4:img
+NodeConnection:data:3:img_output:5:img_input
+NodeConnection:data:4:RETVAL:5:img_output
+
+#Connections 'Applying Convolution_51x1'
+NodeConnection:data:5:img_output:6:img
+NodeConnection:data:5:img_output:7:img_input
+NodeConnection:data:6:RETVAL:7:img_output
+
+#Connections 'Save Convolution'
+NodeConnection:data:7:img_output:16:image
+
+
+#Connections 'Applying Dilate 1x51'
+NodeConnection:data:7:img_output:8:img
+NodeConnection:data:7:img_output:9:img_input
+NodeConnection:data:8:RETVAL:9:img_output
+
+#Connections 'Applying Dilate 51x1'
+NodeConnection:data:9:img_output:10:img
+NodeConnection:data:9:img_output:11:img_input
+NodeConnection:data:10:RETVAL:11:img_output
+
+#Connections 'Save Dilate'
+NodeConnection:data:11:img_output:17:image
+
+#Connections ‘Applying Erode 1x51'
+NodeConnection:data:11:img_output:12:img
+NodeConnection:data:11:img_output:13:img_input
+NodeConnection:data:12:RETVAL:13:img_output
+
+# Connections ‘Applying Erode 51x1'
+NodeConnection:data:13:img_output:14:img
+NodeConnection:data:13:img_output:15:img_input
+NodeConnection:data:14:RETVAL:15:img_output
+
+#Connections 'Save Erode'
+NodeConnection:data:15:img_output:19:image
+
+NodeConnection:data:15:img_output:91:o
+
+NodeConnection:data:91:o:100:o
+
+ProcedureEnd:Demo:ProcedureEnd::localhost:215:562:122::
+
+Glyph:VGL_CL:ShowImage::localhost:19:882:482:: -winame 'erode.png'
+
+NodeConnection:data:100:o:19:image
+
+ProcedureBegin:Fundus:ProcedureBegin::localhost:214:562:122::
+
+
+VariablesEnd:
+
+#  Glyph 'Create Image Rgb2Gray'
+Glyph:VGL_CL:vglCreateImage::localhost:2:562:122::
+
+#  Glyph 'vglClRgb2Gray'
+Glyph:VGL_CL:vglClRgb2Gray::localhost:3:382:182::
+
+#  Glyph 'Create Image Convolution'
+Glyph:VGL_CL:vglCreateImage::localhost:4:562:242::
+
+#  Glyph 'vglClConvolution'
+Glyph:VGL_CL:vglClConvolution::localhost:5:462:302:: -convolution_window ['0.00037832','0.00055477','0.00080091','0.00113832','0.00159279','0.00219416','0.00297573','0.00397312','0.00522256','0.0067585','0.00861055','0.01080005','0.01333629','0.0162128','0.01940418','0.02286371','0.02652237','0.0302895','0.0340554','0.03769589','0.04107865','0.04407096','0.04654821','0.04840248','0.04955031','0.04993894','0.04955031','0.04840248','0.04654821','0.04407096','0.04107865','0.03769589','0.0340554',0'0.0302895','0.02652237','0.02286371','0.01940418','0.0162128','0.01333629','0.01080005','0.00861055','0.0067585','0.00522256','0.00397312','0.00297573','0.00219416','0.00159279','0.00113832','0.00080091','0.00055477','0.00037832'] -windows 51 -windows 1
+
+#  Glyph 'Create Image Convolution'
+Glyph:VGL_CL:vglCreateImage::localhost:6:562:242::
+
+#  Glyph 'vglClConvolution'
+Glyph:VGL_CL:vglClConvolution::localhost:7:462:302:: -convolution_window ['0.00037832','0.00055477','0.00080091','0.00113832','0.00159279','0.00219416','0.00297573','0.00397312','0.00522256','0.0067585','0.00861055','0.01080005','0.01333629','0.0162128','0.01940418','0.02286371','0.02652237','0.0302895','0.0340554','0.03769589','0.04107865','0.04407096','0.04654821','0.04840248','0.04955031','0.04993894','0.04955031','0.04840248','0.04654821','0.04407096','0.04107865','0.03769589','0.0340554',0'0.0302895','0.02652237','0.02286371','0.01940418','0.0162128','0.01333629','0.01080005','0.00861055','0.0067585','0.00522256','0.00397312','0.00297573','0.00219416','0.00159279','0.00113832','0.00080091','0.00055477','0.00037832'] -windows 1 -windows 51
+
+#  Glyph 'Create Image Dilate'
+Glyph:VGL_CL:vglCreateImage::localhost:8:562:242::
+
+#  Glyph 'Dilate'
+Glyph:VGL_CL:vglClDilate::localhost:9:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+
+#  Glyph 'Create Image Dilate'
+Glyph:VGL_CL:vglCreateImage::localhost:10:562:242::
+
+#  Glyph 'vglClDilate'
+Glyph:VGL_CL:vglClDilate::localhost:11:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+
+#  Glyph 'Create Image Erode'
+Glyph:VGL_CL:vglCreateImage::localhost:12:562:242::
+
+#  Glyph 'vglClErode'
+Glyph:VGL_CL:vglClErode::localhost:13:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+
+#  Glyph 'Create Image Erode'
+Glyph:VGL_CL:vglCreateImage::localhost:14:562:242::
+
+#  Glyph 'Erode'
+Glyph:VGL_CL:vglClErode::localhost:15:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+
+#  Glyph 'Create Image Sub'
+Glyph:VGL_CL:vglCreateImage::localhost:16:562:242::
+
+# Glyph 'Sub'
+Glyph:VGL_CL:vglClSub::localhost:17:462:302::
+
+#  Glyph 'Create Image Threshold'
+Glyph:VGL_CL:vglCreateImage::localhost:18:562:242::
+
+#  Glyph 'vglClThreshold'
+Glyph:VGL_CL:vglClThreshold::localhost:19:462:302:: -thresh 0.00784 -top 1
+
+#  Glyph 'Create Image Reconstruct'
+Glyph:VGL_CL:vglCreateImage::localhost:20:562:242::
+
+#  Glyph 'Reconstruct'
+Glyph:VGL_CL:Reconstruct::localhost:21:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 17 -window_size_y 17
+
+#  Glyph 'Image save Rbg2Gray'
+Glyph:VGL_CL:vglSaveImage::localhost:22:882:362:: -filename 'out/artigo1/fundusRgb2gray.png'
+
+#  Glyph 'Image save Convolution'
+Glyph:VGL_CL:vglSaveImage::localhost:23:882:362:: -filename 'out/artigo1/fundusConvolution.png'
+
+#  Glyph 'Image save Dilate'
+Glyph:VGL_CL:vglSaveImage::localhost:24:882:362:: -filename 'out/artigo1/fundusDilate.png' 
+
+#  Glyph 'Image save Erode'
+Glyph:VGL_CL:vglSaveImage::localhost:25:882:362:: -filename 'out/artigo1/fundusErode.png' 
+
+#  Glyph 'Image save Sub'
+Glyph:VGL_CL:vglSaveImage::localhost:26:882:362:: -filename 'out/artigo1/fundusSub.png' 
+
+#  Glyph 'Image save Thresh'
+Glyph:VGL_CL:vglSaveImage::localhost:27:882:362:: -filename 'out/artigo1/fundusThresh.png'
+
+#  Glyph 'Image save Rec'
+Glyph:VGL_CL:vglSaveImage::localhost:28:882:362:: -filename 'out/artigo1/fundusRec.png'
+
+
+ExtPort:out:External Output (1)::localhost:91:1142:142::
+
+#  Connections 'Applying Rgb2Gray’
+NodeConnection:data:92:i:2:img
+NodeConnection:data:92:i:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+
+# Connections ‘Show in Rgb2Gray'
+NodeConnection:data:3:img_output:22:image
+
+#Connections 'Applying Convolution_1x51'
+NodeConnection:data:3:img_output:4:img
+NodeConnection:data:3:img_output:5:img_input
+NodeConnection:data:4:RETVAL:5:img_output
+
+#Connections 'Applying Convolution_51x1'
+NodeConnection:data:5:img_output:6:img
+NodeConnection:data:5:img_output:7:img_input
+NodeConnection:data:6:RETVAL:7:img_output
+
+#Connections 'Save Convolution'
+
+NodeConnection:data:7:img_output:17:img_input2
+
+#Connections 'Applying Dilate 1x51'
+NodeConnection:data:7:img_output:8:img
+NodeConnection:data:7:img_output:9:img_input
+NodeConnection:data:8:RETVAL:9:img_output
+
+#Connections 'Applying Dilate 51x1'
+NodeConnection:data:9:img_output:10:img
+NodeConnection:data:9:img_output:11:img_input
+NodeConnection:data:10:RETVAL:11:img_output
+
+
+
+#Connections ‘Applying Erode 1x51'
+NodeConnection:data:11:img_output:12:img
+NodeConnection:data:11:img_output:13:img_input
+NodeConnection:data:12:RETVAL:13:img_output
+
+# Connections ‘Applying Erode 51x1'
+NodeConnection:data:13:img_output:14:img
+NodeConnection:data:13:img_output:15:img_input
+NodeConnection:data:14:RETVAL:15:img_output
+
+#Connections 'Save Erode'
+
+
+# Connections ‘Applying Sub'
+NodeConnection:data:15:img_output:16:img
+NodeConnection:data:15:img_output:17:img_input1
+NodeConnection:data:16:RETVAL:17:img_output
+
+#Connections 'Save Sub'
+
+
+# Connections ‘Applying Thresh'
+NodeConnection:data:17:img_output:18:img
+NodeConnection:data:17:img_output:19:src
+NodeConnection:data:18:RETVAL:19:dst
+
+# Connections ‘Save Thresh'
+
+
+#Connections 'Applying Rec'
+NodeConnection:data:19:dst:20:img
+NodeConnection:data:19:dst:21:img_input
+NodeConnection:data:20:RETVAL:21:img_output
+
+#Connections 'Save Rec'
+NodeConnection:data:21:img_output:28:image
+
+NodeConnection:data:21:img_output:91:o
+NodeConnection:data:91:o:214:o
+
+ProcedureEnd:VGL_CL:ProcedureEnd::localhost:215:562:122::
+
+Glyph:VGL_CL:vglSaveImage::localhost:20:882:482:: -filename 'out/nd/nsaida.tiff'
+
+NodeConnection:data:214:o:20:image

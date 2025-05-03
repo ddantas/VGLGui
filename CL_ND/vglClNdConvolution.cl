@@ -14,13 +14,10 @@ __kernel void vglClNdConvolution(__global unsigned char* img_input,
                             __constant VglClShape* img_shape,
                             __constant VglClStrEl* window)
 {
-#if __OPENCL_VERSION__ < 200
+
   int coord = (  (get_global_id(2) - get_global_offset(2)) * get_global_size(1) * get_global_size(0)) +
               (  (get_global_id(1) - get_global_offset(1)) * get_global_size (0)  ) +
                  (get_global_id(0) - get_global_offset(0));
-#else
-  int coord = get_global_linear_id();
-#endif
 
 
   int ires;

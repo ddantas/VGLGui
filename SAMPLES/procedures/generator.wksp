@@ -1,0 +1,307 @@
+# Khoros Visual Programming Workspace
+#
+# cantata workspace file (/l/rep03/khoros2.0/dipcourse-working/html/linear/dft-pulse-bandwidth/F-sine-x-over-x.wk) was created 
+# on Tue Jul 18 10:57:38 1995
+# by user rjordan
+#
+VariablesBegin:
+
+
+
+# No variables currently declared. #
+
+VariablesEnd:
+
+#GlyphBegin
+
+
+#  Glyph 'Constant'
+Glyph:DATAMANIP:kgconst::3:70:150:: -wsize '16' -hsize '128' -real '1' -imag '0' -type 10 
+
+
+#  Glyph 'Pad'
+Glyph:DATAMANIP:kpad::7:160:150:: -wsize '128' -hsize '128' -woff '56' -hoff '0' -doff '0' -toff '0' -eoff '0' -real '0' -imag '0' -valid 1 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::11:250:30:: -use_cmap 1 -x '10' -y '10' 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::15:360:40:: -use_cmap 1 -x '140' -y '10' 
+
+
+#  Glyph 'Constant'
+Glyph:DATAMANIP:kgconst::19:60:440:: -wsize '16' -hsize '8' -real '1' -imag '0' -type 10 
+
+
+#  Glyph 'Pad'
+Glyph:DATAMANIP:kpad::23:150:440:: -wsize '128' -hsize '128' -woff '56' -hoff '60' -doff '0' -toff '0' -eoff '0' -real '0' -imag '0' -valid 1 
+
+
+#  Glyph 'FFT'
+Glyph:DATAMANIP:kfft::27:250:150:: -dir 0 -center 1 -scale 1 -type 12 -w -h 
+
+
+#  Glyph 'FFT'
+Glyph:DATAMANIP:kfft::31:250:440:: -dir 0 -center 1 -scale 1 -type 12 -w -h 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::35:340:530:: -use_cmap 1 -x '140' -y '500' 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::39:240:530:: -use_cmap 1 -x '10' -y '500' 
+
+
+#  Glyph 'Extract'
+Glyph:DATAMANIP:kextract::43:360:150:: -wsize '128' -hsize '1' -woff '0' -hoff '64' -subpos 0 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::47:480:40:: -use_cmap 1 -x '270' -y '10' 
+
+
+#  Glyph '2D Plot'
+Glyph:ENVISION:putplot2::51:660:150:: -x '500' -width '256' -y '10' -height '256' 
+
+
+#  Glyph 'Magnitudes'
+Glyph:DATAMANIP:kmag::55:480:150:: -mag 
+
+
+#  Glyph '2D Plot'
+Glyph:ENVISION:putplot2::59:660:230:: -x '800' -width '256' -y '10' -height '256' 
+
+
+#  Glyph 'Magnitudes'
+Glyph:DATAMANIP:kmag::63:360:440:: -mag 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::67:440:530:: -use_cmap 1 -x '270' -y '500' 
+
+
+#  Glyph 'File Viewer'
+Glyph:DESIGN:khelp::71:770:90:: 
+
+
+#  Glyph 'Statistics'
+Glyph:DATAMANIP:kstats::75:600:10:: -all 
+
+
+#  Glyph 'Print Data'
+Glyph:DATAMANIP:kprdata::79:600:90:: -attr -loc -time -val -mask -ind -mval 
+
+
+#  Glyph 'File Viewer'
+Glyph:DESIGN:khelp::83:771:10:: 
+
+
+#  Glyph 'Interactive 2D/3D Plot'
+Glyph:ENVISION:xprism::87:550:440:: 
+
+
+#  Glyph 'Constant'
+Glyph:DATAMANIP:kgconst::91:65:305:: -wsize '128' -hsize '8' -real '1' -imag '0' -type 10 
+
+
+#  Glyph 'Statistics'
+Glyph:DATAMANIP:kstats::95:660:300:: -all 
+
+
+#  Glyph 'Print Data'
+Glyph:DATAMANIP:kprdata::99:660:380:: -attr -loc -time -val -mask -ind -mval 
+
+
+#  Glyph 'File Viewer'
+Glyph:DESIGN:khelp::103:770:300:: 
+
+
+#  Glyph 'File Viewer'
+Glyph:DESIGN:khelp::107:770:380:: 
+
+
+#  Glyph 'Comment Icon'
+Glyph:DESIGN:comment::111:743:167:: -comment '1D Magnitude Spectrum. ' 
+
+
+#  Glyph 'Comment Icon'
+Glyph:DESIGN:comment::115:742:238:: -comment '1D Magnitude Spectrum. ' 
+
+
+#  Glyph 'Comment Icon'
+Glyph:DESIGN:comment::119:650:460:: -comment '2D Magnitude Spectrum. ' 
+
+  'Procedure'
+ProcedureBegin:Procedure:144:345:285:runwksp -i ./ioOAAa14074 -om ./ioZAAa14074 
+
+VariablesBegin:
+
+
+
+# No variables currently declared. #
+
+VariablesEnd:
+
+#GlyphBegin
+
+
+#  Glyph 'Pad'
+Glyph:DATAMANIP:kpad::3:158:228: i!i: -wsize '128' -hsize '128' -woff '0' -hoff '60' -doff '0' -toff '0' -eoff '0' -real '0' -imag '0' -valid 1 
+
+
+#  Glyph 'Magnitudes'
+Glyph:DATAMANIP:kmag::9:478:228: om!om: -mag 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::15:478:308:: -use_cmap 1 -x '270' -y '220' 
+
+
+#  Glyph 'Extract'
+Glyph:DATAMANIP:kextract::19:358:228:: -wsize '1' -hsize '128' -woff '64' -hoff '0' -subpos 0 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::23:248:308:: -use_cmap 1 -x '10' -y '220' 
+
+
+#  Glyph 'Display Image'
+Glyph:ENVISION:putimage::27:358:308:: -use_cmap 1 -x '140' -y '220' 
+
+
+#  Glyph 'FFT'
+Glyph:DATAMANIP:kfft::31:248:228:: -dir 0 -center 1 -scale 1 -type 12 -w -h 
+
+#GlyphEnd
+#ConnectionBegin
+
+
+#  'Pad'
+NodeConnection:3:o:23:i:
+NodeConnection:3:o:31:i:
+
+
+
+#  'Magnitudes'
+NodeConnection:9:om:10:om:
+
+
+
+#  'Extract'
+NodeConnection:19:o:15:i:
+NodeConnection:19:o:9:i:
+
+
+
+#  'FFT'
+NodeConnection:31:o:27:i:
+NodeConnection:31:o:19:i:
+
+
+#ConnectionEnd
+
+#ExternalConnectionEnd
+
+AnnotationsBegin
+AnnotationsEnd
+ProcedureEnd:Procedure
+
+#GlyphEnd
+#ConnectionBegin
+
+
+#  'Constant'
+NodeConnection:3:o:7:i:
+
+
+
+#  'Pad'
+NodeConnection:7:o:11:i:
+NodeConnection:7:o:27:i:
+
+
+
+#  'Constant'
+NodeConnection:19:o:23:i:
+
+
+
+#  'Pad'
+NodeConnection:23:o:31:i:
+NodeConnection:23:o:39:i:
+
+
+
+#  'FFT'
+NodeConnection:27:o:15:i:
+NodeConnection:27:o:43:i:
+
+
+
+#  'FFT'
+NodeConnection:31:o:35:i:
+NodeConnection:31:o:63:i:
+
+
+
+#  'Extract'
+NodeConnection:43:o:47:i:
+NodeConnection:43:o:55:i:
+
+
+
+#  'Magnitudes'
+NodeConnection:55:om:51:i:
+NodeConnection:55:om:75:i:
+NodeConnection:55:om:79:i:
+
+
+
+#  'Magnitudes'
+NodeConnection:63:om:67:i:
+NodeConnection:63:om:87:i1:
+
+
+
+#  'Statistics'
+NodeConnection:75:f:83:i:
+
+
+
+
+#  'Print Data'
+NodeConnection:79:f:71:i:
+
+
+
+#  'Constant'
+NodeConnection:91:o:144:i:
+
+
+
+#  'Statistics'
+NodeConnection:95:f:103:i:
+
+
+
+
+#  'Print Data'
+NodeConnection:99:f:107:i:
+
+
+
+#  'Procedure'
+NodeConnection:144:om:59:i:
+NodeConnection:144:om:95:i:
+NodeConnection:144:om:99:i:
+
+
+#ConnectionEnd
+
+#ExternalConnectionEnd
+
+AnnotationsBegin
+AnnotationsEnd

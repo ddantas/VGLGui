@@ -1,0 +1,43 @@
+
+WorkspaceBegin: 1.0
+
+VariablesBegin:
+
+#
+# list of currently declared variables
+#
+
+width_size = 2342
+height_size = 1144
+
+VariablesEnd:
+
+#  Glyph 'Image load'
+Glyph:VGL_CL:vglLoad3dImage::localhost:1:302:82:: -filename 'files/images/E1154S7I_3d.tif -iscolor 1 -has_mipmap
+
+#  Glyph 'Create Image vglCl3dDilate'
+Glyph:VGL_CL:vglCreateImage::localhost:2:562:122:: 
+
+#  Glyph 'vglCl3dDilate'
+Glyph:VGL_CL:vglCl3dDilate::localhost:3:382:182:: -convolution_window ['0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.05595932', '0.09226132', '0.05595932', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628', '0.03394104', '0.05595932', '0.03394104', '0.02058628', '0.03394104', '0.02058628'] -windows 3 -windows 3 -windows 3
+
+
+
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:482:: -filename 'out/3d/teste.tiff'
+
+
+#  Connections 'Applying vglCl3dDilate’
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+
+
+
+#Connections 'Save vglCl3dDilate'
+NodeConnection:data:3:img_output:16:image
+
+
+AnnotationsBegin
+AnnotationsEnd
+
+WorkspaceEnd: 1.0

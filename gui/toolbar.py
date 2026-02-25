@@ -1,5 +1,33 @@
+import os
 import dearpygui.dearpygui as dpg
 from gui.app import APP_STATE
+
+# Raiz do projeto (um nível acima de gui/)
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+
+# Exemplos agrupados por categoria: (label, caminho relativo à raiz)
+_EXAMPLES: dict[str, list[tuple[str, str]]] = {
+    "2D": [
+        ("Demo — Convolução + Dilate + Erode",  "SAMPLES/demo.wksp"),
+        ("Demo Gray",                            "SAMPLES/workflow_files/demoGray.wksp"),
+        ("Demo RGB",                             "SAMPLES/workflow_files/demoRGB.wksp"),
+        ("Drive (Segmentação)",                  "SAMPLES/workflow_files/drive_.wksp"),
+    ],
+    "Fundus": [
+        ("Fundus — Retina",                      "SAMPLES/fundus.wksp"),
+        ("Fundus v2",                            "SAMPLES/workflow_files/fundus_v2.wksp"),
+    ],
+    "3D": [
+        ("3D Demo",                              "SAMPLES/3d/3ddemo.wksp"),
+        ("3D Functions",                         "SAMPLES/3d/functions3d.wksp"),
+    ],
+    "ND": [
+        ("ND Basic",                             "SAMPLES/nd/nd.wksp"),
+        ("ND Total",                             "SAMPLES/nd/ndtotal.wksp"),
+        ("ND Shape + Strel (type)",              "SAMPLES/nd/nd_Strel_type.wksp"),
+        ("ND Shape + Strel (window)",            "SAMPLES/nd/nd_Strel_window.wksp"),
+    ],
+}
 
 _tag_counter = 4000
 
@@ -28,6 +56,22 @@ def setup_menu_bar():
             dpg.add_menu_item(label="Parar         F6",
                               callback=_stop)
 
+        with dpg.menu(label="Exemplos"):
+            for category, examples in _EXAMPLES.items():
+                with dpg.menu(label=category):
+                    for label, rel_path in examples:
+                        abs_path = os.path.join(_PROJECT_ROOT, rel_path)
+                        if os.path.isfile(abs_path):
+                            dpg.add_menu_item(
+                                label=label,
+                                callback=_make_example_callback(abs_path),
+                            )
+                        else:
+                            dpg.add_menu_item(
+                                label=f"{label}  (não encontrado)",
+                                enabled=False,
+                            )
+
         with dpg.menu(label="View"):
             dpg.add_menu_item(label="Fit to Screen  Ctrl+Shift+F",
                               callback=_fit_screen)
@@ -49,6 +93,27 @@ def _register_key_handlers():
             callback=lambda s, d: _run("GPU"))
         dpg.add_key_press_handler(dpg.mvKey_F6,
             callback=lambda s, d: _stop())
+
+
+# ---------------------------------------------------------------------------
+# Exemplos
+# ---------------------------------------------------------------------------
+
+def _make_example_callback(abs_path: str):
+    def _cb():
+        if APP_STATE["dirty"] and APP_STATE["glyphs"]:
+            _confirm_dialog(
+                msg="Há mudanças não salvas. Carregar exemplo mesmo assim?",
+                on_yes=lambda: _load_example(abs_path),
+            )
+        else:
+            _load_example(abs_path)
+    return _cb
+
+
+def _load_example(abs_path: str):
+    from gui.wksp_io import load_wksp
+    load_wksp(abs_path)
 
 
 # ---------------------------------------------------------------------------

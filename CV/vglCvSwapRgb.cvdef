@@ -1,0 +1,5 @@
+/** Swap RGB channels. Result is stored in dst image.
+*/
+__kernel void vglCvSwapRgb(__read_only image2d_t img_input, __write_only image2d_t img_output)
+{
+}

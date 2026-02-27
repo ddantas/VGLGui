@@ -1,0 +1,5 @@
+/** Direct copy from src to dst.
+*/
+__kernel void vglCvCopy(__read_only image2d_t img_input, __write_only image2d_t img_output)
+{
+}

@@ -14,6 +14,8 @@ import time as t
 from datetime import datetime
 from readWorkflow import *  
 import matplotlib.pyplot as mp
+import cv2
+from cv2py_shaders import *
 
 
 os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
@@ -242,6 +244,51 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
                 
 
                 # Actions after glyph execution
+                GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+
+        elif vGlyph.func == 'vglCvLoad2dImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE())
+
+            # Load via cv2 instead of skimage
+            vglLoadImage_img_input.ipl = cv2.imread(vglLoadImage_img_in_path)
+            if vglLoadImage_img_input.ipl is not None:
+                # cv2 loads as BGR, convert to RGB for consistency
+                vglLoadImage_img_input.ipl = cv2.cvtColor(vglLoadImage_img_input.ipl, cv2.COLOR_BGR2RGB)
+                vl.create_vglShape(vglLoadImage_img_input)
+                vl.vglAddContext(vglLoadImage_img_input, vl.VGL_RAM_CONTEXT())
+            else:
+                print("vglCvLoad2dImage: Error loading image:", vglLoadImage_img_in_path)
+                exit()
+
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglLoadImage_img_input, workspace)
+
+        elif vGlyph.func == 'vglCvCreateImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCreateImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img', workspace)
+            vglCreateImage_RETVAL = vl.create_blank_image_as(vglCreateImage_img_input)
+            vl.vglAddContext(vglCreateImage_RETVAL, vl.VGL_RAM_CONTEXT())
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglCreateImage_RETVAL, workspace)
+
+        elif vGlyph.func == 'vglCvSaveImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglSaveImage_img_input = getImageInputByIdName(vGlyph.glyph_id, 'image', workspace)
+            if vglSaveImage_img_input is not None:
+                vpath = vGlyph.lst_par[0].getValue()
+                vl.vglCheckContext(vglSaveImage_img_input, vl.VGL_RAM_CONTEXT())
+                # cv2 expects BGR
+                if len(vglSaveImage_img_input.ipl.shape) == 3 and vglSaveImage_img_input.ipl.shape[2] >= 3:
+                    img_bgr = cv2.cvtColor(vglSaveImage_img_input.ipl, cv2.COLOR_RGB2BGR)
+                    cv2.imwrite(vpath, img_bgr)
+                else:
+                    cv2.imwrite(vpath, vglSaveImage_img_input.ipl)
                 GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
 
         elif vGlyph.func == 'vglStrel': #Function Erode

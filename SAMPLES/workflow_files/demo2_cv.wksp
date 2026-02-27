@@ -1,0 +1,113 @@
+# VisionGL Visual Programming Workspace
+#
+# VisionGL workspace file (demo2_cv.wksp) - OpenCV version of demo2.wksp
+#
+# Dilate -> Erode -> Dilate -> Erode -> Sub
+
+WorkspaceBegin: 1.0
+
+VariablesBegin:
+
+#
+# list of currently declared variables
+#
+
+width_size = 2342
+height_size = 1144
+
+VariablesEnd:
+
+#  Glyph 'Image load'
+Glyph:VGL_OPENCV:vglCvLoad2dImage::localhost:1:302:82:: -filename 'files/images/goodQuality/1_good.JPG' -iscolor 1 -has_mipmap 0
+
+#  Glyph 'Create Image Dilate'
+Glyph:VGL_OPENCV:vglCvCreateImage::localhost:2:562:122::
+
+#  Glyph 'vglCvDilate'
+Glyph:VGL_OPENCV:vglCvDilate::localhost:3:382:182:: -convolution_window [0,0,0.125,0,0, 0, 0,0.5,0,0,0.125,0.5,1, 0.5, 0.125,0,0,0.5,0,0, 0, 0, 0.125,0,0] -window_size_x 5 -window_size_y 5
+
+#  Glyph 'Create Image Erode'
+Glyph:VGL_OPENCV:vglCvCreateImage::localhost:4:562:122::
+
+#  Glyph 'vglCvErode'
+Glyph:VGL_OPENCV:vglCvErode::localhost:5:382:182:: -convolution_window [0,0,0.125,0,0, 0, 0,0.5,0,0,0.125,0.5,1,0.5,0.125,0,0,0.5,0,0, 0, 0, 0.125,0,0] -window_size_x 5 -window_size_y 5
+
+#  Glyph 'Create Image Dilate 2'
+Glyph:VGL_OPENCV:vglCvCreateImage::localhost:6:562:242::
+
+#  Glyph 'vglCvDilate 2'
+Glyph:VGL_OPENCV:vglCvDilate::localhost:7:462:302:: -convolution_window [0,0,0.125,0,0,0,0,0.5,0,0,0.125,0.5,1,0.5,0.125,0,0,0.5,0,0,0,0,0.125,0,0] -window_size_x 5 -window_size_y 5
+
+#  Glyph 'Create Image Erode 2'
+Glyph:VGL_OPENCV:vglCvCreateImage::localhost:8:562:122::
+
+#  Glyph 'vglCvErode 2'
+Glyph:VGL_OPENCV:vglCvErode::localhost:9:382:182:: -convolution_window [0,0,0.125,0,0, 0, 0,0.5,0,0,0.125,0.5,1,0.5,0.125,0,0,0.5,0,0, 0, 0, 0.125,0,0] -window_size_x 5 -window_size_y 5
+
+#  Glyph 'Create Image Sub'
+Glyph:VGL_OPENCV:vglCvCreateImage::localhost:10:562:122::
+
+#  Glyph 'vglCvSub'
+Glyph:VGL_OPENCV:vglCvSub::localhost:11:382:182::
+
+#  Glyph 'Image save Dilate'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:12:882:362:: -filename 'images/img2_Erode_cv.png'
+
+#  Glyph 'Image save Erode'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:14:882:362:: -filename 'images/img2_ErodeDilate_cv.png'
+
+#  Glyph 'Image save Dilate 2'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:16:882:482:: -filename 'images/img2_ErodeDilateErode_cv.png'
+
+#  Glyph 'Image save Erode 2'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:18:882:482:: -filename 'images/img2_ErodeDilateErodeDilate_cv.png'
+
+#  Glyph 'Image save Sub'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:20:882:482:: -filename 'images/img2_ErodeDilateErodeDilateSub_cv.png'
+
+#  Connections 'Applying Dilate'
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+
+# Connections 'Save Dilate'
+NodeConnection:data:3:img_output:12:image
+
+#  Connections 'Applying Erode'
+NodeConnection:data:3:img_output:4:img
+NodeConnection:data:3:img_output:5:img_input
+NodeConnection:data:4:RETVAL:5:img_output
+
+# Connections 'Save Erode'
+NodeConnection:data:5:img_output:14:image
+
+# Connections 'Applying Dilate 2'
+NodeConnection:data:3:img_output:6:img
+NodeConnection:data:3:img_output:7:img_input
+NodeConnection:data:6:RETVAL:7:img_output
+
+# Connections 'Save Dilate 2'
+NodeConnection:data:7:img_output:16:image
+
+#Connections 'Applying Erode 2'
+NodeConnection:data:7:img_output:8:img
+NodeConnection:data:7:img_output:9:img_input
+NodeConnection:data:8:RETVAL:9:img_output
+
+#Connections 'Save Erode 2'
+NodeConnection:data:9:img_output:18:image
+
+#Connections 'Applying Sub (Erode2 - Erode1)'
+NodeConnection:data:5:img_output:10:img
+NodeConnection:data:9:img_output:11:img_input1
+NodeConnection:data:5:img_output:11:img_input2
+NodeConnection:data:10:RETVAL:11:img_output
+
+#Connections 'Save Sub'
+NodeConnection:data:11:img_output:20:image
+
+
+AnnotationsBegin
+AnnotationsEnd
+
+WorkspaceEnd: 1.0

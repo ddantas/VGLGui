@@ -1182,6 +1182,229 @@ sub PrintHtmlFile { # ($basename, $comment, $semantics, $type, $variable, $defau
 }
 
 #############################################################################
+# cv_function_map
+#
+# Maps OpenCV wrapper function names to their cv2 implementation
+#
+my %cv_function_map = (
+    "vglCvBlurSq3"     => "img_output.ipl = cv2.blur(img_input.ipl, (3, 3))",
+    "vglCvConvolution" => "expected = int(window_size_y) * int(window_size_x)\n    kernel = convolution_window[:expected].reshape(int(window_size_y), int(window_size_x)).astype(np.float32)\n    img_output.ipl = cv2.filter2D(img_input.ipl, -1, kernel)",
+    "vglCvCopy"        => "img_output.ipl = img_input.ipl.copy()",
+    "vglCvDilate"      => "expected = int(window_size_y) * int(window_size_x)\n    kernel = convolution_window[:expected].reshape(int(window_size_y), int(window_size_x)).astype(np.uint8)\n    img_output.ipl = cv2.dilate(img_input.ipl, kernel)",
+    "vglCvErode"       => "expected = int(window_size_y) * int(window_size_x)\n    kernel = convolution_window[:expected].reshape(int(window_size_y), int(window_size_x)).astype(np.uint8)\n    img_output.ipl = cv2.erode(img_input.ipl, kernel)",
+    "vglCvInvert"      => "img_output.ipl = cv2.bitwise_not(img_input.ipl)",
+    "vglCvMax"         => "img_output.ipl = cv2.max(img_input1.ipl, img_input2.ipl)",
+    "vglCvMin"         => "img_output.ipl = cv2.min(img_input1.ipl, img_input2.ipl)",
+    "vglCvRgb2Gray"    => "img_output.ipl = cv2.cvtColor(img_input.ipl, cv2.COLOR_RGB2GRAY)\n    vl.create_vglShape(img_output)",
+    "vglCvSub"         => "img_output.ipl = cv2.subtract(img_input1.ipl, img_input2.ipl)",
+    "vglCvSum"         => "img_output.ipl = cv2.add(img_input1.ipl, img_input2.ipl)",
+    "vglCvSwapRgb"     => "img_output.ipl = cv2.cvtColor(img_input.ipl, cv2.COLOR_RGB2BGR)",
+    "vglCvThreshold"   => "thresh_val = int(float(thresh) * 255)\n    top_val = int(float(top) * 255)\n    _, dst.ipl = cv2.threshold(src.ipl, thresh_val, top_val, cv2.THRESH_BINARY)",
+);
+
+#############################################################################
+# PrintPythonCvFile
+#
+# Receives as input a cvdef filename and generates Python OpenCV wrapper function
+#
+#
+sub PrintPythonCvFile {
+  my $basename      = $_[0];
+  my $comment       = $_[1];
+  my $semantics     = $_[2];
+  my $type          = $_[3];
+  my $variable      = $_[4];
+  my $default       = $_[5];
+  my $is_array      = $_[6];
+  my $is_shape      = $_[7];
+  my $size          = $_[8];
+  my $output        = $_[9];
+  my $cpp_read_path = $_[10];
+
+  my $i;
+
+  print "Will write to $output.py\n";
+
+  open PYTHON, ">>", "$output.py";
+
+  print PYTHON "\"\"\"\n    $comment    \n\"\"\"\n";
+
+  # Function signature
+  print PYTHON "def $basename(";
+
+  # Determine types (same logic as PrintPythonFile for signature)
+  for ($i = 0; $i <= $#type; $i++){
+    if ( ($semantics[$i] eq "__read_only") or ($semantics[$i] eq "__write_only") or ($semantics[$i] eq "__global") ){
+      if ( ($type[$i] eq "image2d_t") or ($type[$i] eq "image3d_t") ){
+        $type[$i] = "VglImage*";
+      } elsif ( ($type[$i] eq "char*") or ($type[$i] eq "int*") or ($type[$i] eq "unsigned char*") or ($type[$i] eq "unsigned int*") ){
+        $type[$i] = "VglImage*";
+      }
+    }
+    else{
+      $type[$i] =~ s#^\s*((unsigned)?\s*[a-zA-Z_][a-zA-Z0-9_]*)##;
+      $type[$i] = $1;
+    }
+  }
+
+  my $first_param = 1;
+  for ($i = 0; $i <= $#type; $i++){
+    if ($is_shape[$i]){
+      next;
+    }
+    if (!$first_param){
+      print PYTHON ", ";
+    }
+    print PYTHON "$variable[$i]";
+    if ($default[$i]){
+      print PYTHON " $default[$i]";
+    }
+    $first_param = 0;
+  }
+  print PYTHON "):\n\n";
+
+  # Check context for input/output images (RAM instead of CL)
+  for ($i = 0; $i <= $#type; $i++){
+    if ($semantics[$i] eq "__read_only" or $semantics[$i] eq "__write_only" or $semantics[$i] eq "__read_write" or $semantics[$i] eq "__global"){
+        print PYTHON "    vl\.vglCheckContext($variable[$i], vl\.VGL_RAM_CONTEXT())\n";
+    }
+  }
+
+  # Type conversion for scalar parameters (no buffer transfer needed for CV)
+  for ($i = 0; $i <= $#type; $i++){
+    if ($type[$i] eq "int" and not $is_array[$i]){
+      print PYTHON "    # EVALUATING IF $variable[$i] IS IN CORRECT TYPE
+    if( not isinstance($variable[$i], np\.uint32) ):
+        try:
+            $variable[$i] = np\.uint32($variable[$i])
+        except Exception as e:
+            print(\"$basename: Error!! Impossible to convert $variable[$i] as a np\.uint32 object.\")
+            print(str(e))
+            exit()\n";
+    } elsif ($type[$i] eq "float" and not $is_array[$i]){
+      print PYTHON "    # EVALUATING IF $variable[$i] IS IN CORRECT TYPE
+    if( not isinstance($variable[$i], np\.float32) ):
+        try:
+            $variable[$i] = np\.float32($variable[$i])
+        except Exception as e:
+            print(\"$basename: Error!! Impossible to convert $variable[$i] as a np\.float32 object.\")
+            print(str(e))
+            exit()\n";
+    }
+  }
+
+  # OpenCV operation (from lookup table)
+  my $cv_code = $cv_function_map{$basename};
+  if ($cv_code) {
+    print PYTHON "\n    $cv_code\n";
+  } else {
+    print PYTHON "\n    # WARNING: No cv2 mapping found for $basename\n";
+    print PYTHON "    pass\n";
+  }
+
+  # Set output context
+  for ($i = 0; $i <= $#type; $i++){
+    if ($semantics[$i] eq "__write_only" or $semantics[$i] eq "__read_write" or $semantics[$i] eq "__global"){
+      print PYTHON "\n    vl\.vglSetContext($variable[$i], vl\.VGL_RAM_CONTEXT())\n";
+    }
+  }
+
+  print PYTHON "\n";
+
+  close PYTHON;
+}
+
+#############################################################################
+# PrintExecCvFile
+#
+# Receives as input a cvdef filename and generates Python execution block for OpenCV
+#
+#
+sub PrintExecCvFile {
+  my $basename      = $_[0];
+  my $comment       = $_[1];
+  my $semantics     = $_[2];
+  my $type          = $_[3];
+  my $variable      = $_[4];
+  my $default       = $_[5];
+  my $is_array      = $_[6];
+  my $is_shape      = $_[7];
+  my $size          = $_[8];
+  my $output        = $_[9];
+  my $cpp_read_path = $_[10];
+
+  my $i;
+
+  print "Will write to $output.py\n";
+
+  open PYTHON, ">>", "$output.py";
+
+  print PYTHON "\n";
+  print PYTHON "        elif vGlyph.func == '$basename':";
+  print PYTHON "\n";
+  print PYTHON "          print(\"-------------------------------------------------\")\n";
+  print PYTHON "          print(\"A função \" + vGlyph.func + \" está sendo executada\")\n";
+  print PYTHON "          print(\"-------------------------------------------------\")\n";
+  print PYTHON "\n";
+
+  # Get images from connections (using RAM context instead of CL)
+  for (my $i = 0; $i <= $#variable; $i++) {
+      if ($semantics[$i] eq "__read_only" or
+          $semantics[$i] eq "__write_only" or
+          $semantics[$i] eq "__read_write" or
+          $semantics[$i] eq "__global") {
+
+          my $line = "          ${basename}_$variable[$i] = getImageInputByIdName(vGlyph.glyph_id, '$variable[$i]' , workspace)\n";
+          print PYTHON "$line";
+      }
+  }
+
+  # Build function call params
+  my @params;
+  my $output_var;
+  for (my $i = 0; $i <= $#type; $i++) {
+      if ($semantics[$i] eq "__read_only" or $semantics[$i] eq "__write_only" or $semantics[$i] eq "__read_write" or $semantics[$i] eq "__global") {
+          push @params, "${basename}_$variable[$i]";
+          if ($semantics[$i] eq "__write_only" or $semantics[$i] eq "__global") {
+              $output_var = "${basename}_$variable[$i]";
+          }
+      } elsif ($type[$i] eq "float*" or $is_array[$i]) {
+          push @params, "tratnum(vGlyph.lst_par[" . ($i - 2) . "].getValue())";
+      } elsif ($type[$i] eq "int") {
+          push @params, "np.uint32(vGlyph.lst_par[" . ($i - 2) . "].getValue())";
+      } elsif ($type[$i] eq "float") {
+          push @params, "np.float32(vGlyph.lst_par[" . ($i - 2) . "].getValue())";
+      }
+  }
+
+  my $function_call = "          $basename(" . join(", ", @params) . ")";
+  print PYTHON "$function_call\n\n";
+
+  # Benchmark block
+  my $bench_function_call = "$basename(" . join(", ", @params) . ")";
+  my $bench_call = <<'END_BENCH';
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            FUNC_CALL
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método FUNC_NAME: " + str(media) + " ms\n"
+          total = total + media
+END_BENCH
+
+  $bench_call =~ s/FUNC_CALL/$bench_function_call/g;
+  $bench_call =~ s/FUNC_NAME/$basename/g;
+  print PYTHON "$bench_call\n\n";
+
+  print PYTHON "          GlyphExecutedUpdate(vGlyph.glyph_id, $output_var, workspace)\n";
+  print PYTHON "\n";
+
+  close PYTHON;
+}
+
+#############################################################################
 # Main program
 #
 #
@@ -1215,6 +1438,7 @@ $nargs++;
 print "Number of args = $nargs\n";
 
 
+my $is_cv_mode = 0;
 for ($i=0; $i<$nargs; $i=$i+2) {
   if    ($ARGV[$i] eq "-o") {
     $output = $ARGV[$i+1] ;
@@ -1223,6 +1447,11 @@ for ($i=0; $i<$nargs; $i=$i+2) {
   elsif ($ARGV[$i] eq "-p") {
     $cpp_read_path = $ARGV[$i+1] ;
     print ("Shader files search path: $cpp_read_path\n") ;
+  }
+  elsif ($ARGV[$i] eq "-cv") {
+    $is_cv_mode = 1;
+    print ("OpenCV mode enabled\n") ;
+    $i--;  # -cv has no value argument, adjust counter
   }
   else {
     last;
@@ -1262,8 +1491,10 @@ from vgl_lib.vglImage import VglImage
 import pyopencl as cl
 import vgl_lib as vl
 import numpy as np
-from cl2py_shaders import * 
+from cl2py_shaders import *
+from cv2py_shaders import *
 from cl2py_ND import *
+import cv2
 import os
 import sys
 from readWorkflow import *
@@ -1608,13 +1839,96 @@ def execute_workspace(workspace):
             total = total + media
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvLoad2dImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCvLoad_img_path = vGlyph.lst_par[0].getValue()
+            vglCvLoad_img = vl.VglImage(vglCvLoad_img_path, None, vl.VGL_IMAGE_2D_IMAGE())
+            vglCvLoad_img.ipl = cv2.imread(vglCvLoad_img_path)
+            if vglCvLoad_img.ipl is not None:
+                vglCvLoad_img.ipl = cv2.cvtColor(vglCvLoad_img.ipl, cv2.COLOR_BGR2RGB)
+                vl.create_vglShape(vglCvLoad_img)
+                vl.vglSetContext(vglCvLoad_img, vl.VGL_RAM_CONTEXT())
+            else:
+                print(f"ERROR: Could not load image {vglCvLoad_img_path}")
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglCvLoad_img, workspace)
+
+        elif vGlyph.func == 'vglCvCreateImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCvCreate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img', workspace)
+            if vglCvCreate_img_input is not None:
+                vglCvCreate_RETVAL = vl.create_blank_image_as(vglCvCreate_img_input)
+                vl.vglSetContext(vglCvCreate_RETVAL, vl.VGL_RAM_CONTEXT())
+                GlyphExecutedUpdate(vGlyph.glyph_id, vglCvCreate_RETVAL, workspace)
+            else:
+                print(f"ERROR: No image found for vglCvCreateImage glyph {vGlyph.glyph_id}")
+
+        elif vGlyph.func == 'vglCvSaveImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCvSave_img = getImageInputByIdName(vGlyph.glyph_id, 'image', workspace)
+            if vglCvSave_img is not None:
+                vpath = vGlyph.lst_par[0].getValue()
+                vl.vglCheckContext(vglCvSave_img, vl.VGL_RAM_CONTEXT())
+                img_bgr = cv2.cvtColor(vglCvSave_img.ipl, cv2.COLOR_RGB2BGR)
+                os.makedirs(os.path.dirname(vpath) if os.path.dirname(vpath) else '.', exist_ok=True)
+                cv2.imwrite(vpath, img_bgr)
+                print(f"Image saved to {vpath}")
+                GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+
 END_TEMPLATE
 
 # Escrevendo o código padrão no arquivo de saída
-open PYTHON, ">>", "$output.py";
-print PYTHON $topMsg;
-print PYTHON $standard_code;  # Adiciona o código padrão ao início
-close PYTHON;
+if ($is_cv_mode) {
+    # CV mode: write only a simple library header to cv2py_shaders.py
+    my $cv_header = <<'END_CV_HEADER';
+"""
+    ************************************************************************
+    ***                                                                  ***
+    ***            Source code generated by interpretador.pl             ***
+    ***                       (OpenCV wrappers)                         ***
+    ***                                                                  ***
+    ***                        Please do not edit                        ***
+    ***                                                                  ***
+    ************************************************************************
+"""
+#!/usr/bin/python3 python3
+
+import cv2
+import vgl_lib as vl
+import numpy as np
+
+END_CV_HEADER
+    open PYTHON, ">>", "$output.py";
+    print PYTHON $cv_header;
+    close PYTHON;
+
+    # Also prepare execWorkflowGen.py: strip trailing execute_workspace() so we can append elif blocks
+    if (-e "$archiveName.py") {
+        open(my $fh, '<', "$archiveName.py") or die "Cannot read $archiveName.py: $!";
+        my @lines = <$fh>;
+        close($fh);
+        # Remove trailing execute_workspace(workspace) line
+        while (@lines && $lines[-1] =~ /^\s*$/) { pop @lines; }  # strip trailing blank lines
+        if (@lines && $lines[-1] =~ /execute_workspace\(workspace\)/) {
+            pop @lines;
+        }
+        open($fh, '>', "$archiveName.py") or die "Cannot write $archiveName.py: $!";
+        print $fh @lines;
+        close($fh);
+    }
+} else {
+    # CL mode: write full template to output file (execWorkflowGen.py)
+    open PYTHON, ">>", "$output.py";
+    print PYTHON $topMsg;
+    print PYTHON $standard_code;  # Adiciona o código padrão ao início
+    close PYTHON;
+}
 
 # Continue com a geração do código dinâmico a partir dos arquivos .cl
 
@@ -1628,7 +1942,7 @@ for ($i=0; $i<=$#files; $i++) {
     print "$files[$i]\n";
     print "i = $i\n";
     print "nargs = $nargs\n";
-    ($a, $b, $c) = fileparse($fullname, ".cl");
+    ($a, $b, $c) = fileparse($fullname, qr/\.(cl|cvdef)/);
     $a or $a = "";
     $b or $b = "";
     $c or $c = "";
@@ -1646,9 +1960,26 @@ for ($i=0; $i<=$#files; $i++) {
 
     ($comment, $semantics, $type, $variable, $default, $uniform) = ProcessClFile($fullname);
 
-    PrintExecFile($basename, $comment, $semantics, $type, $variable, $default, $is_array, $is_shape, $size, $output, $cpp_read_path);
+    if ($is_cv_mode) {
+      PrintPythonCvFile($basename, $comment, \@semantics, \@type, \@variable,
+                        \@default, \@is_array, \@is_shape, \@size, $output, $cpp_read_path);
+      PrintExecCvFile($basename, $comment, \@semantics, \@type, \@variable,
+                      \@default, \@is_array, \@is_shape, \@size, $archiveName, $cpp_read_path);
+      PrintHtmlFile($basename, $comment, \@semantics, \@type, \@variable,
+                    \@default, \@is_array, \@size, $output, $cpp_read_path);
+    } else {
+      PrintExecFile($basename, $comment, $semantics, $type, $variable, $default, $is_array, $is_shape, $size, $output, $cpp_read_path);
+    }
 
 }
-open PYTHON, ">>", "$output.py";
-print PYTHON "\nexecute_workspace(workspace)\n";
-close PYTHON;
+if ($is_cv_mode) {
+    # CV mode: re-add execute_workspace() to execWorkflowGen.py (not to cv2py_shaders.py)
+    open PYTHON, ">>", "$archiveName.py";
+    print PYTHON "\nexecute_workspace(workspace)\n";
+    close PYTHON;
+} else {
+    # CL mode: add execute_workspace() to output file
+    open PYTHON, ">>", "$output.py";
+    print PYTHON "\nexecute_workspace(workspace)\n";
+    close PYTHON;
+}

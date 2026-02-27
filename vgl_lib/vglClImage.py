@@ -291,7 +291,7 @@ def get_similar_oclPtr_object(img, nChannels=None):
 
 	channel_order = None
 	if (nChannels is None):
-		print("ENTROU EM NONE")
+		# print("ENTROU EM NONE")
 		channel_order = vl.cl_channel_order(img)
 	elif (nChannels == 1):
 		print("ENTROU EM 1")

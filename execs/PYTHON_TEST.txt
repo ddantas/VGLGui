@@ -1,0 +1,12 @@
+Tempo médio de 100 execuções do método Rgb2Gray: 2.36774 ms
+Tempo médio de 100 execuções do método Convolution: 93.07795 ms
+Tempo médio de 100 execuções do método Convolution: 91.98243000000001 ms
+Tempo médio de 100 execuções do método Dilate: 6.462959999999999 ms
+Tempo médio de 100 execuções do método Dilate: 11.151290000000001 ms
+Tempo médio de 100 execuções do método Erode: 6.9572400000000005 ms
+Tempo médio de 100 execuções do método Erode: 11.877270000000001 ms
+Tempo médio de 100 execucoes do método Sub: 1.9218099999999998 ms
+Tempo médio de 100 execucoes do método Threshold: 29.20532 ms
+Tempo médio de 100 execucoes do método Reconstruct: 539.5343 ms
+
+Valor total do tempo médio: 794.53831

@@ -35,11 +35,11 @@ _STRINGS: dict[str, dict[str, str]] = {
 
     # ── Menu View ────────────────────────────────────────────────────────────
     "menu_view":    {"pt": "Exibir",             "en": "View"},
-    "layout_lr":    {"pt": "Layout: E→D   Ctrl+L",         "en": "Layout: L→R  Ctrl+L"},
-    "layout_tb":    {"pt": "Layout: C→B",                  "en": "Layout: T→B"},
-    "fit_screen":   {"pt": "Ajustar à Tela  Ctrl+Shift+F", "en": "Fit to Screen  Ctrl+Shift+F"},
-    "toggle_log":        {"pt": "Alternar Log",                  "en": "Toggle Log"},
-    "toggle_cat_colors": {"pt": "Alternar Cores por Categoria",  "en": "Toggle Category Colors"},
+    "layout_lr":    {"pt": "Layout: E->D   Ctrl+L",        "en": "Layout: L->R  Ctrl+L"},
+    "layout_tb":    {"pt": "Layout: C->B",                 "en": "Layout: T->B"},
+    "fit_screen":   {"pt": "Ajustar Tela  Ctrl+Shift+F",   "en": "Fit to Screen  Ctrl+Shift+F"},
+    "toggle_log":        {"pt": "Alternar Log",                 "en": "Toggle Log"},
+    "toggle_cat_colors": {"pt": "Alternar Cores por Categoria", "en": "Toggle Category Colors"},
 
     # ── Menu Help ────────────────────────────────────────────────────────────
     "menu_help":        {"pt": "Ajuda",                    "en": "Help"},
@@ -75,7 +75,7 @@ _STRINGS: dict[str, dict[str, str]] = {
     "export_canvas_error":  {"pt": "[export] Erro ao exportar canvas: {err}", "en": "[export] Error exporting canvas: {err}"},
     "export_canvas_no_tool":{"pt": "[export] Nenhuma ferramenta de captura disponível (mss, scrot ou ImageMagick).",
                               "en": "[export] No screenshot tool available (mss, scrot, or ImageMagick)."},
-    "export_canvas_dialog": {"pt": "Exportar Canvas — Salvar PNG", "en": "Export Canvas — Save PNG"},
+    "export_canvas_dialog": {"pt": "Exportar Canvas - Salvar PNG", "en": "Export Canvas - Save PNG"},
 
     # ── Log panel ────────────────────────────────────────────────────────────
     "exec_log":     {"pt": "Log de execução",    "en": "Execution Log"},
@@ -109,8 +109,8 @@ _STRINGS: dict[str, dict[str, str]] = {
     # ── Runner ───────────────────────────────────────────────────────────────
     "runner_running":  {"pt": "[runner] Execução já em andamento.",
                         "en": "[runner] Execution already in progress."},
-    "runner_empty":    {"pt": "[runner] Canvas vazio — nada para executar.",
-                        "en": "[runner] Canvas is empty — nothing to execute."},
+    "runner_empty":    {"pt": "[runner] Canvas vazio - nada para executar.",
+                        "en": "[runner] Canvas is empty - nothing to execute."},
     "runner_starting": {"pt": "\n[runner] Iniciando execução em {device}...\n",
                         "en": "\n[runner] Starting execution on {device}...\n"},
     "runner_error":    {"pt": "[runner] ERRO ao iniciar processo: {err}",
@@ -164,6 +164,7 @@ _STRINGS: dict[str, dict[str, str]] = {
     "cat_3d":         {"pt": "3D",               "en": "3D"},
     "cat_fuzzy2d":    {"pt": "Fuzzy 2D",         "en": "Fuzzy 2D"},
     "cat_fuzzy3d":    {"pt": "Fuzzy 3D",         "en": "Fuzzy 3D"},
+    "cat_cv":         {"pt": "CV (OpenCV)",      "en": "CV (OpenCV)"},
 
     # ── Status bar ───────────────────────────────────────────────────────────────
     "status_nodes":  {"pt": "Nós",     "en": "Nodes"},
@@ -189,6 +190,7 @@ _CATEGORY_KEY: dict[str, str] = {
     "3D":          "cat_3d",
     "Fuzzy 2D":    "cat_fuzzy2d",
     "Fuzzy 3D":    "cat_fuzzy3d",
+    "CV":          "cat_cv",
 }
 
 

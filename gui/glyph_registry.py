@@ -103,6 +103,7 @@ CATEGORY_COLORS: dict[str, tuple[int, int, int]] = {
     "Fuzzy 2D":    (125, 65,  55),
     "Fuzzy 3D":    (105, 50,  50),
     "Procedures":  (30,  85,  90),
+    "CV":          (30,  110, 100),
 }
 
 
@@ -447,6 +448,90 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
         params=[ParamDef("thresh","float", default="0.5")],
     ),
 
+    # ── CV (OpenCV) ───────────────────────────────────────────────────────────
+
+    "vglCvBlurSq3": GlyphDef(
+        func="vglCvBlurSq3", label="vglCvBlurSq3", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvConvolution": GlyphDef(
+        func="vglCvConvolution", label="vglCvConvolution", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_morph_params_2d(), library="VGL_CV",
+    ),
+    "vglCvCopy": GlyphDef(
+        func="vglCvCopy", label="vglCvCopy", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvDilate": GlyphDef(
+        func="vglCvDilate", label="vglCvDilate", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_morph_params_2d(), library="VGL_CV",
+    ),
+    "vglCvErode": GlyphDef(
+        func="vglCvErode", label="vglCvErode", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_morph_params_2d(), library="VGL_CV",
+    ),
+    "vglCvInvert": GlyphDef(
+        func="vglCvInvert", label="vglCvInvert", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvMax": GlyphDef(
+        func="vglCvMax", label="vglCvMax", category="CV",
+        ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
+               PortDef("img_output","input"), PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvMin": GlyphDef(
+        func="vglCvMin", label="vglCvMin", category="CV",
+        ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
+               PortDef("img_output","input"), PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvRgb2Gray": GlyphDef(
+        func="vglCvRgb2Gray", label="vglCvRgb2Gray", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvSub": GlyphDef(
+        func="vglCvSub", label="vglCvSub", category="CV",
+        ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
+               PortDef("img_output","input"), PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvSum": GlyphDef(
+        func="vglCvSum", label="vglCvSum", category="CV",
+        ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
+               PortDef("img_output","input"), PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvSwapRgb": GlyphDef(
+        func="vglCvSwapRgb", label="vglCvSwapRgb", category="CV",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=[], library="VGL_CV",
+    ),
+    "vglCvThreshold": GlyphDef(
+        func="vglCvThreshold", label="vglCvThreshold", category="CV",
+        ports=[PortDef("src","input"), PortDef("dst","input"),
+               PortDef("dst","output")],
+        params=[
+            ParamDef("thresh", "float", default="0.5"),
+            ParamDef("top",    "float", default="1.0"),
+        ], library="VGL_CV",
+    ),
+
     # ── Fuzzy 2D ─────────────────────────────────────────────────────────────
 
     "vglClFuzzyAlgDilate":     _fuzzy_2d("vglClFuzzyAlgDilate"),
@@ -500,4 +585,5 @@ CATEGORIES: list[str] = [
     "3D",
     "Fuzzy 2D",
     "Fuzzy 3D",
+    "CV",
 ]

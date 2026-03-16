@@ -263,23 +263,53 @@ def execute_workspace(workspace):
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
-            
-            # Processa a Procedure chamando os subWorkspaces
-            if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
-                for subWorkspace in workspace.subWorkspaces:
-                    execute_workspace(subWorkspace)  # Executa a procedure
 
-                    # Obtém os dados de saída da procedure
-                    o = getImageInputByIdName(vGlyph.glyph_id, 'o', subWorkspace)
-                    
-                    # Envia os dados para o workspace principal
-                    if o is not None:
-                        print(f"Enviando dados da procedure para o workspace principal.")
-                        GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)  # Envia para o workspace principal
-                        print(f"Dados enviados e workspace principal atualizado.")
-                    else:
-                        print(f"Nenhuma imagem para enviar ao workspace principal.")
-            
+            # 1. Obtém a imagem de entrada do workspace principal (porta 'i')
+            input_img = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
+
+            # 2. Encontra o sub_workspace correspondente pelo nome (vGlyph.library)
+            proc_name = vGlyph.library
+            sub_ws = next(
+                (s for s in workspace.subWorkspaces if getattr(s, 'name', None) == proc_name),
+                None
+            )
+            if sub_ws is None and workspace.subWorkspaces:
+                sub_ws = workspace.subWorkspaces[0]
+
+            if sub_ws is not None and input_img is not None:
+                # 3. Encontra o nó External Input no sub_workspace
+                ext_in = next(
+                    (g for g in sub_ws.lstGlyph if g.func == "External Input (1)"),
+                    None
+                )
+                if ext_in:
+                    # 4. Injeta a imagem de entrada antes de executar o sub_workspace
+                    GlyphExecutedUpdate(ext_in.glyph_id, input_img, sub_ws)
+
+                # 5. Executa o sub_workspace
+                execute_workspace(sub_ws)
+
+                # 6. Obtém a imagem de saída do External Output
+                ext_out = next(
+                    (g for g in sub_ws.lstGlyph if g.func == "External Output (1)"),
+                    None
+                )
+                o = None
+                if ext_out:
+                    o = getImageInputByIdName(ext_out.glyph_id, 'o', sub_ws)
+
+                # 7. Propaga saída para o workspace principal
+                if o is not None:
+                    print("Enviando dados da procedure para o workspace principal.")
+                    GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)
+                    print("Dados enviados e workspace principal atualizado.")
+                else:
+                    print("Nenhuma imagem para enviar ao workspace principal.")
+            elif input_img is None:
+                print(f"Aviso: Nenhuma imagem de entrada para a procedure '{proc_name}'")
+            else:
+                print(f"Aviso: Sub-workspace não encontrado para a procedure '{proc_name}'")
+
             print("-------------------------------------------------")
             print("Retornando ao workspace principal após ProcedureBegin")
 

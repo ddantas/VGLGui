@@ -263,8 +263,8 @@ def procCreateGlyph(procCreateGlyph_contentGly, procCreateGlyph_count, workspace
         procCreateGlyphPar(procCreateGlyph_vGlyph, procCreateGlyph_vGlyphPar, procCreateGlyph_count)
 
         # Verificação da posição na tela
-        x_pos = int(procCreateGlyph_contentGly[6])
-        y_pos = int(procCreateGlyph_contentGly[7])
+        x_pos = int(procCreateGlyph_vPosX)
+        y_pos = int(procCreateGlyph_vPosY)
 
         if x_pos < 0 or x_pos > 100000 or y_pos < 0 or y_pos > 100000:
             raise ValueError(f"Glyph position on screen is out of bounds. Check the line: {procCreateGlyph_count}")
@@ -498,14 +498,17 @@ def fileRead(workspace):
                     # Verifica início de um procedimento
                     if 'procedurebegin:' in line.lower():
                         in_procedure = True
+                        parts = line.split(':')
+                        proc_name = parts[1] if len(parts) > 1 else 'unnamed'
                         sub_workspace = Workspace('sub')  # Cria um novo sub-workspace
+                        sub_workspace.name = proc_name    # Armazena o nome da procedure
                         sub_workspace.parent_workspace = workspace  # Adiciona referência ao workspace principal
-                        workspace.subWorkspaces.append(sub_workspace)  # Adiciona o sub-workspace à lista de sub-workspaces
-                        print(f"Sub-workspace iniciado na linha {count}")
-                        continue 
+                        # NÃO fazer append aqui — só faz no ProcedureEnd para evitar duplicata
+                        print(f"Sub-workspace '{proc_name}' iniciado na linha {count}")
+                        continue
                     elif 'procedureend:' in line.lower():
                         if in_procedure and sub_workspace:
-                            workspace.add_subworkspace(sub_workspace)
+                            workspace.add_subworkspace(sub_workspace)  # append único aqui
                             print(f"Sub-workspace finalizado na linha {count}")
                             print(f"Configurando entradas e saídas para o sub-workspace na linha {count}")
                             procCreateGlyphInOut(sub_workspace)

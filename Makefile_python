@@ -16,3 +16,18 @@ runndtype:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndtype.wksp 1
 runndshape:
 	cd ~/Documents/TCC_1/VGLGui; ./execWorkflowGen.py  ./SAMPLES/nd/ndtotal.wksp 1
+rungenerator_cv:
+	cd ~/Documents/VGLGui; ./interpretador.pl -cv -o cv2py_shaders -p CV CV/*.cvdef
+rungenerator_all:
+	cd ~/Documents/VGLGui; ./interpretador.pl -p CL CL_ND/*.cl CL/*.cl CL_MM/*.cl CL_UTIL/*.cl
+	cd ~/Documents/VGLGui; ./interpretador.pl -cv -o cv2py_shaders -p CV CV/*.cvdef
+rundemo_cv:
+	cd ~/Documents/VGLGui; ./execWorkflowGen.py ./SAMPLES/demo_cv.wksp 1
+rundemoGray_cv:
+	cd ~/Documents/VGLGui; ./execWorkflowGen.py ./SAMPLES/workflow_files/demoGray_cv.wksp 1
+rundemoGray_saves_cv:
+	cd ~/Documents/VGLGui; ./execWorkflowGen.py ./SAMPLES/workflow_files/demoGray_saves_cv.wksp 1
+rundemo2_cv:
+	cd ~/Documents/VGLGui; ./execWorkflowGen.py ./SAMPLES/workflow_files/demo2_cv.wksp 1
+runfundus_cv:
+	cd ~/Documents/VGLGui; ./execWorkflowGen.py ./SAMPLES/fundus_cv.wksp 1

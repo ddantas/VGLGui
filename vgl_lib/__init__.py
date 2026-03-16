@@ -81,6 +81,7 @@ from .vglConst import VGL_RAM_CONTEXT
 from .vglConst import VGL_GL_CONTEXT
 from .vglConst import VGL_CUDA_CONTEXT
 from .vglConst import VGL_CL_CONTEXT
+from .vglConst import VGL_CV_CONTEXT
 from .vglConst import VGL_ERROR
 from .vglConst import IMAGE_CL_OBJECT
 from .vglConst import IMAGE_ND_ARRAY

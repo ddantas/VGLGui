@@ -1,0 +1,5 @@
+/** Convolution of src image by 3x3 blur mask. Result is stored in dst image.
+*/
+__kernel void vglCvBlurSq3(__read_only image2d_t img_input, __write_only image2d_t img_output)
+{
+}

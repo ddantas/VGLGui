@@ -1,0 +1,5 @@
+/** Pixel-wise maximum of two images. Result is stored in dst image.
+*/
+__kernel void vglCvMax(__read_only image2d_t img_input1, __read_only image2d_t img_input2, __write_only image2d_t img_output)
+{
+}

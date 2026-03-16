@@ -39,7 +39,7 @@ msg = ""
 CPU = cl.device_type.CPU 
 GPU = cl.device_type.GPU
 total = 0.0
-vl.vglClInit(CPU)
+vl.vglClInit(GPU)
 
 
 workspace = Workspace()
@@ -105,7 +105,7 @@ def execute_workspace(workspace):
             print("-------------------------------------------------")
             vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
 
-            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE(), vl.IMAGE_ND_ARRAY())
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
 
             vl.vglLoadImage(vglLoadImage_img_input)
             if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
@@ -161,7 +161,7 @@ def execute_workspace(workspace):
                         type = kernel_type_map[key]
                         break          
                 print(type)
-                window.constructorFromTypeNdim(vl.VGL_STREL_CROSS(), 1)
+                window.constructorFromTypeNdim(type, int(vGlyph.lst_par[1].getValue()))
                 #print(window.getData())
             
             if(len(vGlyph.lst_par) == 1):
@@ -261,23 +261,53 @@ def execute_workspace(workspace):
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
-            
-            # Processa a Procedure chamando os subWorkspaces
-            if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
-                for subWorkspace in workspace.subWorkspaces:
-                    execute_workspace(subWorkspace)  # Executa a procedure
 
-                    # Obtém os dados de saída da procedure
-                    o = getImageInputByIdName(vGlyph.glyph_id, 'o', subWorkspace)
-                    
-                    # Envia os dados para o workspace principal
-                    if o is not None:
-                        print(f"Enviando dados da procedure para o workspace principal.")
-                        GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)  # Envia para o workspace principal
-                        print(f"Dados enviados e workspace principal atualizado.")
-                    else:
-                        print(f"Nenhuma imagem para enviar ao workspace principal.")
-            
+            # 1. Obtém a imagem de entrada do workspace principal (porta 'i')
+            input_img = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
+
+            # 2. Encontra o sub_workspace correspondente pelo nome (vGlyph.library)
+            proc_name = vGlyph.library
+            sub_ws = next(
+                (s for s in workspace.subWorkspaces if getattr(s, 'name', None) == proc_name),
+                None
+            )
+            if sub_ws is None and workspace.subWorkspaces:
+                sub_ws = workspace.subWorkspaces[0]
+
+            if sub_ws is not None and input_img is not None:
+                # 3. Encontra o nó External Input no sub_workspace
+                ext_in = next(
+                    (g for g in sub_ws.lstGlyph if g.func == "External Input (1)"),
+                    None
+                )
+                if ext_in:
+                    # 4. Injeta a imagem de entrada antes de executar o sub_workspace
+                    GlyphExecutedUpdate(ext_in.glyph_id, input_img, sub_ws)
+
+                # 5. Executa o sub_workspace
+                execute_workspace(sub_ws)
+
+                # 6. Obtém a imagem de saída do External Output
+                ext_out = next(
+                    (g for g in sub_ws.lstGlyph if g.func == "External Output (1)"),
+                    None
+                )
+                o = None
+                if ext_out:
+                    o = getImageInputByIdName(ext_out.glyph_id, 'o', sub_ws)
+
+                # 7. Propaga saída para o workspace principal
+                if o is not None:
+                    print("Enviando dados da procedure para o workspace principal.")
+                    GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)
+                    print("Dados enviados e workspace principal atualizado.")
+                else:
+                    print("Nenhuma imagem para enviar ao workspace principal.")
+            elif input_img is None:
+                print(f"Aviso: Nenhuma imagem de entrada para a procedure '{proc_name}'")
+            else:
+                print(f"Aviso: Sub-workspace não encontrado para a procedure '{proc_name}'")
+
             print("-------------------------------------------------")
             print("Retornando ao workspace principal após ProcedureBegin")
 
@@ -495,12 +525,12 @@ def execute_workspace(workspace):
           vl.vglCheckContext(vglClNdThreshold_img_input, vl.VGL_CL_CONTEXT());
           vglClNdThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdThreshold_img_output, vl.VGL_CL_CONTEXT());
-          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()))
+          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
 
           # Runtime
           t0 = datetime.now()
           for i in range(nSteps):
-            vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()))
+            vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
           t1 = datetime.now()
           t = t1 - t0
           media = round((t.total_seconds() * 1000) / nSteps, 3)
@@ -1982,8 +2012,33 @@ def execute_workspace(workspace):
 
           GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdErode_img_output, workspace)
 
-    print(msg)
-    print("-------------------------------------------------------------")
-    print("O valor total do tempo médio : "+str(round(total, 3)) , "em ms" )
-    print("-------------------------------------------------------------")
+
+        elif vGlyph.func == 'vglClEqual':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+
+          vglClEqual_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
+          vl.vglCheckContext(vglClEqual_img_input1, vl.VGL_CL_CONTEXT());
+          vglClEqual_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
+          vl.vglCheckContext(vglClEqual_img_input2, vl.VGL_CL_CONTEXT());
+          vglClEqual_output = getImageInputByIdName(vGlyph.glyph_id, 'output' , workspace)
+          vl.vglCheckContext(vglClEqual_output, vl.VGL_CL_CONTEXT());
+          vglClEqual(vglClEqual_img_input1, vglClEqual_img_input2)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglClEqual(vglClEqual_img_input1, vglClEqual_img_input2)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClEqual: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClEqual_output, workspace)
+
+
 execute_workspace(workspace)

@@ -55,17 +55,25 @@ def _binary_op():
 
 def _morph_params_2d():
     return [
-        ParamDef("convolution_window", "array", default="[1,1,1,1,1,1,1,1,1]"),
-        ParamDef("window_size_x", "int", default="3"),
-        ParamDef("window_size_y", "int", default="3"),
+        ParamDef("convolution_window", "strel",  default="[1,1,1,1,1,1,1,1,1]"),
+        ParamDef("window_size_x",      "hidden", default="3"),
+        ParamDef("window_size_y",      "hidden", default="3"),
+    ]
+
+def _n_morph_params_2d():
+    return [
+        ParamDef("convolution_window", "strel",  default="[1,1,1,1,1,1,1,1,1]"),
+        ParamDef("window_size_x",      "hidden", default="3"),
+        ParamDef("window_size_y",      "hidden", default="3"),
+        ParamDef("n", "int", default="1", label="n (repetitions)"),
     ]
 
 def _morph_params_3d():
     return [
-        ParamDef("convolution_window", "array", default="[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]"),
-        ParamDef("window_size_x", "int", default="3"),
-        ParamDef("window_size_y", "int", default="3"),
-        ParamDef("window_size_z", "int", default="3"),
+        ParamDef("convolution_window", "strel3d", default="[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]"),
+        ParamDef("window_size_x",      "hidden",  default="3"),
+        ParamDef("window_size_y",      "hidden",  default="3"),
+        ParamDef("window_size_z",      "hidden",  default="3"),
     ]
 
 def _fuzzy_2d(func, category="Fuzzy 2D"):
@@ -79,6 +87,25 @@ def _fuzzy_3d(func):
                     params=_morph_params_3d())
 
 
+
+
+# Category base colors (R, G, B) — used for node themes
+CATEGORY_COLORS: dict[str, tuple[int, int, int]] = {
+    "I/O":         (50,  100, 160),
+    "Allocation":  (70,  70,  90),
+    "Color":       (120, 55,  125),
+    "Filters":     (45,  105, 110),
+    "Morphology":  (60,  105, 50),
+    "Operations":  (125, 85,  35),
+    "Special":     (85,  55,  135),
+    "ND":          (45,  65,  135),
+    "3D":          (38,  105, 128),
+    "Fuzzy 2D":    (125, 65,  55),
+    "Fuzzy 3D":    (105, 50,  50),
+    "Procedures":  (30,  85,  90),
+}
+
+
 # ---------------------------------------------------------------------------
 # Registro completo
 # ---------------------------------------------------------------------------
@@ -87,6 +114,15 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
 
     # ── I/O ─────────────────────────────────────────────────────────────────
 
+    "vglLoadImage": GlyphDef(
+        func="vglLoadImage", label="vglLoadImage", category="I/O",
+        ports=[PortDef("RETVAL", "output")],
+        params=[
+            ParamDef("filename",  "file",  label="filename"),
+            ParamDef("iscolor",   "bool",  default="1"),
+            ParamDef("has_mipmap","bool",  default="0"),
+        ],
+    ),
     "vglLoad2dImage": GlyphDef(
         func="vglLoad2dImage", label="vglLoadImage (2D)", category="I/O",
         ports=[PortDef("RETVAL", "output")],
@@ -128,7 +164,7 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
     # ── Alocação ─────────────────────────────────────────────────────────────
 
     "vglCreateImage": GlyphDef(
-        func="vglCreateImage", label="vglCreateImage", category="Alocação",
+        func="vglCreateImage", label="vglCreateImage", category="Allocation",
         ports=[PortDef("img", "input"), PortDef("RETVAL", "output")],
         params=[],
     ),
@@ -136,13 +172,13 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
     # ── Cor ──────────────────────────────────────────────────────────────────
 
     "vglClRgb2Gray": GlyphDef(
-        func="vglClRgb2Gray", label="vglClRgb2Gray", category="Cor",
+        func="vglClRgb2Gray", label="vglClRgb2Gray", category="Color",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=[],
     ),
     "vglClSwapRgb": GlyphDef(
-        func="vglClSwapRgb", label="vglClSwapRgb", category="Cor",
+        func="vglClSwapRgb", label="vglClSwapRgb", category="Color",
         ports=[PortDef("src","input"), PortDef("dst","input"),
                PortDef("dst","output")],
         params=[],
@@ -151,7 +187,7 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
     # ── Filtros ───────────────────────────────────────────────────────────────
 
     "vglClConvolution": GlyphDef(
-        func="vglClConvolution", label="vglClConvolution", category="Filtros",
+        func="vglClConvolution", label="vglClConvolution", category="Filters",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=[
@@ -162,19 +198,19 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
         ],
     ),
     "vglClBlurSq3": GlyphDef(
-        func="vglClBlurSq3", label="vglClBlurSq3", category="Filtros",
+        func="vglClBlurSq3", label="vglClBlurSq3", category="Filters",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=[],
     ),
     "vglClCopy": GlyphDef(
-        func="vglClCopy", label="vglClCopy", category="Filtros",
+        func="vglClCopy", label="vglClCopy", category="Filters",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=[],
     ),
     "vglClInvert": GlyphDef(
-        func="vglClInvert", label="vglClInvert", category="Filtros",
+        func="vglClInvert", label="vglClInvert", category="Filters",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=[],
@@ -183,52 +219,76 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
     # ── Morfologia ────────────────────────────────────────────────────────────
 
     "vglClDilate": GlyphDef(
-        func="vglClDilate", label="vglClDilate", category="Morfologia",
+        func="vglClDilate", label="vglClDilate", category="Morphology",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=_morph_params_2d(),
     ),
     "vglClErode": GlyphDef(
-        func="vglClErode", label="vglClErode", category="Morfologia",
+        func="vglClErode", label="vglClErode", category="Morphology",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=_morph_params_2d(),
     ),
     "Closing": GlyphDef(
-        func="Closing", label="Closing", category="Morfologia",
+        func="Closing", label="Closing", category="Morphology",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=_morph_params_2d(),
+    ),
+    "blackhat": GlyphDef(
+        func="blackhat", label="blackhat", category="Morphology",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_morph_params_2d(),
+    ),
+    "vglClNDilate": GlyphDef(
+        func="vglClNDilate", label="vglClNDilate", category="Morphology",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_n_morph_params_2d(),
+    ),
+    "vglClNErode": GlyphDef(
+        func="vglClNErode", label="vglClNErode", category="Morphology",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_n_morph_params_2d(),
+    ),
+    "vglClNConvolution": GlyphDef(
+        func="vglClNConvolution", label="vglClNConvolution", category="Filters",
+        ports=[PortDef("img_input","input"), PortDef("img_output","input"),
+               PortDef("img_output","output")],
+        params=_n_morph_params_2d(),
     ),
 
     # ── Operações ─────────────────────────────────────────────────────────────
 
     "vglClSub": GlyphDef(
-        func="vglClSub", label="vglClSub", category="Operações",
+        func="vglClSub", label="vglClSub", category="Operations",
         ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
                PortDef("img_output","input"), PortDef("img_output","output")],
         params=[],
     ),
     "vglClSum": GlyphDef(
-        func="vglClSum", label="vglClSum", category="Operações",
+        func="vglClSum", label="vglClSum", category="Operations",
         ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
                PortDef("img_output","input"), PortDef("img_output","output")],
         params=[],
     ),
     "vglClMax": GlyphDef(
-        func="vglClMax", label="vglClMax", category="Operações",
+        func="vglClMax", label="vglClMax", category="Operations",
         ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
                PortDef("img_output","input"), PortDef("img_output","output")],
         params=[],
     ),
     "vglClMin": GlyphDef(
-        func="vglClMin", label="vglClMin", category="Operações",
+        func="vglClMin", label="vglClMin", category="Operations",
         ports=[PortDef("img_input1","input"), PortDef("img_input2","input"),
                PortDef("img_output","input"), PortDef("img_output","output")],
         params=[],
     ),
     "vglClThreshold": GlyphDef(
-        func="vglClThreshold", label="vglClThreshold", category="Operações",
+        func="vglClThreshold", label="vglClThreshold", category="Operations",
         ports=[PortDef("src","input"), PortDef("dst","input"),
                PortDef("dst","output")],
         params=[ParamDef("thresh","float", default="0.5")],
@@ -237,13 +297,13 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
     # ── Especiais ─────────────────────────────────────────────────────────────
 
     "Reconstruct": GlyphDef(
-        func="Reconstruct", label="Reconstruct", category="Especiais",
+        func="Reconstruct", label="Reconstruct", category="Special",
         ports=[PortDef("img_input","input"), PortDef("img_output","input"),
                PortDef("img_output","output")],
         params=_morph_params_2d(),
     ),
     "vglShape": GlyphDef(
-        func="vglShape", label="vglShape", category="Especiais",
+        func="vglShape", label="vglShape", category="Special",
         ports=[PortDef("img_output","input")],
         params=[
             ParamDef("width",  "int", default="3"),
@@ -251,7 +311,7 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
         ],
     ),
     "vglStrel": GlyphDef(
-        func="vglStrel", label="vglStrel", category="Especiais",
+        func="vglStrel", label="vglStrel", category="Special",
         ports=[PortDef("shape","input")],
         params=[
             ParamDef("type_or_window","text", default="gaussian",
@@ -260,14 +320,23 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
         ],
     ),
     "External Input (1)": GlyphDef(
-        func="External Input (1)", label="External Input", category="Especiais",
+        func="External Input (1)", label="External Input", category="Special",
         ports=[PortDef("i","input"), PortDef("o","output")],
         params=[],
     ),
     "External Output (1)": GlyphDef(
-        func="External Output (1)", label="External Output", category="Especiais",
+        func="External Output (1)", label="External Output", category="Special",
         ports=[PortDef("o","input")],
         params=[],
+    ),
+
+    # ── Procedures ────────────────────────────────────────────────────────────
+    "ProcedureBegin": GlyphDef(
+        func="ProcedureBegin", label="Procedure",
+        category="Procedures",
+        ports=[PortDef("i", "input"), PortDef("o", "output")],
+        params=[],
+        library="VGL_GUI",
     ),
 
     # ── ND ────────────────────────────────────────────────────────────────────
@@ -419,13 +488,14 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
 
 # Ordem de exibição das categorias na sidebar
 CATEGORIES: list[str] = [
+    "Procedures",
     "I/O",
-    "Alocação",
-    "Cor",
-    "Filtros",
-    "Morfologia",
-    "Operações",
-    "Especiais",
+    "Allocation",
+    "Color",
+    "Filters",
+    "Morphology",
+    "Operations",
+    "Special",
     "ND",
     "3D",
     "Fuzzy 2D",

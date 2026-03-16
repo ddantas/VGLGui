@@ -574,6 +574,7 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
 # Ordem de exibição das categorias na sidebar
 CATEGORIES: list[str] = [
     "Procedures",
+    "CV",
     "I/O",
     "Allocation",
     "Color",
@@ -585,5 +586,4 @@ CATEGORIES: list[str] = [
     "3D",
     "Fuzzy 2D",
     "Fuzzy 3D",
-    "CV",
 ]

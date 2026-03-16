@@ -40,20 +40,13 @@ _EXAMPLES: dict[str, list[tuple[str, str]]] = {
         ("CV Morfologia - Dilate + Erode",       "SAMPLES/cv_morfologia.wksp"),
         ("CV Operacoes - Sub + Threshold",       "SAMPLES/cv_operacoes.wksp"),
         ("CV Pipeline Completo",                 "SAMPLES/cv_pipeline_completo.wksp"),
+        ("Fundus CV - Retina (OpenCV)",          "SAMPLES/fundus_cv.wksp"),
     ],
 }
 
 def _new_tag() -> int:
     return dpg.generate_uuid()
 
-
-def _get_ordered_examples() -> dict:
-    """Returns _EXAMPLES ordered by saved config, new categories appended at end."""
-    from gui.config import load_config
-    saved = load_config().get("examples_order", list(_EXAMPLES.keys()))
-    order = [k for k in saved if k in _EXAMPLES]
-    order += [k for k in _EXAMPLES if k not in order]
-    return {k: _EXAMPLES[k] for k in order}
 
 
 def _populate_recent_menu():
@@ -111,7 +104,7 @@ def setup_menu_bar():
                               callback=_stop)
 
         with dpg.menu(label=t("menu_examples")):
-            for category, examples in _get_ordered_examples().items():
+            for category, examples in _EXAMPLES.items():
                 with dpg.menu(label=category):
                     for label, rel_path in examples:
                         abs_path = os.path.join(_PROJECT_ROOT, rel_path)
@@ -125,8 +118,6 @@ def setup_menu_bar():
                                 label=f"{label}  {t('not_found')}",
                                 enabled=False,
                             )
-            dpg.add_separator()
-            dpg.add_menu_item(label="Organizar categorias...", callback=_open_examples_order_dialog)
 
         with dpg.menu(label=t("menu_view")):
             dpg.add_menu_item(label=t("layout_lr"),
@@ -217,74 +208,6 @@ def _make_example_callback(abs_path: str):
             _load_example(abs_path)
     return _cb
 
-
-def _open_examples_order_dialog():
-    WIN = "examples_order_win"
-    if dpg.does_item_exist(WIN):
-        dpg.focus_item(WIN)
-        return
-
-    from gui.config import load_config, save_config
-
-    saved = load_config().get("examples_order", list(_EXAMPLES.keys()))
-    order: list[str] = [k for k in saved if k in _EXAMPLES]
-    order += [k for k in _EXAMPLES if k not in order]
-
-    list_tag = dpg.generate_uuid()
-
-    def _rebuild():
-        dpg.delete_item(list_tag, children_only=True)
-        for i, cat in enumerate(order):
-            row = dpg.add_group(parent=list_tag, horizontal=True)
-            sel = dpg.add_selectable(
-                label=f"  {i + 1:>2}.  {cat}",
-                parent=row,
-                height=28,
-                width=260,
-            )
-            # Drag source: carries the index of the dragged item
-            with dpg.drag_payload(parent=sel, drag_data=i, payload_type="EXAMPLE_CAT"):
-                dpg.add_text(f"Movendo: {cat}")
-
-            # Drop target: reorders when another item is dropped here
-            def _make_drop(target_idx: int):
-                def _cb(_sender, app_data):
-                    src = app_data
-                    if src == target_idx:
-                        return
-                    moved = order.pop(src)
-                    order.insert(target_idx, moved)
-                    _rebuild()
-                return _cb
-
-            dpg.set_item_drop_callback(sel, _make_drop(i))
-
-    def _save():
-        cfg = load_config()
-        cfg["examples_order"] = order
-        save_config(cfg)
-        dpg.delete_item(WIN)
-        os.execv(sys.executable, [sys.executable] + sys.argv)
-
-    with dpg.window(
-        label="Organizar categorias de Exemplos",
-        tag=WIN, modal=True,
-        width=320, height=430,
-        pos=[500, 200],
-        no_resize=True,
-    ):
-        dpg.add_text("Arraste para reordenar:")
-        dpg.add_separator()
-        with dpg.child_window(tag=list_tag, height=330, border=True):
-            pass
-        _rebuild()
-        dpg.add_separator()
-        with dpg.group(horizontal=True):
-            dpg.add_button(label="Salvar e Reiniciar", width=160, callback=_save)
-            dpg.add_button(
-                label="Cancelar", width=100,
-                callback=lambda: dpg.delete_item(WIN),
-            )
 
 
 def _load_example(abs_path: str):

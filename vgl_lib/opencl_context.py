@@ -1,3 +1,4 @@
+import threading
 import pyopencl as cl
 import vgl_lib as vl
 import sys, glob, os
@@ -8,14 +9,25 @@ import sys, glob, os
 
   HERE, IT IS USED JUST TO PASS THE PLATFORM ID,
   THE DEVICE ID, THE CONTEXT AND THE QUEUE OF THE
-  DEVICE IN THE WAY IT IS FOUNDED ON C/C++ VERSION 
+  DEVICE IN THE WAY IT IS FOUNDED ON C/C++ VERSION.
+
+  commandQueue IS NOW A PROPERTY THAT RETURNS A PER-THREAD
+  CommandQueue, ENABLING THREAD-SAFE PARALLEL EXECUTION.
 """
 class VglClContext:
-  def __init__(self, pl, dv, cn, cq):
+  def __init__(self, pl, dv, cn, ocl_ctx):
     self.platformId = pl
-    self.deviceId = dv
-    self.context = cn
-    self.commandQueue = cq
+    self.deviceId   = dv
+    self.context    = cn
+    self._ocl_ctx   = ocl_ctx  # live reference to opencl_context
+
+  @property
+  def commandQueue(self):
+    return self._ocl_ctx.queue
+
+  @property
+  def queue(self):
+    return self.commandQueue
 
 class opencl_context:
   """
@@ -23,6 +35,8 @@ class opencl_context:
     THE SYSTEM'S DEVICES AND ITS PROPERTIES (LIKE CONTEXT AND QUEUE).
     IT ALSO LOAD THE HEADERS AND CONSTANTS NEEDED TO COMPILE THE KERNELS.
 
+    queue IS A THREAD-LOCAL PROPERTY: EACH THREAD GETS ITS OWN
+    CommandQueue BACKED BY THE SHARED cl.Context.
   """
 
   def __init__(self, device_type):
@@ -34,12 +48,31 @@ class opencl_context:
         self.platform = p
         self.device = self.devs[0]
         break
-    
+
     self.ctx = cl.Context([self.device])
-    self.queue = cl.CommandQueue(self.ctx)
+    self._local = threading.local()  # per-thread storage for CommandQueue
 
     # PROGRAM VARIABLE. STORES ALL COMPILED KERNELS
     self.programs = []
+
+  @property
+  def queue(self):
+    """Returns the CommandQueue for the current thread, creating it if needed."""
+    if not hasattr(self._local, 'queue'):
+      thread_name = threading.current_thread().name
+      print(f"[opencl] nova CommandQueue para thread '{thread_name}'")
+      self._local.queue = cl.CommandQueue(self.ctx)
+    return self._local.queue
+
+  @property
+  def commandQueue(self):
+    """Alias for queue — retrocompatibility."""
+    return self.queue
+
+  def finish_queue(self):
+    """Waits for all operations in the current thread's queue to complete."""
+    if hasattr(self._local, 'queue'):
+      self._local.queue.finish()
 
   def is_kernel_compiled(self, method_name):
     for program in self.programs:
@@ -90,7 +123,7 @@ class opencl_context:
       self.commandQueue = self.queue
   """
   def get_vglClContext_attributes(self):
-    return VglClContext(self.platform.int_ptr, self.device.int_ptr, self.ctx, self.queue)
+    return VglClContext(self.platform.int_ptr, self.device.int_ptr, self.ctx, self)
   
   def load_headers(self, filepath):
     #print("Loading Headers")

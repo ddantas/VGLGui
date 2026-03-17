@@ -258,6 +258,20 @@ async def run(body: RunRequest):
     return {"job_id": job_id, "status": "running"}
 
 
+@app.get("/current")
+async def current():
+    """Retorna o job ativo (ou último job). Não precisa de job_id."""
+    if not _job:
+        return {"job_id": None, "status": "idle"}
+    return {
+        "job_id": _job.job_id,
+        "status": _job.status,
+        "device": _job.device,
+        "current_glyph": _job.current_glyph,
+        "glyphs": dict(_job.glyph_status),
+    }
+
+
 @app.get("/status/{job_id}")
 async def status(job_id: str):
     if not _job or _job.job_id != job_id:

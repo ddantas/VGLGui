@@ -53,18 +53,13 @@ def _post(server: str, path: str, body: dict | None = None) -> dict:
         sys.exit(1)
 
 
-def _current_job_id(server: str) -> str | None:
+def _current_job(server: str) -> str | None:
     """Retorna o job_id do job ativo, ou None."""
     try:
-        r = httpx.get(f"{server}/health", timeout=2)
-        if r.status_code != 200:
-            return None
+        data = _get(server, "/current")
+        return data.get("job_id")
     except Exception:
         return None
-    # Tenta inferir job_id via /status — o servidor mantém só 1 job
-    # Não existe endpoint de listagem, então usamos uma convenção:
-    # monitor e stop recebem o job_id de /run ou via argumento
-    return None
 
 
 # ---------------------------------------------------------------------------
@@ -77,11 +72,13 @@ def cmd_status(server: str, args):
 
     job_id = args.job_id
     if not job_id:
-        print("Use --job <job_id> para ver o status de um job específico.")
-        print("Dica: o job_id é exibido ao rodar 'python vgl_client.py run <arquivo.wksp>'")
-        return
-
-    data = _get(server, f"/status/{job_id}")
+        data = _get(server, "/current")
+        if not data.get("job_id"):
+            print("Nenhum job ativo.")
+            return
+        job_id = data["job_id"]
+    else:
+        data = _get(server, f"/status/{job_id}")
     status  = data["status"]
     device  = data["device"]
     current = data.get("current_glyph") or "—"
@@ -100,20 +97,20 @@ def cmd_status(server: str, args):
 
 
 def cmd_stop(server: str, args):
-    job_id = args.job_id
+    job_id = args.job_id or _current_job(server)
     if not job_id:
-        print("[ERRO] Informe o job_id com --job <id>")
-        sys.exit(1)
+        print("Nenhum job ativo para parar.")
+        return
     result = _post(server, f"/stop/{job_id}")
-    print(f"✅ Job {job_id} parado." if result.get("ok") else result)
+    print(f"⛔ Job {job_id} parado." if result.get("ok") else result)
 
 
 def cmd_skip(server: str, args):
-    job_id   = args.job_id
+    job_id   = args.job_id or _current_job(server)
     glyph_id = args.glyph_id
     if not job_id:
-        print("[ERRO] Informe o job_id com --job <id>")
-        sys.exit(1)
+        print("Nenhum job ativo.")
+        return
     result = _post(server, f"/stop/{job_id}/glyph/{glyph_id}")
     if result.get("ok"):
         print(f"⤭  Sinal de skip enviado para glyph [{glyph_id}].")
@@ -159,10 +156,10 @@ async def _stream_events(server: str, job_id: str):
 
 
 def cmd_monitor(server: str, args):
-    job_id = args.job_id
+    job_id = args.job_id or _current_job(server)
     if not job_id:
-        print("[ERRO] Informe o job_id com --job <id>")
-        sys.exit(1)
+        print("Nenhum job ativo para monitorar.")
+        return
     print(f"Monitorando job {job_id}... (Ctrl+C para sair)\n")
     asyncio.run(_stream_events(server, job_id))
 

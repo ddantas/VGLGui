@@ -157,9 +157,21 @@ async def _stream_events(server: str, job_id: str):
 
 def cmd_monitor(server: str, args):
     job_id = args.job_id or _current_job(server)
+
     if not job_id:
-        print("Nenhum job ativo para monitorar.")
-        return
+        if not getattr(args, "wait", False):
+            print("Nenhum job ativo para monitorar. Use --wait para aguardar o próximo job.")
+            return
+        print("Aguardando próximo job... (Ctrl+C para cancelar)")
+        try:
+            import time
+            while not job_id:
+                time.sleep(0.5)
+                job_id = _current_job(server)
+        except KeyboardInterrupt:
+            print("\n(cancelado)")
+            return
+
     print(f"Monitorando job {job_id}... (Ctrl+C para sair)\n")
     asyncio.run(_stream_events(server, job_id))
 
@@ -212,7 +224,9 @@ def main():
     sub.add_parser("status", help="Mostra estado do servidor e de um job")
 
     # monitor
-    sub.add_parser("monitor", help="Stream de eventos em tempo real de um job")
+    p_monitor = sub.add_parser("monitor", help="Stream de eventos em tempo real de um job")
+    p_monitor.add_argument("--wait", action="store_true",
+                           help="Aguarda o próximo job caso nenhum esteja ativo")
 
     # stop
     sub.add_parser("stop", help="Para o job atual")

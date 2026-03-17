@@ -56,7 +56,8 @@ msg = ""
 CPU = cl.device_type.CPU  # 2
 GPU = cl.device_type.GPU  # 4
 total = 0.0
-vl.vglClInit(GPU)
+_device = cl.device_type.CPU if (len(sys.argv) > 2 and sys.argv[2] == "CPU") else cl.device_type.GPU
+vl.vglClInit(_device)
 
 processed_workflows = set()  # Usando um conjunto para armazenar IDs de workflows já processados
 workspace = Workspace()

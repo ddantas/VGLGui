@@ -115,12 +115,17 @@ def _find_glyph(func_name: str, executed: set) -> Optional[str]:
 
 
 def _build_func_map(wksp_content: str):
+    """Parseia o .wksp e constrói func_name → [glyph_ids].
+    Suporta linhas Glyph: e ProcedureBegin: (mesmo formato, índices iguais).
+    """
     global _func_map
     _func_map = {}
     for line in wksp_content.splitlines():
-        if line.strip().startswith("Glyph:"):
-            parts = line.strip().split(":")
-            # Glyph:library:func::host:id:x:y::
+        s = line.strip()
+        if s.startswith("Glyph:") or s.startswith("ProcedureBegin:"):
+            parts = s.split(":")
+            # Glyph:library:func::host:id:...
+            # ProcedureBegin:name:ProcedureBegin::host:id:...
             if len(parts) >= 6:
                 func = parts[2]
                 gid  = parts[5]

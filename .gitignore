@@ -1,0 +1,68 @@
+my_env
+.ai/
+vgl_lib/__pycache__/
+.gitignore
+vgl_lib/__pycache__/__init__.cpython-310.pyc
+vgl_lib/__pycache__/opencl_context.cpython-310.pyc
+vgl_lib/__pycache__/struct_sizes.cpython-310.pyc
+vgl_lib/__pycache__/vglClImage.cpython-310.pyc
+vgl_lib/__pycache__/vglClUtil.cpython-310.pyc
+vgl_lib/__pycache__/vglConst.cpython-310.pyc
+vgl_lib/__pycache__/vglContext.cpython-310.pyc
+vgl_lib/__pycache__/vglImage.cpython-310.pyc
+vgl_lib/__pycache__/vglShape.cpython-310.pyc
+vgl_lib/__pycache__/vglStrEl.cpython-310.pyc
+/home/joao/Documents/TCC_1/VGLGui/__pycache__
+.vscode
+html
+latex
+docs
+/__pycache__/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+.vscode
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot

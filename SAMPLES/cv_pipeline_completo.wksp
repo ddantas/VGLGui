@@ -1,0 +1,89 @@
+
+WorkspaceBegin: 1.0
+
+VariablesBegin:
+VariablesEnd:
+
+# ─── Entrada ───────────────────────────────────────────────────
+Glyph:VGL_CL:vglLoadImage::localhost:1:80:200:: -filename 'files/images/01.png' -iscolor 1 -has_mipmap 0
+
+# ─── Converter para cinza ──────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:2:280:100::
+Glyph:VGL_CV:vglCvRgb2Gray::localhost:3:480:100::
+
+# ─── Inverter ──────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:4:280:250::
+Glyph:VGL_CV:vglCvInvert::localhost:5:480:250::
+
+# ─── Blur na imagem cinza ──────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:6:280:400::
+Glyph:VGL_CV:vglCvBlurSq3::localhost:7:480:400::
+
+# ─── Dilate no blur ────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:8:680:400::
+Glyph:VGL_CV:vglCvDilate::localhost:9:880:400:: -convolution_window [1,1,1,1,1,1,1,1,1] -window_size_x 3 -window_size_y 3
+
+# ─── Erode no dilate ───────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:10:680:550::
+Glyph:VGL_CV:vglCvErode::localhost:11:880:550:: -convolution_window [1,1,1,1,1,1,1,1,1] -window_size_x 3 -window_size_y 3
+
+# ─── Max(blur, invertida) ──────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:12:680:250::
+Glyph:VGL_CV:vglCvMax::localhost:13:880:250::
+
+# ─── Threshold no max ──────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:14:1080:250::
+Glyph:VGL_CV:vglCvThreshold::localhost:15:1280:250:: -thresh 0.3 -top 1.0
+
+# ─── Saídas ────────────────────────────────────────────────────
+Glyph:VGL_CL:vglSaveImage::localhost:16:1100:100:: -filename 'out/cv_gray.png'
+Glyph:VGL_CL:vglSaveImage::localhost:17:1100:400:: -filename 'out/cv_morph.png'
+Glyph:VGL_CL:vglSaveImage::localhost:18:1500:250:: -filename 'out/cv_pipeline.png'
+Glyph:VGL_CL:ShowImage::localhost:19:1500:150::
+Glyph:VGL_CL:ShowImage::localhost:20:1500:400::
+
+# load → gray
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+NodeConnection:data:3:img_output:16:image
+
+# gray → invert
+NodeConnection:data:3:img_output:4:img
+NodeConnection:data:3:img_output:5:img_input
+NodeConnection:data:4:RETVAL:5:img_output
+
+# gray → blur
+NodeConnection:data:3:img_output:6:img
+NodeConnection:data:3:img_output:7:img_input
+NodeConnection:data:6:RETVAL:7:img_output
+
+# blur → dilate
+NodeConnection:data:7:img_output:8:img
+NodeConnection:data:7:img_output:9:img_input
+NodeConnection:data:8:RETVAL:9:img_output
+
+# dilate → erode
+NodeConnection:data:9:img_output:10:img
+NodeConnection:data:9:img_output:11:img_input
+NodeConnection:data:10:RETVAL:11:img_output
+NodeConnection:data:11:img_output:17:image
+
+# blur + invert → max
+NodeConnection:data:7:img_output:12:img
+NodeConnection:data:7:img_output:13:img_input1
+NodeConnection:data:5:img_output:13:img_input2
+NodeConnection:data:12:RETVAL:13:img_output
+
+# max → threshold
+NodeConnection:data:13:img_output:14:img
+NodeConnection:data:13:img_output:15:src
+NodeConnection:data:14:RETVAL:15:dst
+NodeConnection:data:15:dst:18:image
+NodeConnection:data:15:dst:19:image
+NodeConnection:data:11:img_output:20:image
+
+AnnotationsBegin
+AnnotationsEnd
+
+WorkspaceEnd: 1.0

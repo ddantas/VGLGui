@@ -70,7 +70,7 @@ def run():
     set_language(_cfg.get("language", "pt"))
 
     from gui.canvas        import setup_canvas, flush_status_queue, bind_canvas_handlers, flush_node_previews
-    from gui.sidebar_glyphs import setup_sidebar, bind_sidebar_handlers
+    from gui.sidebar_glyphs import setup_sidebar
     from gui.toolbar       import setup_menu_bar
     from gui.log_panel     import setup_log_panel, flush_log_buffer
     from gui.image_preview import setup_texture_registry, flush_preview_queue
@@ -103,7 +103,6 @@ def run():
 
     dpg.set_primary_window(1, True)
     bind_canvas_handlers()
-    bind_sidebar_handlers()
     dpg.show_viewport()
 
     _last_title = ""

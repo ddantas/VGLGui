@@ -1233,4 +1233,113 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
           GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdErode_img_output, workspace)
 
 
+        elif vGlyph.func == 'vglCvBlurSq3':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvBlurSq3(vglCvBlurSq3_img_input, vglCvBlurSq3_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvBlurSq3_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvConvolution':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvConvolution(vglCvConvolution_img_input, vglCvConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvConvolution_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvCopy':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvCopy(vglCvCopy_img_input, vglCvCopy_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvCopy_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvDilate':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvDilate(vglCvDilate_img_input, vglCvDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvDilate_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvErode':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvErode(vglCvErode_img_input, vglCvErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvErode_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvInvert':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvInvert_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvInvert_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvInvert(vglCvInvert_img_input, vglCvInvert_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvInvert_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvMax':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1', workspace)
+          vglCvMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2', workspace)
+          vglCvMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvMax(vglCvMax_img_input1, vglCvMax_img_input2, vglCvMax_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvMax_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvMin':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1', workspace)
+          vglCvMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2', workspace)
+          vglCvMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvMin(vglCvMin_img_input1, vglCvMin_img_input2, vglCvMin_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvMin_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvRgb2Gray':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvRgb2Gray(vglCvRgb2Gray_img_input, vglCvRgb2Gray_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvRgb2Gray_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvSub':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1', workspace)
+          vglCvSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2', workspace)
+          vglCvSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvSub(vglCvSub_img_input1, vglCvSub_img_input2, vglCvSub_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvSub_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvSum':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1', workspace)
+          vglCvSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2', workspace)
+          vglCvSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvSum(vglCvSum_img_input1, vglCvSum_img_input2, vglCvSum_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvSum_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvSwapRgb':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvSwapRgb_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input', workspace)
+          vglCvSwapRgb_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output', workspace)
+          vglCvSwapRgb(vglCvSwapRgb_img_input, vglCvSwapRgb_img_output)
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvSwapRgb_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvThreshold':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          vglCvThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src', workspace)
+          vglCvThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst', workspace)
+          vglCvThreshold(vglCvThreshold_src, vglCvThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()), np.float32(vGlyph.lst_par[1].getValue()))
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvThreshold_dst, workspace)
+
+
 execWorkflow(workspace)

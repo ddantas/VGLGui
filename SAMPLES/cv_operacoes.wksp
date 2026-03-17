@@ -1,0 +1,63 @@
+
+WorkspaceBegin: 1.0
+
+VariablesBegin:
+VariablesEnd:
+
+# Carregar duas imagens (para operações binárias)
+Glyph:VGL_CL:vglLoadImage::localhost:1:100:100:: -filename 'files/images/01.png' -iscolor 1 -has_mipmap 0
+Glyph:VGL_CL:vglLoadImage::localhost:2:100:300:: -filename 'files/images/img2.png' -iscolor 1 -has_mipmap 0
+
+# Alloc para Gray da imagem 1
+Glyph:VGL_CL:vglCreateImage::localhost:3:300:100::
+Glyph:VGL_CV:vglCvRgb2Gray::localhost:4:500:100::
+
+# Alloc para Gray da imagem 2
+Glyph:VGL_CL:vglCreateImage::localhost:5:300:300::
+Glyph:VGL_CV:vglCvRgb2Gray::localhost:6:500:300::
+
+# Alloc para Sub
+Glyph:VGL_CL:vglCreateImage::localhost:7:300:200::
+
+# Sub: gray1 - gray2
+Glyph:VGL_CV:vglCvSub::localhost:8:700:200::
+
+# Alloc para Threshold
+Glyph:VGL_CL:vglCreateImage::localhost:9:300:350::
+
+# Threshold na subtração
+Glyph:VGL_CV:vglCvThreshold::localhost:10:900:200:: -thresh 0.1 -top 1.0
+
+# Salvar e mostrar
+Glyph:VGL_CL:vglSaveImage::localhost:11:1100:150:: -filename 'out/cv_sub.png'
+Glyph:VGL_CL:vglSaveImage::localhost:12:1100:300:: -filename 'out/cv_threshold.png'
+Glyph:VGL_CL:ShowImage::localhost:13:1100:400::
+
+# img1 → gray1
+NodeConnection:data:1:RETVAL:3:img
+NodeConnection:data:1:RETVAL:4:img_input
+NodeConnection:data:3:RETVAL:4:img_output
+
+# img2 → gray2
+NodeConnection:data:2:RETVAL:5:img
+NodeConnection:data:2:RETVAL:6:img_input
+NodeConnection:data:5:RETVAL:6:img_output
+
+# gray1 + gray2 → sub
+NodeConnection:data:4:img_output:7:img
+NodeConnection:data:4:img_output:8:img_input1
+NodeConnection:data:6:img_output:8:img_input2
+NodeConnection:data:7:RETVAL:8:img_output
+NodeConnection:data:8:img_output:11:image
+
+# sub → threshold
+NodeConnection:data:8:img_output:9:img
+NodeConnection:data:8:img_output:10:src
+NodeConnection:data:9:RETVAL:10:dst
+NodeConnection:data:10:dst:12:image
+NodeConnection:data:10:dst:13:image
+
+AnnotationsBegin
+AnnotationsEnd
+
+WorkspaceEnd: 1.0

@@ -35,10 +35,18 @@ _EXAMPLES: dict[str, list[tuple[str, str]]] = {
         ("GrayscaleConvert (procedure)",         "SAMPLES/procedures/exemplo_procedure_gui.wksp"),
         ("Demo Fundus (procedure)",              "SAMPLES/procedures/tcc/demo_fundus.wksp"),
     ],
+    "CV (OpenCV)": [
+        ("CV Basico - Gray + Blur",              "SAMPLES/cv_basico.wksp"),
+        ("CV Morfologia - Dilate + Erode",       "SAMPLES/cv_morfologia.wksp"),
+        ("CV Operacoes - Sub + Threshold",       "SAMPLES/cv_operacoes.wksp"),
+        ("CV Pipeline Completo",                 "SAMPLES/cv_pipeline_completo.wksp"),
+        ("Fundus CV - Retina (OpenCV)",          "SAMPLES/fundus_cv.wksp"),
+    ],
 }
 
 def _new_tag() -> int:
     return dpg.generate_uuid()
+
 
 
 def _populate_recent_menu():
@@ -199,6 +207,7 @@ def _make_example_callback(abs_path: str):
         else:
             _load_example(abs_path)
     return _cb
+
 
 
 def _load_example(abs_path: str):

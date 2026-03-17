@@ -22,6 +22,22 @@ os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
 
 
+def _check_skip(glyph_id: str) -> bool:
+    """Retorna True se o glyph deve ser pulado por sinal externo do servidor."""
+    job_id = os.environ.get("VGL_JOB_ID", "")
+    if not job_id:
+        return False
+    sig = f"/tmp/vgl_skip_{job_id}_{glyph_id}"
+    if os.path.exists(sig):
+        print(f"[SKIP] Glyph {glyph_id} pulado por sinal externo")
+        try:
+            os.unlink(sig)
+        except OSError:
+            pass
+        return True
+    return False
+
+
 def imshow(im):
     plot = mp.imshow(im, cmap="gray", origin="upper", vmin=0, vmax=255)
     plot.set_interpolation('nearest')  # Configura a interpolação como "nearest"
@@ -69,6 +85,11 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
     for vGlyph in workspace.lstGlyph:
         # Evita processar glyphs já executados
         if vGlyph.glyph_id in processed_workflows:
+            continue
+
+        # Verifica sinal de skip externo (enviado pelo executor_server)
+        if _check_skip(vGlyph.glyph_id):
+            GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
             continue
 
         # Processa sub-workspaces diretamente

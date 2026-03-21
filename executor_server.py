@@ -368,7 +368,15 @@ function setSrvErr() {
 }
 
 function connectJob(id, initGlyphs, initList) {
+  const isNew = id !== jobId;
   jobId = id;
+  if (isNew) {
+    document.getElementById('glyph-cards').innerHTML = '';
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('glyph-count').textContent = '';
+    breakpoints.clear();
+    hideBanner();
+  }
   document.getElementById('btn-stop').disabled = false;
   if (initList && initList.length) {
     initList.forEach(g => ensureCard(g.id, g.func));

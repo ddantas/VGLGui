@@ -335,6 +335,7 @@ select{background:#313244;color:#cdd6f4;border:none;padding:5px 8px;border-radiu
   <select id="dev-sel"><option value="CPU">CPU</option><option value="GPU">GPU</option></select>
   <button id="btn-run" onclick="runWorkflow()">▶ Run</button>
   <button id="btn-stop" onclick="stopJob()" disabled>■ Stop</button>
+  <button onclick="init()" title="Reconectar ao job ativo">↺</button>
 </div>
 <div id="pause-banner">
   <span id="pause-msg">⏸ Pausado</span>
@@ -360,7 +361,7 @@ async function init() {
   const r = await fetch(`${SRV}/current`).catch(()=>null);
   if (!r||!r.ok){setSrvErr();return;}
   const d = await r.json();
-  if (d.job_id) connectJob(d.job_id, d.glyphs||{}, d.glyph_list||[]);
+  if (d.job_id) connectJob(d.job_id, d.glyphs||{}, d.glyph_list||[], false, d.status);
 }
 
 function setSrvErr() {
@@ -368,7 +369,7 @@ function setSrvErr() {
   s.textContent = '● offline'; s.className = 'dot-err';
 }
 
-function connectJob(id, initGlyphs, initList, keepCards=false) {
+function connectJob(id, initGlyphs, initList, keepCards=false, knownStatus=null) {
   const isNew = !keepCards && id !== jobId;
   jobId = id;
   if (isNew) {
@@ -378,6 +379,9 @@ function connectJob(id, initGlyphs, initList, keepCards=false) {
     breakpoints.clear();
     hideBanner();
   }
+  // Atualiza job-info imediatamente com o status conhecido (não espera o WS fechar)
+  const displayStatus = knownStatus || 'carregando…';
+  document.getElementById('job-info').textContent = `job ${id.slice(0,8)}… | ${displayStatus}`;
   document.getElementById('btn-stop').disabled = false;
   if (initList && initList.length) {
     initList.forEach(g => ensureCard(g.id, g.func));
@@ -389,7 +393,7 @@ function connectJob(id, initGlyphs, initList, keepCards=false) {
   ws.onmessage = e => handle(JSON.parse(e.data));
   ws.onclose = async () => {
     document.getElementById('btn-stop').disabled = true;
-    // Se fechou sem evento finished (job já estava done), busca status final
+    // Busca status final para garantir que job-info está correto
     const r = await fetch(`${SRV}/status/${id}`).catch(()=>null);
     if (!r||!r.ok) return;
     const d = await r.json();
@@ -532,9 +536,8 @@ async function runWorkflow() {
   });
   if (!r.ok) { const e=await r.json(); log(`✗ ${e.error||'erro'}`, 'lg-er'); return; }
   const d = await r.json();
-  document.getElementById('job-info').textContent = `job ${d.job_id.slice(0,8)}… | iniciando`;
   // keepCards=true: não apaga os cards do previewWksp nem os breakpoints visuais
-  connectJob(d.job_id, {}, [], true);
+  connectJob(d.job_id, {}, [], true, 'running');
 }
 
 function addPreview(gid, path) {
@@ -563,7 +566,7 @@ setInterval(async () => {
   if (!r||!r.ok) return;
   const d = await r.json();
   if (d.job_id && d.job_id !== jobId)
-    connectJob(d.job_id, d.glyphs||{}, d.glyph_list||[]);
+    connectJob(d.job_id, d.glyphs||{}, d.glyph_list||[], false, d.status);
 }, 1000);
 </script>
 </body></html>"""

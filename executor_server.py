@@ -368,8 +368,8 @@ function setSrvErr() {
   s.textContent = '● offline'; s.className = 'dot-err';
 }
 
-function connectJob(id, initGlyphs, initList) {
-  const isNew = id !== jobId;
+function connectJob(id, initGlyphs, initList, keepCards=false) {
+  const isNew = !keepCards && id !== jobId;
   jobId = id;
   if (isNew) {
     document.getElementById('glyph-cards').innerHTML = '';
@@ -524,13 +524,8 @@ async function runWorkflow() {
   if (!r.ok) { const e=await r.json(); log(`✗ ${e.error||'erro'}`, 'lg-er'); return; }
   const d = await r.json();
   document.getElementById('job-info').textContent = `job ${d.job_id.slice(0,8)}… | iniciando`;
-  // não limpa cards — já foram populados pelo previewWksp, mantém breakpoints visuais
-  jobId = d.job_id;
-  if (ws) ws.close();
-  ws = new WebSocket(`${WSB}/events/${d.job_id}`);
-  ws.onmessage = e => handle(JSON.parse(e.data));
-  ws.onclose = () => { document.getElementById('btn-stop').disabled = true; };
-  document.getElementById('btn-stop').disabled = false;
+  // keepCards=true: não apaga os cards do previewWksp nem os breakpoints visuais
+  connectJob(d.job_id, {}, [], true);
 }
 
 function addPreview(gid, path) {

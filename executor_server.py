@@ -578,7 +578,10 @@ setInterval(async () => {
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard():
-    return HTMLResponse(content=_DASHBOARD_HTML)
+    return HTMLResponse(
+        content=_DASHBOARD_HTML,
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/health")

@@ -38,6 +38,28 @@ def _check_skip(glyph_id: str) -> bool:
     return False
 
 
+def _check_pause(glyph_id: str) -> None:
+    """Pausa execução se existe breakpoint para este glyph. Aguarda sinal de continue."""
+    job_id = os.environ.get("VGL_JOB_ID", "")
+    if not job_id:
+        return
+    break_sig = f"/tmp/vgl_break_{job_id}_{glyph_id}"
+    if not os.path.exists(break_sig):
+        return
+    print(f"[PAUSED] Glyph {glyph_id} pausado em breakpoint", flush=True)
+    cont_sig = f"/tmp/vgl_continue_{job_id}"
+    while True:
+        if os.path.exists(cont_sig):
+            try:
+                os.unlink(cont_sig)
+                os.unlink(break_sig)
+            except OSError:
+                pass
+            print(f"[RESUMED] Glyph {glyph_id} retomado", flush=True)
+            return
+        t.sleep(0.1)
+
+
 def imshow(im):
     plot = mp.imshow(im, cmap="gray", origin="upper", vmin=0, vmax=255)
     plot.set_interpolation('nearest')  # Configura a interpolação como "nearest"
@@ -92,6 +114,9 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
         if _check_skip(vGlyph.glyph_id):
             GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
             continue
+
+        # Verifica breakpoint (pausa e aguarda continue do dashboard)
+        _check_pause(vGlyph.glyph_id)
 
         # Processa sub-workspaces diretamente
         if hasattr(vGlyph, "sub_workspaces"):  # Verifica se o glyph contém sub-workspaces

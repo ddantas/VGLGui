@@ -1,5 +1,6 @@
 import atexit as _atexit
 import os
+import signal as _signal
 import subprocess as _sp
 import sys
 import time as _time
@@ -87,6 +88,7 @@ def _start_server() -> bool:
         stderr=_sp.DEVNULL,
     )
     _atexit.register(_stop_server)
+    _signal.signal(_signal.SIGTERM, lambda *_: (_stop_server(), sys.exit(0)))
 
     for _ in range(50):          # tenta por 5 segundos
         _time.sleep(0.1)
@@ -181,3 +183,4 @@ def run():
         dpg.render_dearpygui_frame()
 
     dpg.destroy_context()
+    _stop_server()

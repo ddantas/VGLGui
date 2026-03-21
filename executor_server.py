@@ -24,6 +24,7 @@ from pydantic import BaseModel
 # ---------------------------------------------------------------------------
 _FUNC_START_RE = re.compile(r"A função (\S+) está sendo executada")
 _SHOW_IMG_RE   = re.compile(r"\[GUI_SHOW\] (.+)")
+_SKIP_RE       = re.compile(r"\[SKIP\] Glyph (\S+) pulado")
 
 # ---------------------------------------------------------------------------
 # Modelos
@@ -116,7 +117,9 @@ def _find_glyph(func_name: str, executed: set) -> Optional[str]:
 
 def _build_func_map(wksp_content: str):
     """Parseia o .wksp e constrói func_name → [glyph_ids].
-    Suporta linhas Glyph: e ProcedureBegin: (mesmo formato, índices iguais).
+    Suporta dois formatos de linha Glyph:
+      Novo (GUI):  Glyph:library:func::localhost:id:X:Y::  (parts[3] == "")
+      Antigo:      Glyph:library:func:localhost:id:X:Y:    (parts[3] != "")
     """
     global _func_map
     _func_map = {}
@@ -124,11 +127,11 @@ def _build_func_map(wksp_content: str):
         s = line.strip()
         if s.startswith("Glyph:") or s.startswith("ProcedureBegin:"):
             parts = s.split(":")
-            # Glyph:library:func::host:id:...
-            # ProcedureBegin:name:ProcedureBegin::host:id:...
             if len(parts) >= 6:
                 func = parts[2]
-                gid  = parts[5]
+                # formato novo tem campo vazio em parts[3]; id fica em parts[5]
+                # formato antigo não tem campo vazio; id fica em parts[4]
+                gid = parts[5] if parts[3] == "" else parts[4]
                 _func_map.setdefault(func, []).append(gid)
 
 
@@ -180,6 +183,13 @@ async def _run_job(job: JobState):
             continue
 
         await _emit(job, {"type": "log", "line": line})
+
+        sk = _SKIP_RE.search(line)
+        if sk:
+            gid = sk.group(1)
+            await _emit(job, {"type": "glyph_done", "glyph_id": gid, "status": "skipped"})
+            executed.add(gid)
+            continue
 
         m = _FUNC_START_RE.search(line)
         if m:

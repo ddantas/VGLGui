@@ -423,6 +423,9 @@ function handle(e) {
     case 'glyph_resumed':
       setStatus(e.glyph_id,'running');
       hideBanner();
+      breakpoints.delete(e.glyph_id);
+      { const btn = document.getElementById(`bp-${e.glyph_id}`);
+        if (btn) { btn.textContent = '🔴'; btn.classList.remove('active'); } }
       log(`▶ retomado ${e.glyph_id}`, 'lg-gs'); break;
     case 'log':
       if (e.line && e.line.trim()) log(e.line); break;

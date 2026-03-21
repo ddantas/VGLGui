@@ -513,7 +513,7 @@ async function previewWksp() {
 
 function parseWksp(content) {
   const glyphs = [];
-  for (const line of content.split('\n')) {
+  for (const line of content.split('\\n')) {
     const s = line.trim();
     if (!s.startsWith('Glyph:') && !s.startsWith('ProcedureBegin:')) continue;
     const parts = s.split(':');

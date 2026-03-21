@@ -34,6 +34,7 @@ _RESUMED_RE    = re.compile(r"\[RESUMED\] Glyph (\S+) retomado")
 class RunRequest(BaseModel):
     wksp_content: str
     device: str = "GPU"
+    breakpoints: list = []   # glyph_ids com breakpoint pré-definido
 
 
 @dataclass
@@ -329,7 +330,7 @@ select{background:#313244;color:#cdd6f4;border:none;padding:5px 8px;border-radiu
   <h1>⚡ VGLGui</h1>
   <span id="srv-status" class="dot-ok">● servidor ok</span>
   <span id="job-info">sem job ativo</span>
-  <input type="file" id="wksp-file" accept=".wksp" style="display:none">
+  <input type="file" id="wksp-file" accept=".wksp" style="display:none" onchange="previewWksp()">
   <label class="file-label" for="wksp-file">📂 .wksp</label>
   <select id="dev-sel"><option value="CPU">CPU</option><option value="GPU">GPU</option></select>
   <button id="btn-run" onclick="runWorkflow()">▶ Run</button>
@@ -448,14 +449,16 @@ function setStatus(gid, st) {
 }
 
 async function toggleBp(gid) {
-  if (!jobId) return;
   const active = breakpoints.has(gid);
-  const r = await fetch(`${SRV}/breakpoint/${jobId}/${gid}`, {method: active?'DELETE':'POST'});
-  if (r.ok) {
-    active ? breakpoints.delete(gid) : breakpoints.add(gid);
-    const btn = document.getElementById(`bp-${gid}`);
-    if (btn) { btn.textContent = active?'🔴':'🟡'; btn.classList.toggle('active',!active); }
+  const btn = document.getElementById(`bp-${gid}`);
+  // Se job ativo, sincroniza com o servidor
+  if (jobId) {
+    const r = await fetch(`${SRV}/breakpoint/${jobId}/${gid}`, {method: active?'DELETE':'POST'});
+    if (!r.ok) return;
   }
+  // Atualiza estado local sempre (funciona também antes do Run)
+  active ? breakpoints.delete(gid) : breakpoints.add(gid);
+  if (btn) { btn.textContent = active?'🔴':'🟡'; btn.classList.toggle('active',!active); }
 }
 
 function showBanner(gid, func) {
@@ -471,6 +474,44 @@ async function stopJob() {
   if (jobId) await fetch(`${SRV}/stop/${jobId}`, {method:'POST'});
 }
 
+// Parse .wksp client-side e mostra glyphs antes do Run
+async function previewWksp() {
+  const fi = document.getElementById('wksp-file');
+  if (!fi.files.length) return;
+  const content = await fi.files[0].text();
+  const glyphs = parseWksp(content);
+  document.getElementById('glyph-cards').innerHTML = '';
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('glyph-count').textContent = '';
+  // mantém breakpoints pendentes entre trocas de arquivo
+  const oldBps = new Set(breakpoints);
+  breakpoints.clear();
+  hideBanner();
+  glyphs.forEach(g => {
+    ensureCard(g.id, g.func);
+    if (oldBps.has(g.id)) {
+      breakpoints.add(g.id);
+      const btn = document.getElementById(`bp-${g.id}`);
+      if (btn) { btn.textContent = '🟡'; btn.classList.add('active'); }
+    }
+  });
+  document.getElementById('glyph-count').textContent = `(${glyphs.length})`;
+}
+
+function parseWksp(content) {
+  const glyphs = [];
+  for (const line of content.split('\n')) {
+    const s = line.trim();
+    if (!s.startsWith('Glyph:') && !s.startsWith('ProcedureBegin:')) continue;
+    const parts = s.split(':');
+    if (parts.length < 6) continue;
+    const func = parts[2];
+    const gid  = parts[3] === '' ? parts[5] : parts[4];
+    glyphs.push({id: gid, func});
+  }
+  return glyphs;
+}
+
 async function runWorkflow() {
   const fi = document.getElementById('wksp-file');
   const device = document.getElementById('dev-sel').value;
@@ -478,17 +519,18 @@ async function runWorkflow() {
   const content = await fi.files[0].text();
   const r = await fetch(`${SRV}/run`, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({wksp_content: content, device})
+    body: JSON.stringify({wksp_content: content, device, breakpoints: [...breakpoints]})
   });
   if (!r.ok) { const e=await r.json(); log(`✗ ${e.error||'erro'}`, 'lg-er'); return; }
   const d = await r.json();
-  document.getElementById('glyph-cards').innerHTML = '';
-  document.getElementById('log').innerHTML = '';
-  document.getElementById('glyph-count').textContent = '';
-  breakpoints.clear();
-  hideBanner();
   document.getElementById('job-info').textContent = `job ${d.job_id.slice(0,8)}… | iniciando`;
-  connectJob(d.job_id, {}, []);
+  // não limpa cards — já foram populados pelo previewWksp, mantém breakpoints visuais
+  jobId = d.job_id;
+  if (ws) ws.close();
+  ws = new WebSocket(`${WSB}/events/${d.job_id}`);
+  ws.onmessage = e => handle(JSON.parse(e.data));
+  ws.onclose = () => { document.getElementById('btn-stop').disabled = true; };
+  document.getElementById('btn-stop').disabled = false;
 }
 
 function addPreview(gid, path) {
@@ -561,7 +603,10 @@ async def run(body: RunRequest):
             process=None,
             wksp_tmp=tmp.name,
             glyph_list=glyph_list,
+            breakpoints=set(body.breakpoints),
         )
+        for gid in body.breakpoints:
+            open(_break_path(job_id, gid), "w").close()
 
     asyncio.create_task(_run_job(_job))
     return {"job_id": job_id, "status": "running"}

@@ -387,7 +387,16 @@ function connectJob(id, initGlyphs, initList, keepCards=false) {
   if (ws) ws.close();
   ws = new WebSocket(`${WSB}/events/${id}`);
   ws.onmessage = e => handle(JSON.parse(e.data));
-  ws.onclose = () => { document.getElementById('btn-stop').disabled = true; };
+  ws.onclose = async () => {
+    document.getElementById('btn-stop').disabled = true;
+    // Se fechou sem evento finished (job já estava done), busca status final
+    const r = await fetch(`${SRV}/status/${id}`).catch(()=>null);
+    if (!r||!r.ok) return;
+    const d = await r.json();
+    Object.entries(d.glyphs||{}).forEach(([gid,st]) => setStatus(gid, st));
+    document.getElementById('job-info').textContent =
+      `job ${id.slice(0,8)}… | ${d.status} | ${d.device}`;
+  };
 }
 
 function handle(e) {
@@ -547,7 +556,7 @@ function log(text, cls) {
 
 init();
 
-// Polling para detectar novo job quando não há nenhum conectado
+// Polling para detectar novo job (1s para não perder workflows rápidos)
 setInterval(async () => {
   if (jobId && ws && ws.readyState === WebSocket.OPEN) return;
   const r = await fetch(`${SRV}/current`).catch(()=>null);
@@ -555,7 +564,7 @@ setInterval(async () => {
   const d = await r.json();
   if (d.job_id && d.job_id !== jobId)
     connectJob(d.job_id, d.glyphs||{}, d.glyph_list||[]);
-}, 3000);
+}, 1000);
 </script>
 </body></html>"""
 

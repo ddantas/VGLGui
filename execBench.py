@@ -15,6 +15,32 @@ import sys
 import re
 import csv
 import os
+from datetime import datetime
+
+
+def get_image_info(workflow):
+    """Parseia o .wksp e retorna (path, WxH) da primeira imagem de entrada."""
+    img_path = None
+    try:
+        with open(workflow) as f:
+            for line in f:
+                m = re.search(r"-filename '([^']+)'", line)
+                if m and line.strip().startswith('Glyph:'):
+                    img_path = m.group(1)
+                    break
+    except OSError:
+        return None, None
+
+    if not img_path or not os.path.isfile(img_path):
+        return img_path, None
+
+    try:
+        from PIL import Image
+        with Image.open(img_path) as img:
+            w, h = img.size
+        return img_path, f"{w}×{h}"
+    except Exception:
+        return img_path, None
 
 
 def run_bench(workflow, n, device):
@@ -39,10 +65,15 @@ def run_bench(workflow, n, device):
     return timings
 
 
-def print_table(results, n):
+def print_table(results, n, workflow, device_label):
     devices = list(results.keys())
     all_funcs = list(dict.fromkeys(f for d in devices for f in results[d]))
     n_ops = len(all_funcs)
+
+    img_path, img_dims = get_image_info(workflow)
+    dims_str = f" ({img_dims} px)" if img_dims else ""
+    img_str  = f"{img_path}{dims_str}" if img_path else "—"
+    now      = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     col_w = 16
     width = 38 + col_w * len(devices)
@@ -50,6 +81,10 @@ def print_table(results, n):
     header = f"{'Operação':<38}" + col_header
 
     print(f"\nBenchmark — {n} iterações × {n_ops} operações")
+    print(f"Workflow : {workflow}")
+    print(f"Imagem   : {img_str}")
+    print(f"Device   : {device_label}")
+    print(f"Data/hora: {now}")
     print("─" * width)
     print(header)
     print("─" * width)
@@ -103,7 +138,7 @@ def main():
     parser.add_argument('--device', default='GPU', choices=['GPU', 'CPU', 'BOTH'],
                         help='Device a usar (padrão: GPU)')
     parser.add_argument('--csv', metavar='FILE',
-                        help='Salvar resultado em CSV')
+                        help='Caminho do CSV de saída (padrão: out/<workflow>_<device>_<data>.csv)')
     args = parser.parse_args()
 
     devices = ['GPU', 'CPU'] if args.device == 'BOTH' else [args.device]
@@ -111,10 +146,13 @@ def main():
     for d in devices:
         results[d] = run_bench(args.workflow, args.n, d)
 
-    print_table(results, args.n)
+    print_table(results, args.n, args.workflow, args.device)
 
-    if args.csv:
-        save_csv(results, args.n, args.csv)
+    wksp_name = os.path.splitext(os.path.basename(args.workflow))[0]
+    date_str  = datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_path  = args.csv or os.path.join("out", f"{wksp_name}_{args.device}_{date_str}.csv")
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    save_csv(results, args.n, csv_path)
 
 
 if __name__ == '__main__':

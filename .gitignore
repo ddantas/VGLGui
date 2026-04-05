@@ -1,5 +1,5 @@
-html/*
-latex/*
+doc/doxygen/html/*
+doc/doxygen/latex/*
 my_env/*
 .rascunhos/
 PRD.md
@@ -12,6 +12,5 @@ conv.png
 dilate.png
 erode.png
 
-images
 
 gui/config.json

@@ -1,0 +1,109 @@
+
+WorkspaceBegin: 1.0
+
+VariablesBegin:
+VariablesEnd:
+
+# ─── Entrada ────────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglLoadImage::localhost:1:80:200:: -filename 'data/images/fundus/16_good.JPG' -iscolor 1 -has_mipmap 0
+
+# ─── Rgb2Gray ────────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:2:280:100::
+Glyph:VGL_CV:vglCvRgb2Gray::localhost:3:480:200::
+
+# ─── Convolucao Gaussiana 1x51 ───────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:4:680:100::
+Glyph:VGL_CV:vglCvConvolution::localhost:5:880:200:: -convolution_window [0.00037832,0.00055477,0.00080091,0.00113832,0.00159279,0.00219416,0.00297573,0.00397312,0.00522256,0.0067585,0.00861055,0.01080005,0.01333629,0.0162128,0.01940418,0.02286371,0.02652237,0.0302895,0.0340554,0.03769589,0.04107865,0.04407096,0.04654821,0.04840248,0.04955031,0.04993894,0.04955031,0.04840248,0.04654821,0.04407096,0.04107865,0.03769589,0.0340554,0.0302895,0.02652237,0.02286371,0.01940418,0.0162128,0.01333629,0.01080005,0.00861055,0.0067585,0.00522256,0.00397312,0.00297573,0.00219416,0.00159279,0.00113832,0.00080091,0.00055477,0.00037832] -window_size_x 51 -window_size_y 1
+
+# ─── Convolucao Gaussiana 51x1 ───────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:6:1080:100::
+Glyph:VGL_CV:vglCvConvolution::localhost:7:1280:200:: -convolution_window [0.00037832,0.00055477,0.00080091,0.00113832,0.00159279,0.00219416,0.00297573,0.00397312,0.00522256,0.0067585,0.00861055,0.01080005,0.01333629,0.0162128,0.01940418,0.02286371,0.02652237,0.0302895,0.0340554,0.03769589,0.04107865,0.04407096,0.04654821,0.04840248,0.04955031,0.04993894,0.04955031,0.04840248,0.04654821,0.04407096,0.04107865,0.03769589,0.0340554,0.0302895,0.02652237,0.02286371,0.01940418,0.0162128,0.01333629,0.01080005,0.00861055,0.0067585,0.00522256,0.00397312,0.00297573,0.00219416,0.00159279,0.00113832,0.00080091,0.00055477,0.00037832] -window_size_x 1 -window_size_y 51
+
+# ─── Dilate 1x51 ────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:8:1480:100::
+Glyph:VGL_CV:vglCvDilate::localhost:9:1680:200:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+
+# ─── Dilate 51x1 ────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:10:1880:100::
+Glyph:VGL_CV:vglCvDilate::localhost:11:2080:200:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+
+# ─── Erode 1x51 ─────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:12:2280:100::
+Glyph:VGL_CV:vglCvErode::localhost:13:2480:200:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 1 -window_size_y 51
+
+# ─── Erode 51x1 ─────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:14:2680:100::
+Glyph:VGL_CV:vglCvErode::localhost:15:2880:200:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 51 -window_size_y 1
+
+# ─── Sub (erode - conv) ──────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:16:3080:100::
+Glyph:VGL_CV:vglCvSub::localhost:17:3280:200::
+
+# ─── Threshold ───────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglCreateImage::localhost:18:3480:100::
+Glyph:VGL_CV:vglCvThreshold::localhost:19:3680:200:: -thresh 0.00784 -top 1.0
+
+# ─── Saidas ──────────────────────────────────────────────────────────────────
+Glyph:VGL_CL:vglSaveImage::localhost:20:3900:50::  -filename 'out/artigo1/fundusCV_gray.png'
+Glyph:VGL_CL:vglSaveImage::localhost:21:3900:150:: -filename 'out/artigo1/fundusCV_conv.png'
+Glyph:VGL_CL:vglSaveImage::localhost:22:3900:250:: -filename 'out/artigo1/fundusCV_dilate.png'
+Glyph:VGL_CL:vglSaveImage::localhost:23:3900:350:: -filename 'out/artigo1/fundusCV_erode.png'
+Glyph:VGL_CL:vglSaveImage::localhost:24:3900:450:: -filename 'out/artigo1/fundusCV_sub.png'
+Glyph:VGL_CL:vglSaveImage::localhost:25:3900:550:: -filename 'out/artigo1/fundusCV_thresh.png'
+
+# ─── load -> gray ────────────────────────────────────────────────────────────
+NodeConnection:data:1:RETVAL:2:img
+NodeConnection:data:1:RETVAL:3:img_input
+NodeConnection:data:2:RETVAL:3:img_output
+NodeConnection:data:3:img_output:20:image
+
+# ─── gray -> conv 1x51 ──────────────────────────────────────────────────────
+NodeConnection:data:3:img_output:4:img
+NodeConnection:data:3:img_output:5:img_input
+NodeConnection:data:4:RETVAL:5:img_output
+
+# ─── conv 1x51 -> conv 51x1 ─────────────────────────────────────────────────
+NodeConnection:data:5:img_output:6:img
+NodeConnection:data:5:img_output:7:img_input
+NodeConnection:data:6:RETVAL:7:img_output
+NodeConnection:data:7:img_output:21:image
+
+# ─── conv 51x1 -> dilate 1x51 ───────────────────────────────────────────────
+NodeConnection:data:7:img_output:8:img
+NodeConnection:data:7:img_output:9:img_input
+NodeConnection:data:8:RETVAL:9:img_output
+
+# ─── dilate 1x51 -> dilate 51x1 ─────────────────────────────────────────────
+NodeConnection:data:9:img_output:10:img
+NodeConnection:data:9:img_output:11:img_input
+NodeConnection:data:10:RETVAL:11:img_output
+NodeConnection:data:11:img_output:22:image
+
+# ─── dilate 51x1 -> erode 1x51 ──────────────────────────────────────────────
+NodeConnection:data:11:img_output:12:img
+NodeConnection:data:11:img_output:13:img_input
+NodeConnection:data:12:RETVAL:13:img_output
+
+# ─── erode 1x51 -> erode 51x1 ───────────────────────────────────────────────
+NodeConnection:data:13:img_output:14:img
+NodeConnection:data:13:img_output:15:img_input
+NodeConnection:data:14:RETVAL:15:img_output
+NodeConnection:data:15:img_output:23:image
+
+# ─── sub: erode(input1) - conv(input2) ──────────────────────────────────────
+NodeConnection:data:15:img_output:16:img
+NodeConnection:data:15:img_output:17:img_input1
+NodeConnection:data:7:img_output:17:img_input2
+NodeConnection:data:16:RETVAL:17:img_output
+NodeConnection:data:17:img_output:24:image
+
+# ─── threshold ───────────────────────────────────────────────────────────────
+NodeConnection:data:17:img_output:18:img
+NodeConnection:data:17:img_output:19:src
+NodeConnection:data:18:RETVAL:19:dst
+NodeConnection:data:19:dst:25:image
+
+AnnotationsBegin
+AnnotationsEnd
+
+WorkspaceEnd: 1.0

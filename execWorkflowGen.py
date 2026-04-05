@@ -36,12 +36,13 @@ def tratnum(num):
     return listnumpy
 
 
-nSteps = 1
+nSteps = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 msg = ""
-CPU = cl.device_type.CPU 
+CPU = cl.device_type.CPU
 GPU = cl.device_type.GPU
 total = 0.0
-vl.vglClInit(GPU)
+_device = CPU if len(sys.argv) > 3 and sys.argv[3].upper() == 'CPU' else GPU
+vl.vglClInit(_device)
 
 
 workspace = Workspace()
@@ -2387,6 +2388,14 @@ def execute_workspace(workspace):
 
 
           GlyphExecutedUpdate(vGlyph.glyph_id, vglCvThreshold_dst, workspace)
+
+    import re as _re
+    for _line in msg.splitlines():
+        _m = _re.match(r'Tempo médio de \d+ execuções do método (.+): ([\d.]+) ms', _line)
+        if _m:
+            print(f"[BENCH] {_m.group(1)}: {_m.group(2)} ms")
+    if total > 0:
+        print(f"[BENCH] TOTAL: {round(total, 3)} ms")
 
 
 def _find_batch_glyph(ws):

@@ -343,6 +343,12 @@ def _add_param_widget(param: ParamDef, glyph_id: str, value: str,
                            width=160, readonly=True)
         dpg.add_button(label="...", width=25, tag=_new_tag(),
                        callback=lambda: _open_file_dialog(widget_tag, glyph_id, param.name))
+    elif param.type == "folder":
+        dpg.add_text(label + ":", tag=_new_tag())
+        dpg.add_input_text(tag=widget_tag, default_value=value,
+                           width=160, readonly=True)
+        dpg.add_button(label="dir", width=28, tag=_new_tag(),
+                       callback=lambda: _open_folder_dialog(widget_tag, glyph_id, param.name))
     elif param.type == "int":
         try:
             int_val = int(value) if value else 0
@@ -450,14 +456,14 @@ def _open_file_dialog(target_tag: int, glyph_id: str, param_name: str):
             state.params[param_name] = path
             APP_STATE["dirty"] = True
 
-    # Abre no diretório do arquivo atual (se existir), senão no home
+    # Abre no diretório do arquivo atual (se existir), senão no cwd
     current = dpg.get_value(target_tag) or ""
     if _os.path.isfile(current):
         start_dir = _os.path.dirname(current)
     elif _os.path.isdir(current):
         start_dir = current
     else:
-        start_dir = _os.path.expanduser("~")
+        start_dir = _os.getcwd()
 
     with dpg.file_dialog(
         label=t("select_file"),
@@ -475,6 +481,36 @@ def _open_file_dialog(target_tag: int, glyph_id: str, param_name: str):
         dpg.add_file_extension(".pgm",  color=(180, 180, 80,  255), custom_text="PGM")
         dpg.add_file_extension(".ppm",  color=(180, 180, 80,  255), custom_text="PPM")
         dpg.add_file_extension(".wksp", color=(255, 200, 0,   255), custom_text="Workflow")
+
+
+def _open_folder_dialog(target_tag: int, glyph_id: str, param_name: str):
+    """Abre um seletor de pasta (directory_selector=True)."""
+    import os as _os
+
+    def _on_select(s, app_data):
+        path = app_data.get("file_path_name", "") or app_data.get("current_path", "")
+        # DearPyGui retorna o caminho da pasta selecionada
+        if _os.path.isfile(path):
+            path = _os.path.dirname(path)
+        dpg.set_value(target_tag, path)
+        state = APP_STATE["glyphs"].get(glyph_id)
+        if state:
+            state.params[param_name] = path
+            APP_STATE["dirty"] = True
+
+    current = dpg.get_value(target_tag) or ""
+    start_dir = current if _os.path.isdir(current) else _os.getcwd()
+
+    with dpg.file_dialog(
+        label="Selecionar pasta",
+        modal=True,
+        width=700, height=450,
+        callback=_on_select,
+        tag=_new_tag(),
+        default_path=start_dir,
+        directory_selector=True,
+    ):
+        pass
 
 
 # ---------------------------------------------------------------------------

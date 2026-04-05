@@ -39,8 +39,8 @@ def _topological_sort(glyphs: dict, links: dict, attr_map: dict) -> list:
     return result + remaining
 
 
-def save_wksp(path: str):
-    """Serializa o estado atual do canvas para o formato .wksp."""
+def _write_wksp(f):
+    """Escreve o workspace serializado no file-like object f."""
     from gui.canvas import get_all_node_positions, get_attr_tag_to_port
     from gui.procedure_canvas import get_all_procedure_positions
 
@@ -121,13 +121,25 @@ def save_wksp(path: str):
         )
 
     lines.append("\nWorkspaceEnd: 1.0\n")
+    f.writelines(lines)
 
+
+def save_wksp(path: str):
+    """Serializa o estado atual do canvas para o formato .wksp."""
     with open(path, "w") as f:
-        f.writelines(lines)
+        _write_wksp(f)
 
     APP_STATE["wksp_path"] = path
     APP_STATE["dirty"] = False
     print(f"[wksp_io] Saved to: {path}")
+
+
+def save_wksp_to_string() -> str:
+    """Serializa o workspace atual para string sem gravar arquivo."""
+    import io
+    buf = io.StringIO()
+    _write_wksp(buf)
+    return buf.getvalue()
 
 
 def _param_val_to_str(v) -> str:

@@ -1,5 +1,12 @@
+import atexit as _atexit
 import os
+import signal as _signal
+import subprocess as _sp
+import sys
+import time as _time
+
 import dearpygui.dearpygui as dpg
+import httpx as _httpx
 from dataclasses import dataclass, field
 from gui.config import load_config
 from gui.i18n import set_language, t
@@ -57,7 +64,51 @@ APP_STATE: dict = {
 
     "procedures":       {},    # proc_name → ProcedureState
     "active_procedure": None,  # None = canvas principal; str = editando procedure
+
+    "server_ok":    False,   # True após executor_server responder /health
 }
+
+
+# ---------------------------------------------------------------------------
+# Ciclo de vida do executor_server
+# ---------------------------------------------------------------------------
+
+_server_proc: "_sp.Popen | None" = None
+
+
+def _start_server() -> bool:
+    """Sobe executor_server.py e aguarda /health. Retorna True se OK."""
+    global _server_proc
+    server_script = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "executor_server.py"
+    )
+    _server_proc = _sp.Popen(
+        [sys.executable, server_script, "8765"],
+        stdout=_sp.DEVNULL,
+        stderr=_sp.DEVNULL,
+    )
+    _atexit.register(_stop_server)
+    _signal.signal(_signal.SIGTERM, lambda *_: (_stop_server(), sys.exit(0)))
+
+    for _ in range(50):          # tenta por 5 segundos
+        _time.sleep(0.1)
+        try:
+            r = _httpx.get("http://127.0.0.1:8765/health", timeout=0.5)
+            if r.status_code == 200:
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def _stop_server():
+    global _server_proc
+    if _server_proc and _server_proc.poll() is None:
+        _server_proc.terminate()
+        try:
+            _server_proc.wait(timeout=3)
+        except Exception:
+            _server_proc.kill()
 
 
 # ---------------------------------------------------------------------------
@@ -68,6 +119,13 @@ def run():
     # Load persisted config and apply language before building UI
     _cfg = load_config()
     set_language(_cfg.get("language", "pt"))
+
+    # Sobe servidor de execução
+    if not _start_server():
+        print("[ERRO] executor_server não respondeu na porta 8765. Run desabilitado.")
+        APP_STATE["server_ok"] = False
+    else:
+        APP_STATE["server_ok"] = True
 
     from gui.canvas        import setup_canvas, flush_status_queue, bind_canvas_handlers, flush_node_previews
     from gui.sidebar_glyphs import setup_sidebar
@@ -125,3 +183,4 @@ def run():
         dpg.render_dearpygui_frame()
 
     dpg.destroy_context()
+    _stop_server()

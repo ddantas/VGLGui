@@ -133,6 +133,18 @@ GLYPH_REGISTRY: dict[str, GlyphDef] = {
             ParamDef("has_mipmap","bool",  default="0"),
         ],
     ),
+    "vglLoad2dBatch": GlyphDef(
+        func="vglLoad2dBatch", label="vglLoadImage (2D Batch)", category="I/O",
+        ports=[PortDef("RETVAL", "output")],
+        params=[
+            ParamDef("folder",            "folder", label="pasta"),
+            ParamDef("filename_pattern",  "text",   label="padrão (%02d.png)"),
+            ParamDef("start",             "int",    default="1",  label="start"),
+            ParamDef("end",               "int",    default="10", label="end"),
+            ParamDef("iscolor",           "bool",   default="1"),
+            ParamDef("has_mipmap",        "bool",   default="0"),
+        ],
+    ),
     "vglLoad3dImage": GlyphDef(
         func="vglLoad3dImage", label="vglLoadImage (3D)", category="I/O",
         ports=[PortDef("RETVAL", "output")],

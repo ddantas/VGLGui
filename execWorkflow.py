@@ -22,6 +22,44 @@ os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
 sys.path.append(os.getcwd())
 
 
+def _check_skip(glyph_id: str) -> bool:
+    """Retorna True se o glyph deve ser pulado por sinal externo do servidor."""
+    job_id = os.environ.get("VGL_JOB_ID", "")
+    if not job_id:
+        return False
+    sig = f"/tmp/vgl_skip_{job_id}_{glyph_id}"
+    if os.path.exists(sig):
+        print(f"[SKIP] Glyph {glyph_id} pulado por sinal externo")
+        try:
+            os.unlink(sig)
+        except OSError:
+            pass
+        return True
+    return False
+
+
+def _check_pause(glyph_id: str) -> None:
+    """Pausa execução se existe breakpoint para este glyph. Aguarda sinal de continue."""
+    job_id = os.environ.get("VGL_JOB_ID", "")
+    if not job_id:
+        return
+    break_sig = f"/tmp/vgl_break_{job_id}_{glyph_id}"
+    if not os.path.exists(break_sig):
+        return
+    print(f"[PAUSED] Glyph {glyph_id} pausado em breakpoint", flush=True)
+    cont_sig = f"/tmp/vgl_continue_{job_id}"
+    while True:
+        if os.path.exists(cont_sig):
+            try:
+                os.unlink(cont_sig)
+                os.unlink(break_sig)
+            except OSError:
+                pass
+            print(f"[RESUMED] Glyph {glyph_id} retomado", flush=True)
+            return
+        t.sleep(0.1)
+
+
 def imshow(im):
     plot = mp.imshow(im, cmap="gray", origin="upper", vmin=0, vmax=255)
     plot.set_interpolation('nearest')  # Configura a interpolação como "nearest"
@@ -40,7 +78,8 @@ msg = ""
 CPU = cl.device_type.CPU  # 2
 GPU = cl.device_type.GPU  # 4
 total = 0.0
-vl.vglClInit(GPU)
+_device = cl.device_type.CPU if (len(sys.argv) > 2 and sys.argv[2] == "CPU") else cl.device_type.GPU
+vl.vglClInit(_device)
 
 processed_workflows = set()  # Usando um conjunto para armazenar IDs de workflows já processados
 workspace = Workspace()
@@ -70,6 +109,14 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
         # Evita processar glyphs já executados
         if vGlyph.glyph_id in processed_workflows:
             continue
+
+        # Verifica sinal de skip externo (enviado pelo executor_server)
+        if _check_skip(vGlyph.glyph_id):
+            GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+            continue
+
+        # Verifica breakpoint (pausa e aguarda continue do dashboard)
+        _check_pause(vGlyph.glyph_id)
 
         # Processa sub-workspaces diretamente
         if hasattr(vGlyph, "sub_workspaces"):  # Verifica se o glyph contém sub-workspaces
@@ -1342,4 +1389,75 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
           GlyphExecutedUpdate(vGlyph.glyph_id, vglCvThreshold_dst, workspace)
 
 
-execWorkflow(workspace)
+
+# ---------------------------------------------------------------------------
+# Batch 2D loop — detecta vglLoad2dBatch e itera sobre as imagens
+# ---------------------------------------------------------------------------
+def _find_batch_glyph(ws):
+    for g in ws.lstGlyph:
+        if g.func == 'vglLoad2dBatch':
+            return g
+    return None
+
+def _apply_batch_index(ws, i):
+    """Substitui qualquer parâmetro que contenha '%' pelo valor formatado com i."""
+    for g in ws.lstGlyph:
+        for par in g.lst_par:
+            if isinstance(par.value, str) and '%' in par.value:
+                try:
+                    par.value = par.value % i
+                except (TypeError, ValueError):
+                    pass  # ignora formatações inválidas
+
+batch_glyph = _find_batch_glyph(workspace)
+
+if batch_glyph:
+    # Extrai parâmetros do glyph de batch
+    params = {p.name: p.value for p in batch_glyph.lst_par}
+    # Suporta tanto formato antigo (filename_template) quanto novo (folder + filename_pattern)
+    if 'filename_template' in params:
+        template = params.get('filename_template', '')
+    else:
+        folder  = params.get('folder', '').rstrip('/')
+        pattern = params.get('filename_pattern', '')
+        template = f"{folder}/{pattern}" if folder else pattern
+    try:
+        start = int(params.get('start', 1))
+        end   = int(params.get('end',   10))
+    except ValueError:
+        start, end = 1, 10
+
+    total_imgs = end - start + 1
+    print(f"[BATCH] Iniciando laço 2D: {total_imgs} imagens ({template})", flush=True)
+
+    t_batch_start = t.time()
+    for i in range(start, end + 1):
+        filename = template % i if '%' in template else template
+        print(f"[BATCH] Imagem {i - start + 1}/{total_imgs}: {filename}", flush=True)
+
+        # Reinicia workspace para resetar estado entre iterações
+        workspace = Workspace()
+        fileRead(workspace)
+
+        # Converte o glyph de batch em vglLoad2dImage comum
+        bg = _find_batch_glyph(workspace)
+        if bg:
+            bg.func = 'vglLoad2dImage'
+            # Reconstrói lst_par com apenas filename, iscolor, has_mipmap
+            from readWorkflow import objGlyphParameters as _OGP
+            bg.lst_par = [_OGP('filename', template)]
+            for p_orig in batch_glyph.lst_par:
+                if p_orig.name in ('iscolor', 'has_mipmap'):
+                    bg.lst_par.append(_OGP(p_orig.name, p_orig.value))
+
+        # Substitui %02d em todos os parâmetros (load E save)
+        _apply_batch_index(workspace, i)
+
+        execWorkflow(workspace, processed_workflows=set())
+
+    elapsed = round(t.time() - t_batch_start, 2)
+    print(f"[BATCH] Concluído: {total_imgs} imagens em {elapsed}s "
+          f"(média {round(elapsed/total_imgs, 2)}s/img)", flush=True)
+
+else:
+    execWorkflow(workspace)

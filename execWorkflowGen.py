@@ -5,8 +5,10 @@ from vgl_lib.vglImage import VglImage
 import pyopencl as cl
 import vgl_lib as vl
 import numpy as np
-from cl2py_shaders import * 
+from cl2py_shaders import *
+from cv2py_shaders import *
 from cl2py_ND import *
+import cv2
 import os
 import sys
 from readWorkflow import *
@@ -34,12 +36,13 @@ def tratnum(num):
     return listnumpy
 
 
-nSteps = 1
+nSteps = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 msg = ""
-CPU = cl.device_type.CPU 
+CPU = cl.device_type.CPU
 GPU = cl.device_type.GPU
 total = 0.0
-vl.vglClInit(CPU)
+_device = CPU if len(sys.argv) > 3 and sys.argv[3].upper() == 'CPU' else GPU
+vl.vglClInit(_device)
 
 
 workspace = Workspace()
@@ -105,7 +108,7 @@ def execute_workspace(workspace):
             print("-------------------------------------------------")
             vglLoadImage_img_in_path = vGlyph.lst_par[0].getValue()
 
-            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_3D_IMAGE(), vl.IMAGE_ND_ARRAY())
+            vglLoadImage_img_input = vl.VglImage(vglLoadImage_img_in_path, None, vl.VGL_IMAGE_2D_IMAGE(), vl.IMAGE_ND_ARRAY())
 
             vl.vglLoadImage(vglLoadImage_img_input)
             if vglLoadImage_img_input.getVglShape().getNChannels() == 3:
@@ -161,7 +164,7 @@ def execute_workspace(workspace):
                         type = kernel_type_map[key]
                         break          
                 print(type)
-                window.constructorFromTypeNdim(vl.VGL_STREL_CROSS(), 1)
+                window.constructorFromTypeNdim(type, int(vGlyph.lst_par[1].getValue()))
                 #print(window.getData())
             
             if(len(vGlyph.lst_par) == 1):
@@ -261,23 +264,53 @@ def execute_workspace(workspace):
             print("-------------------------------------------------")
             print("A função " + vGlyph.func + " está sendo executada")
             print("-------------------------------------------------")
-            
-            # Processa a Procedure chamando os subWorkspaces
-            if hasattr(workspace, "subWorkspaces") and workspace.subWorkspaces:
-                for subWorkspace in workspace.subWorkspaces:
-                    execute_workspace(subWorkspace)  # Executa a procedure
 
-                    # Obtém os dados de saída da procedure
-                    o = getImageInputByIdName(vGlyph.glyph_id, 'o', subWorkspace)
-                    
-                    # Envia os dados para o workspace principal
-                    if o is not None:
-                        print(f"Enviando dados da procedure para o workspace principal.")
-                        GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)  # Envia para o workspace principal
-                        print(f"Dados enviados e workspace principal atualizado.")
-                    else:
-                        print(f"Nenhuma imagem para enviar ao workspace principal.")
-            
+            # 1. Obtém a imagem de entrada do workspace principal (porta 'i')
+            input_img = getImageInputByIdName(vGlyph.glyph_id, 'i', workspace)
+
+            # 2. Encontra o sub_workspace correspondente pelo nome (vGlyph.library)
+            proc_name = vGlyph.library
+            sub_ws = next(
+                (s for s in workspace.subWorkspaces if getattr(s, 'name', None) == proc_name),
+                None
+            )
+            if sub_ws is None and workspace.subWorkspaces:
+                sub_ws = workspace.subWorkspaces[0]
+
+            if sub_ws is not None and input_img is not None:
+                # 3. Encontra o nó External Input no sub_workspace
+                ext_in = next(
+                    (g for g in sub_ws.lstGlyph if g.func == "External Input (1)"),
+                    None
+                )
+                if ext_in:
+                    # 4. Injeta a imagem de entrada antes de executar o sub_workspace
+                    GlyphExecutedUpdate(ext_in.glyph_id, input_img, sub_ws)
+
+                # 5. Executa o sub_workspace
+                execute_workspace(sub_ws)
+
+                # 6. Obtém a imagem de saída do External Output
+                ext_out = next(
+                    (g for g in sub_ws.lstGlyph if g.func == "External Output (1)"),
+                    None
+                )
+                o = None
+                if ext_out:
+                    o = getImageInputByIdName(ext_out.glyph_id, 'o', sub_ws)
+
+                # 7. Propaga saída para o workspace principal
+                if o is not None:
+                    print("Enviando dados da procedure para o workspace principal.")
+                    GlyphExecutedUpdate(vGlyph.glyph_id, o, workspace)
+                    print("Dados enviados e workspace principal atualizado.")
+                else:
+                    print("Nenhuma imagem para enviar ao workspace principal.")
+            elif input_img is None:
+                print(f"Aviso: Nenhuma imagem de entrada para a procedure '{proc_name}'")
+            else:
+                print(f"Aviso: Sub-workspace não encontrado para a procedure '{proc_name}'")
+
             print("-------------------------------------------------")
             print("Retornando ao workspace principal após ProcedureBegin")
 
@@ -351,6 +384,48 @@ def execute_workspace(workspace):
             total = total + media
             # Actions after glyph execution
             GlyphExecutedUpdate(vGlyph.glyph_id,Rec_img_output, workspace)
+
+        elif vGlyph.func == 'vglCvLoad2dImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCvLoad_img_path = vGlyph.lst_par[0].getValue()
+            vglCvLoad_img = vl.VglImage(vglCvLoad_img_path, None, vl.VGL_IMAGE_2D_IMAGE())
+            vglCvLoad_img.ipl = cv2.imread(vglCvLoad_img_path)
+            if vglCvLoad_img.ipl is not None:
+                vglCvLoad_img.ipl = cv2.cvtColor(vglCvLoad_img.ipl, cv2.COLOR_BGR2RGB)
+                vl.create_vglShape(vglCvLoad_img)
+                vl.vglSetContext(vglCvLoad_img, vl.VGL_RAM_CONTEXT())
+            else:
+                print(f"ERROR: Could not load image {vglCvLoad_img_path}")
+            GlyphExecutedUpdate(vGlyph.glyph_id, vglCvLoad_img, workspace)
+
+        elif vGlyph.func == 'vglCvCreateImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCvCreate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img', workspace)
+            if vglCvCreate_img_input is not None:
+                vglCvCreate_RETVAL = vl.create_blank_image_as(vglCvCreate_img_input)
+                vl.vglSetContext(vglCvCreate_RETVAL, vl.VGL_RAM_CONTEXT())
+                GlyphExecutedUpdate(vGlyph.glyph_id, vglCvCreate_RETVAL, workspace)
+            else:
+                print(f"ERROR: No image found for vglCvCreateImage glyph {vGlyph.glyph_id}")
+
+        elif vGlyph.func == 'vglCvSaveImage':
+            print("-------------------------------------------------")
+            print("A função " + vGlyph.func + " está sendo executada")
+            print("-------------------------------------------------")
+            vglCvSave_img = getImageInputByIdName(vGlyph.glyph_id, 'image', workspace)
+            if vglCvSave_img is not None:
+                vpath = vGlyph.lst_par[0].getValue()
+                vl.vglCheckContext(vglCvSave_img, vl.VGL_RAM_CONTEXT())
+                img_bgr = cv2.cvtColor(vglCvSave_img.ipl, cv2.COLOR_RGB2BGR)
+                os.makedirs(os.path.dirname(vpath) if os.path.dirname(vpath) else '.', exist_ok=True)
+                cv2.imwrite(vpath, img_bgr)
+                print(f"Image saved to {vpath}")
+                GlyphExecutedUpdate(vGlyph.glyph_id, None, workspace)
+
 
         elif vGlyph.func == 'vglClNdConvolution':
           print("-------------------------------------------------")
@@ -495,12 +570,12 @@ def execute_workspace(workspace):
           vl.vglCheckContext(vglClNdThreshold_img_input, vl.VGL_CL_CONTEXT());
           vglClNdThreshold_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
           vl.vglCheckContext(vglClNdThreshold_img_output, vl.VGL_CL_CONTEXT());
-          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()))
+          vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
 
           # Runtime
           t0 = datetime.now()
           for i in range(nSteps):
-            vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output, np.float32(vGlyph.lst_par[0].getValue()))
+            vglClNdThreshold(vglClNdThreshold_img_input, vglClNdThreshold_img_output)
           t1 = datetime.now()
           t = t1 - t0
           media = round((t.total_seconds() * 1000) / nSteps, 3)
@@ -1982,8 +2057,404 @@ def execute_workspace(workspace):
 
           GlyphExecutedUpdate(vGlyph.glyph_id, vglClFuzzyStdErode_img_output, workspace)
 
-    print(msg)
-    print("-------------------------------------------------------------")
-    print("O valor total do tempo médio : "+str(round(total, 3)) , "em ms" )
-    print("-------------------------------------------------------------")
-execute_workspace(workspace)
+
+        elif vGlyph.func == 'vglClEqual':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+
+          vglClEqual_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
+          vl.vglCheckContext(vglClEqual_img_input1, vl.VGL_CL_CONTEXT());
+          vglClEqual_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
+          vl.vglCheckContext(vglClEqual_img_input2, vl.VGL_CL_CONTEXT());
+          vglClEqual_output = getImageInputByIdName(vGlyph.glyph_id, 'output' , workspace)
+          vl.vglCheckContext(vglClEqual_output, vl.VGL_CL_CONTEXT());
+          vglClEqual(vglClEqual_img_input1, vglClEqual_img_input2)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglClEqual(vglClEqual_img_input1, vglClEqual_img_input2)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglClEqual: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglClEqual_output, workspace)
+
+
+
+        elif vGlyph.func == 'vglCvBlurSq3':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvBlurSq3_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvBlurSq3_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvBlurSq3(vglCvBlurSq3_img_input, vglCvBlurSq3_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvBlurSq3(vglCvBlurSq3_img_input, vglCvBlurSq3_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvBlurSq3: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvBlurSq3_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvConvolution':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvConvolution_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvConvolution_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvConvolution(vglCvConvolution_img_input, vglCvConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvConvolution(vglCvConvolution_img_input, vglCvConvolution_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvConvolution: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvConvolution_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvCopy':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvCopy_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvCopy_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvCopy(vglCvCopy_img_input, vglCvCopy_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvCopy(vglCvCopy_img_input, vglCvCopy_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvCopy: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvCopy_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvDilate':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvDilate_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvDilate_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvDilate(vglCvDilate_img_input, vglCvDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvDilate(vglCvDilate_img_input, vglCvDilate_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvDilate: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvDilate_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvErode':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvErode_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvErode_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvErode(vglCvErode_img_input, vglCvErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvErode(vglCvErode_img_input, vglCvErode_img_output, tratnum(vGlyph.lst_par[0].getValue()), np.uint32(vGlyph.lst_par[1].getValue()), np.uint32(vGlyph.lst_par[2].getValue()))
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvErode: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvErode_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvInvert':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvInvert_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvInvert_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvInvert(vglCvInvert_img_input, vglCvInvert_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvInvert(vglCvInvert_img_input, vglCvInvert_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvInvert: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvInvert_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvMax':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvMax_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
+          vglCvMax_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
+          vglCvMax_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvMax(vglCvMax_img_input1, vglCvMax_img_input2, vglCvMax_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvMax(vglCvMax_img_input1, vglCvMax_img_input2, vglCvMax_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvMax: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvMax_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvMin':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvMin_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
+          vglCvMin_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
+          vglCvMin_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvMin(vglCvMin_img_input1, vglCvMin_img_input2, vglCvMin_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvMin(vglCvMin_img_input1, vglCvMin_img_input2, vglCvMin_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvMin: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvMin_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvRgb2Gray':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvRgb2Gray_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvRgb2Gray_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvRgb2Gray(vglCvRgb2Gray_img_input, vglCvRgb2Gray_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvRgb2Gray(vglCvRgb2Gray_img_input, vglCvRgb2Gray_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvRgb2Gray: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvRgb2Gray_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvSub':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvSub_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
+          vglCvSub_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
+          vglCvSub_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvSub(vglCvSub_img_input1, vglCvSub_img_input2, vglCvSub_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvSub(vglCvSub_img_input1, vglCvSub_img_input2, vglCvSub_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvSub: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvSub_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvSum':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvSum_img_input1 = getImageInputByIdName(vGlyph.glyph_id, 'img_input1' , workspace)
+          vglCvSum_img_input2 = getImageInputByIdName(vGlyph.glyph_id, 'img_input2' , workspace)
+          vglCvSum_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvSum(vglCvSum_img_input1, vglCvSum_img_input2, vglCvSum_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvSum(vglCvSum_img_input1, vglCvSum_img_input2, vglCvSum_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvSum: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvSum_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvSwapRgb':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvSwapRgb_img_input = getImageInputByIdName(vGlyph.glyph_id, 'img_input' , workspace)
+          vglCvSwapRgb_img_output = getImageInputByIdName(vGlyph.glyph_id, 'img_output' , workspace)
+          vglCvSwapRgb(vglCvSwapRgb_img_input, vglCvSwapRgb_img_output)
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvSwapRgb(vglCvSwapRgb_img_input, vglCvSwapRgb_img_output)
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvSwapRgb: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvSwapRgb_img_output, workspace)
+
+
+        elif vGlyph.func == 'vglCvThreshold':
+          print("-------------------------------------------------")
+          print("A função " + vGlyph.func + " está sendo executada")
+          print("-------------------------------------------------")
+
+          vglCvThreshold_src = getImageInputByIdName(vGlyph.glyph_id, 'src' , workspace)
+          vglCvThreshold_dst = getImageInputByIdName(vGlyph.glyph_id, 'dst' , workspace)
+          vglCvThreshold(vglCvThreshold_src, vglCvThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()), np.float32(vGlyph.lst_par[1].getValue()))
+
+          # Runtime
+          t0 = datetime.now()
+          for i in range(nSteps):
+            vglCvThreshold(vglCvThreshold_src, vglCvThreshold_dst, np.float32(vGlyph.lst_par[0].getValue()), np.float32(vGlyph.lst_par[1].getValue()))
+          t1 = datetime.now()
+          t = t1 - t0
+          media = round((t.total_seconds() * 1000) / nSteps, 3)
+          msg = msg + "Tempo médio de " + str(nSteps) + " execuções do método vglCvThreshold: " + str(media) + " ms\n"
+          total = total + media
+
+
+          GlyphExecutedUpdate(vGlyph.glyph_id, vglCvThreshold_dst, workspace)
+
+    import re as _re
+    for _line in msg.splitlines():
+        _m = _re.match(r'Tempo médio de \d+ execuções do método (.+): ([\d.]+) ms', _line)
+        if _m:
+            print(f"[BENCH] {_m.group(1)}: {_m.group(2)} ms")
+    if total > 0:
+        print(f"[BENCH] TOTAL: {round(total, 3)} ms")
+
+
+def _find_batch_glyph(ws):
+    for g in ws.lstGlyph:
+        if g.func == 'vglLoad2dBatch':
+            return g
+    return None
+
+def _apply_batch_index(ws, i):
+    for g in ws.lstGlyph:
+        for par in g.lst_par:
+            if isinstance(par.value, str) and '%' in par.value:
+                try:
+                    par.value = par.value % i
+                except (TypeError, ValueError):
+                    pass
+
+batch_glyph = _find_batch_glyph(workspace)
+
+if batch_glyph:
+    params = {p.name: p.value for p in batch_glyph.lst_par}
+    if 'filename_template' in params:
+        template = params.get('filename_template', '')
+    else:
+        folder  = params.get('folder', '').rstrip('/')
+        pattern = params.get('filename_pattern', '')
+        template = f"{folder}/{pattern}" if folder else pattern
+    try:
+        start = int(params.get('start', 1))
+        end   = int(params.get('end',   10))
+    except ValueError:
+        start, end = 1, 10
+
+    total_imgs = end - start + 1
+    print(f"[BATCH] Iniciando laço 2D: {total_imgs} imagens ({template})", flush=True)
+
+    t_batch_start = t.time()
+    for i in range(start, end + 1):
+        filename = template % i if '%' in template else template
+        print(f"[BATCH] Imagem {i - start + 1}/{total_imgs}: {filename}", flush=True)
+
+        workspace = Workspace()
+        fileRead(workspace)
+
+        bg = _find_batch_glyph(workspace)
+        if bg:
+            bg.func = 'vglLoad2dImage'
+            from readWorkflow import objGlyphParameters as _OGP
+            bg.lst_par = [_OGP('filename', template)]
+            for p_orig in batch_glyph.lst_par:
+                if p_orig.name in ('iscolor', 'has_mipmap'):
+                    bg.lst_par.append(_OGP(p_orig.name, p_orig.value))
+
+        _apply_batch_index(workspace, i)
+        execute_workspace(workspace)
+
+    elapsed = round(t.time() - t_batch_start, 2)
+    print(f"[BATCH] Concluído: {total_imgs} imagens em {elapsed}s "
+          f"(média {round(elapsed/total_imgs, 2)}s/img)", flush=True)
+
+else:
+    execute_workspace(workspace)

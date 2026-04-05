@@ -1,0 +1,5 @@
+/** Negative of src image. Result is stored in dst image.
+*/
+__kernel void vglCvInvert(__read_only image2d_t img_input, __write_only image2d_t img_output)
+{
+}

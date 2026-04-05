@@ -1,0 +1,16 @@
+doc/doxygen/html/*
+doc/doxygen/latex/*
+my_env/*
+.rascunhos/
+PRD.md
+
+__pycache__/
+*.pyc
+
+out/
+conv.png
+dilate.png
+erode.png
+
+
+gui/config.json

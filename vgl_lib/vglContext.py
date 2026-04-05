@@ -4,7 +4,7 @@ def vglIsContextValid(x):
 	return ( (x >= 1) and (x <= 15) )
 	
 def vglIsContextUnique(x):
-	return ( (x is 0) or (x is 1) or (x is 2) or (x is 4), (x is 8) )
+	return ( (x == 0) or (x == 1) or (x == 2) or (x == 4) or (x == 8) or (x == 16) )
 
 """
 	PYTHON LOGIC OPERATIONS PRECEDENCY WORKS SLIGHTELY DIFERENTLY
@@ -99,6 +99,9 @@ def vglCheckContext(img, context):
 		# AND THE CONTEXT IS IN CL-DEVICE, DOWNLOAD IT BACK TO RAM.
 		if( vglIsInContext(img, vl.VGL_CL_CONTEXT() ) ):
 			vl.vglClDownload(img)
+		# CV context images are already numpy arrays in RAM
+		if( vglIsInContext(img, vl.VGL_CV_CONTEXT() ) ):
+			vglAddContext(img, vl.VGL_RAM_CONTEXT())
 	# IF THE CONTEXT IS IN CL-DEVICE
 	elif( context is vl.VGL_CL_CONTEXT() ):
 		# AND IS A BLANK-IMAGE, IT IS ON RAM. UPLOAD IT TO CL-DEVICE!
@@ -107,6 +110,19 @@ def vglCheckContext(img, context):
 		# AND THE CONTEXT IS IN RAM, UPLOAD IT TO CL-DEVICE!
 		if( vglIsInContext( img, vl.VGL_RAM_CONTEXT() ) ):
 			vl.vglClUpload(img)
+		# From CV to CL: CV data is in RAM (img.ipl), just upload
+		if( vglIsInContext( img, vl.VGL_CV_CONTEXT() ) ):
+			vl.vglClUpload(img)
+	# IF THE CONTEXT IS IN CV (OpenCV/CPU)
+	elif( context == vl.VGL_CV_CONTEXT() ):
+		# CV operates on img.ipl (numpy array), same as RAM
+		if( vglIsInContext(img, vl.VGL_BLANK_CONTEXT() ) ):
+			vglAddContext(img, vl.VGL_CV_CONTEXT())
+		if( vglIsInContext(img, vl.VGL_RAM_CONTEXT() ) ):
+			vglAddContext(img, vl.VGL_CV_CONTEXT())
+		if( vglIsInContext(img, vl.VGL_CL_CONTEXT() ) ):
+			vl.vglClDownload(img)
+			vglAddContext(img, vl.VGL_CV_CONTEXT())
 	else:
 		print("vglCheckContext: Error: Trying to copy to invalid context =", context)
 		exit()

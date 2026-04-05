@@ -1,0 +1,8 @@
+/** Threshold of src image by float parameter. Result is stored in dst image.
+*/
+__kernel void vglCvThreshold(__read_only image2d_t src,
+                        __write_only image2d_t dst,
+                        float thresh,
+                        float top)
+{
+}

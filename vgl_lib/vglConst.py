@@ -121,6 +121,9 @@ def VGL_CUDA_CONTEXT():
 def VGL_CL_CONTEXT():
 	return 8
 
+def VGL_CV_CONTEXT():
+	return 16
+
 def VGL_ERROR():
 	return -1
 

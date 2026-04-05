@@ -1389,4 +1389,75 @@ def execWorkflow(workspace, is_subworkflow=False, parent_workflow_id=None, proce
           GlyphExecutedUpdate(vGlyph.glyph_id, vglCvThreshold_dst, workspace)
 
 
-execWorkflow(workspace)
+
+# ---------------------------------------------------------------------------
+# Batch 2D loop — detecta vglLoad2dBatch e itera sobre as imagens
+# ---------------------------------------------------------------------------
+def _find_batch_glyph(ws):
+    for g in ws.lstGlyph:
+        if g.func == 'vglLoad2dBatch':
+            return g
+    return None
+
+def _apply_batch_index(ws, i):
+    """Substitui qualquer parâmetro que contenha '%' pelo valor formatado com i."""
+    for g in ws.lstGlyph:
+        for par in g.lst_par:
+            if isinstance(par.value, str) and '%' in par.value:
+                try:
+                    par.value = par.value % i
+                except (TypeError, ValueError):
+                    pass  # ignora formatações inválidas
+
+batch_glyph = _find_batch_glyph(workspace)
+
+if batch_glyph:
+    # Extrai parâmetros do glyph de batch
+    params = {p.name: p.value for p in batch_glyph.lst_par}
+    # Suporta tanto formato antigo (filename_template) quanto novo (folder + filename_pattern)
+    if 'filename_template' in params:
+        template = params.get('filename_template', '')
+    else:
+        folder  = params.get('folder', '').rstrip('/')
+        pattern = params.get('filename_pattern', '')
+        template = f"{folder}/{pattern}" if folder else pattern
+    try:
+        start = int(params.get('start', 1))
+        end   = int(params.get('end',   10))
+    except ValueError:
+        start, end = 1, 10
+
+    total_imgs = end - start + 1
+    print(f"[BATCH] Iniciando laço 2D: {total_imgs} imagens ({template})", flush=True)
+
+    t_batch_start = t.time()
+    for i in range(start, end + 1):
+        filename = template % i if '%' in template else template
+        print(f"[BATCH] Imagem {i - start + 1}/{total_imgs}: {filename}", flush=True)
+
+        # Reinicia workspace para resetar estado entre iterações
+        workspace = Workspace()
+        fileRead(workspace)
+
+        # Converte o glyph de batch em vglLoad2dImage comum
+        bg = _find_batch_glyph(workspace)
+        if bg:
+            bg.func = 'vglLoad2dImage'
+            # Reconstrói lst_par com apenas filename, iscolor, has_mipmap
+            from readWorkflow import objGlyphParameters as _OGP
+            bg.lst_par = [_OGP('filename', template)]
+            for p_orig in batch_glyph.lst_par:
+                if p_orig.name in ('iscolor', 'has_mipmap'):
+                    bg.lst_par.append(_OGP(p_orig.name, p_orig.value))
+
+        # Substitui %02d em todos os parâmetros (load E save)
+        _apply_batch_index(workspace, i)
+
+        execWorkflow(workspace, processed_workflows=set())
+
+    elapsed = round(t.time() - t_batch_start, 2)
+    print(f"[BATCH] Concluído: {total_imgs} imagens em {elapsed}s "
+          f"(média {round(elapsed/total_imgs, 2)}s/img)", flush=True)
+
+else:
+    execWorkflow(workspace)

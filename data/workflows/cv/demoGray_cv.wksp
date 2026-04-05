@@ -45,16 +45,16 @@ Glyph:VGL_OPENCV:vglCvCreateImage::localhost:8:562:242::
 Glyph:VGL_OPENCV:vglCvErode::localhost:9:462:302:: -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 5 -window_size_y 5
 
 #  Glyph 'Image save Rgb2Gray'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:10:882:362:: -filename 'images/demoRgb2Gray_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:10:882:362:: -filename 'out/demoRgb2Gray_cv.png'
 
 #  Glyph 'Image save Convolution'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:12:882:362:: -filename 'images/demoConvolution_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:12:882:362:: -filename 'out/demoConvolution_cv.png'
 
 #  Glyph 'Image save Dilate'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:14:882:362:: -filename 'images/demoDilate_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:14:882:362:: -filename 'out/demoDilate_cv.png'
 
 #  Glyph 'Image save Erode'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:16:882:482:: -filename 'images/demoErode_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:16:882:482:: -filename 'out/demoErode_cv.png'
 
 
 #  Connections 'Applying Rgb2Gray'

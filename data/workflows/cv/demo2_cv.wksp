@@ -51,19 +51,19 @@ Glyph:VGL_OPENCV:vglCvCreateImage::localhost:10:562:122::
 Glyph:VGL_OPENCV:vglCvSub::localhost:11:382:182::
 
 #  Glyph 'Image save Dilate'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:12:882:362:: -filename 'images/img2_Erode_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:12:882:362:: -filename 'out/img2_Erode_cv.png'
 
 #  Glyph 'Image save Erode'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:14:882:362:: -filename 'images/img2_ErodeDilate_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:14:882:362:: -filename 'out/img2_ErodeDilate_cv.png'
 
 #  Glyph 'Image save Dilate 2'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:16:882:482:: -filename 'images/img2_ErodeDilateErode_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:16:882:482:: -filename 'out/img2_ErodeDilateErode_cv.png'
 
 #  Glyph 'Image save Erode 2'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:18:882:482:: -filename 'images/img2_ErodeDilateErodeDilate_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:18:882:482:: -filename 'out/img2_ErodeDilateErodeDilate_cv.png'
 
 #  Glyph 'Image save Sub'
-Glyph:VGL_OPENCV:vglCvSaveImage::localhost:20:882:482:: -filename 'images/img2_ErodeDilateErodeDilateSub_cv.png'
+Glyph:VGL_OPENCV:vglCvSaveImage::localhost:20:882:482:: -filename 'out/img2_ErodeDilateErodeDilateSub_cv.png'
 
 #  Connections 'Applying Dilate'
 NodeConnection:data:1:RETVAL:2:img

@@ -34,7 +34,7 @@ Glyph:VGL_CL:AreaOpen::localhost:5:462:302:: -disk_window ['0.00037832','0.00055
 
 
 #  Glyph 'Image save Infrec'
-Glyph:VGL_CL:vglSaveImage::localhost:18:882:362:: -filename 'artigo1/lotufInfrec.png'
+Glyph:VGL_CL:vglSaveImage::localhost:18:882:362:: -filename 'out/artigo1/lotufInfrec.png'
 
 
 

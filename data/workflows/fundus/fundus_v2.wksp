@@ -63,25 +63,25 @@ Glyph:VGL_CL:vglCreateImage::localhost:14:562:242::
 Glyph:VGL_CL:Reconstruct::localhost:15:462:302::  -convolution_window [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] -window_size_x 21 -window_size_y 21
 
 #  Glyph 'Image save Rbg2Gray'
-Glyph:VGL_CL:vglSaveImage::localhost:16:882:362:: -filename 'images/fundus/fundusRgb2gray.png'
+Glyph:VGL_CL:vglSaveImage::localhost:16:882:362:: -filename 'out/fundus/fundusRgb2gray.png'
 
 #  Glyph 'Image save Convolution'
-Glyph:VGL_CL:vglSaveImage::localhost:17:882:362:: -filename 'images/fundus/fundusConvolution.png'
+Glyph:VGL_CL:vglSaveImage::localhost:17:882:362:: -filename 'out/fundus/fundusConvolution.png'
 
 #  Glyph 'Image save Dilate 51x1'
-Glyph:VGL_CL:vglSaveImage::localhost:18:882:362:: -filename 'images/fundus/fundusDilate.png' 
+Glyph:VGL_CL:vglSaveImage::localhost:18:882:362:: -filename 'out/fundus/fundusDilate.png' 
 
 #  Glyph 'Image save Erode 51x1'
-Glyph:VGL_CL:vglSaveImage::localhost:19:882:362:: -filename 'images/fundus/fundusErode.png' 
+Glyph:VGL_CL:vglSaveImage::localhost:19:882:362:: -filename 'out/fundus/fundusErode.png' 
 
 #  Glyph 'Image save Sub'
-Glyph:VGL_CL:vglSaveImage::localhost:20:882:362:: -filename 'images/fundus/fundusSub.png' 
+Glyph:VGL_CL:vglSaveImage::localhost:20:882:362:: -filename 'out/fundus/fundusSub.png' 
 
 #  Glyph 'Image save Thresh'
-Glyph:VGL_CL:vglSaveImage::localhost:21:882:362:: -filename 'images/fundus/fundusThresh.png'
+Glyph:VGL_CL:vglSaveImage::localhost:21:882:362:: -filename 'out/fundus/fundusThresh.png'
 
 #  Glyph 'Image save Rec'
-Glyph:VGL_CL:vglSaveImage::localhost:22:882:362:: -filename 'images/fundus/fundusRec.png'
+Glyph:VGL_CL:vglSaveImage::localhost:22:882:362:: -filename 'out/fundus/fundusRec.png'
 
 #  Connections 'Applying Rgb2Gray’
 NodeConnection:data:1:RETVAL:2:img
